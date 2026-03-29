@@ -1,6 +1,6 @@
 # Atom Registry
 
-**The official Web3 multi-TLD domain naming layer for Cosmos Hub.**
+**Proposal to be the official Web3 multi-TLD domain naming layer for Cosmos Hub.**
 
 Eight CosmWasm smart contracts deployed and operational on `cosmoshub-4` mainnet. A complete browser-based platform. No external JavaScript dependencies. No build step. No npm.
 
