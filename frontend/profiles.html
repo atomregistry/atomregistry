@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="icon" type="image/png" href="/cosmocon.png"/>
+  <title>On-Chain Page Builder | Atom Registry</title>
+  <meta name="theme-color" content="#a78bfa"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://use.fontawesome.com/releases/v6.5.1/js/all.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ["Roboto Mono","monospace"], display: ["Orbitron","sans-serif"] } } }
+    }
+  </script>
+  <style>
+    body { background: radial-gradient(1200px 800px at 10% 10%, rgba(167,139,250,0.15), transparent 60%), radial-gradient(1200px 800px at 90% 90%, rgba(34,211,238,0.12), transparent 60%), #06020d; }
+    .glass-panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+    .glass-card  { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .btn-primary { background: linear-gradient(90deg, rgba(147,51,234,1), rgba(34,211,238,1)); }
+    .mono { font-family: "Roboto Mono", monospace; }
+    .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); border:1px solid rgba(255,255,255,0.12); padding:10px 18px; border-radius:12px; color:#fff; z-index:9999; max-width:92vw; font-size:0.85rem; display:none; backdrop-filter:blur(12px); }
+    .toast.show { display:block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-icon { display:inline-block; width:1rem; height:1rem; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; }
+    input[type=text],input[type=url],input[type=email],textarea,select {
+      background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:0.75rem;
+      color:#fff; padding:0.6rem 0.9rem; outline:none; width:100%;
+      font-family:"Roboto Mono",monospace; font-size:0.8rem; transition:border-color 0.2s;
+    }
+    input[type=text]:focus,input[type=url]:focus,input[type=email]:focus,textarea:focus,select:focus { border-color:rgba(139,92,246,0.6); }
+    input::placeholder,textarea::placeholder { color:rgba(255,255,255,0.2); }
+    select option { background:#0d0820; }
+    input[type=color] { width:36px; height:36px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; padding:2px; background:rgba(0,0,0,0.4); cursor:pointer; }
+    .field-label { font-size:0.65rem; letter-spacing:0.15em; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-bottom:4px; display:block; }
+    .section-title { font-size:0.7rem; letter-spacing:0.2em; color:#a78bfa; text-transform:uppercase; font-weight:700; margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:1px solid rgba(167,139,250,0.15); }
+    .size-bar-track { background:rgba(255,255,255,0.06); border-radius:999px; height:4px; overflow:hidden; margin-top:4px; }
+    .size-bar-fill { height:100%; border-radius:999px; transition:width 0.3s,background 0.3s; background:linear-gradient(90deg,#a78bfa,#22d3ee); }
+    /* Preview modal */
+    #previewModal { position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.92); display:none; flex-direction:column; }
+    #previewModal.show { display:flex; }
+    #previewBar { background:rgba(6,2,13,0.98); border-bottom:1px solid rgba(255,255,255,0.06); padding:10px 16px; display:flex; align-items:center; gap:12px; flex-shrink:0; }
+    #previewFrame { flex:1; border:none; width:100%; background:#06020d; }
+    /* Save modal */
+    #saveModal { position:fixed; inset:0; z-index:300; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; padding:1rem; }
+    #saveModal.show { display:flex; }
+    .drop-zone { border:2px dashed rgba(255,255,255,0.12); border-radius:0.75rem; padding:2rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+    .drop-zone:hover, .drop-zone.over { border-color:rgba(167,139,250,0.5); background:rgba(167,139,250,0.04); }
+    .link-row { display:flex; gap:8px; margin-bottom:8px; }
+    .link-row input { flex:1; }
+    .color-row { display:flex; align-items:center; gap:10px; }
+    /* Pro Writer encoding */
+    .info-row { display:flex; justify-content:space-between; font-size:0.7rem; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .info-row:last-child { border-bottom:none; }
+  
+  /* ── Atom Registry Top Nav ── */
+  .ar-topnav {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1.5rem;
+    background: rgba(6,2,13,0.92);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .ar-topnav-logo {
+    font-family: "Orbitron", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #a78bfa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .ar-topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    flex-wrap: wrap;
+  }
+  .ar-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .ar-nav-link:hover {
+    color: #fff;
+    background: rgba(167,139,250,0.08);
+    border-color: rgba(167,139,250,0.15);
+    text-decoration: none;
+  }
+  .ar-nav-active {
+    color: #a78bfa;
+    background: rgba(167,139,250,0.1);
+    border-color: rgba(167,139,250,0.25);
+    cursor: default;
+  }
+  .ar-nav-link i, .ar-nav-active i {
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+  @media (max-width: 700px) {
+    .ar-topnav { flex-direction: column; align-items: flex-start; padding: 0.75rem 1rem; }
+    .ar-nav-link { padding: 0.3rem 0.5rem; font-size: 0.68rem; }
+  }
+
+  
+  .wm-ov{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(6,2,13,0.88);backdrop-filter:blur(10px);padding:1rem;}
+  .wm-ov.hidden{display:none;}
+  .wm-box{background:rgba(8,4,21,0.97);border:1px solid rgba(167,139,250,0.25);border-radius:1.5rem;padding:2rem;max-width:400px;width:100%;box-shadow:0 0 60px rgba(124,58,237,0.2);}
+  .wm-h{font-family:Orbitron,sans-serif;font-size:1.05rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;}
+  .wm-s{font-size:0.72rem;color:#64748b;margin-bottom:1.25rem;}
+  .wm-b{width:100%;display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:0.85rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s;margin-bottom:0.6rem;text-align:left;}
+  .wm-b:hover{border-color:rgba(167,139,250,0.4);background:rgba(124,58,237,0.08);transform:translateX(3px);}
+  .wm-b:last-of-type{margin-bottom:0;}
+  .wm-ico{width:38px;height:38px;border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+  .wm-n{font-weight:700;color:#fff;font-size:0.85rem;}
+  .wm-d{font-size:0.67rem;color:#64748b;margin-top:0.1rem;}
+  .wm-cancel{display:block;text-align:center;margin-top:0.9rem;font-size:0.72rem;color:#475569;cursor:pointer;}
+  .wm-cancel:hover{color:#94a3b8;}
+</style>
+</head>
+<body class="font-sans text-white" style="overflow-x:hidden">
+<!-- ═══ ATOM REGISTRY SITE NAV ═══ -->
+<header class="ar-topnav">
+  <a href="/" class="ar-topnav-logo">Atom Registry</a>
+  <nav class="ar-topnav-links">
+      <a href="/" class="ar-nav-link"><i class="fas fa-home"></i>Home</a>
+      <a href="/onchain.html" class="ar-nav-link"><i class="fas fa-globe"></i>Sites</a>
+      <a href="/search.html" class="ar-nav-link"><i class="fas fa-search"></i>Search</a>
+      <span class="ar-nav-link ar-nav-active"><i class="fas fa-user-circle"></i>Builder</span>
+      <a href="/contracts.html" class="ar-nav-link"><i class="fas fa-code"></i>Contracts</a>
+      <a href="/docmaker.html" class="ar-nav-link"><i class="fas fa-file-contract"></i>Doc→Contract</a>
+      <a href="/browser.html" class="ar-nav-link"><i class="fas fa-puzzle-piece"></i>Extension</a>
+      <a href="/docs.html" class="ar-nav-link"><i class="fas fa-book"></i>Docs</a>
+  </nav>
+</header>
+<!-- ═══════════════════════════════ -->
+
+
+<!-- PREVIEW MODAL -->
+<div id="previewModal">
+  <div id="previewBar">
+    <span class="font-display text-xs font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500">Preview</span>
+    <span id="previewDomain" class="mono text-xs text-gray-500"></span>
+    <span id="previewSize" class="mono text-xs text-gray-600"></span>
+    <div class="flex-1"></div>
+    <button id="previewSaveBtn" class="btn-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90 mr-2">
+      <i class="fas fa-floppy-disk mr-1"></i> Save
+    </button>
+    <button id="previewCloseBtn" class="glass-card text-xs text-gray-400 hover:text-white px-3 py-2 rounded-lg">
+      <i class="fas fa-xmark mr-1"></i> Close
+    </button>
+  </div>
+  <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+</div>
+
+<!-- SAVE MODAL -->
+<div id="saveModal">
+  <div class="glass-card rounded-2xl p-6 w-full max-w-md">
+    <div class="font-display text-sm font-bold text-white mb-1">Save Your Page</div>
+    <div class="text-xs text-gray-500 mb-5">Choose how to save your on-chain page.</div>
+
+    <div id="saveSize" class="glass-card rounded-xl p-3 mb-4 text-xs">
+      <div class="flex justify-between mb-1"><span class="text-gray-400">Page size</span><span id="saveSizeText" class="mono text-white">—</span></div>
+      <div class="size-bar-track"><div id="saveSizeBar" class="size-bar-fill" style="width:0%"></div></div>
+      <div class="flex justify-between mt-1"><span class="text-gray-500">0</span><span class="text-gray-500">120KB limit</span></div>
+    </div>
+
+    <div class="space-y-3 mb-5">
+      <!-- Save to computer -->
+      <button id="saveComputerBtn" class="w-full glass-card rounded-xl p-4 text-left hover:border-purple-500/40 transition-all group">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-lg btn-primary flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-download text-white text-sm"></i>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">Save to Computer</div>
+            <div class="text-xs text-gray-500">Download as .html file</div>
+          </div>
+        </div>
+      </button>
+
+      <!-- Deploy to chain -->
+      <div class="glass-card rounded-xl p-4" id="chainSaveSection">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-lg btn-primary flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-link text-white text-sm"></i>
+          </div>
+          <div>
+            <div class="text-sm font-bold text-white">Deploy to Cosmos Hub</div>
+            <div class="text-xs text-gray-500">Store permanently on-chain · Keplr · Leap · Ledger</div>
+          </div>
+        </div>
+        <div id="chainConnectPrompt">
+          <button id="chainConnectBtn" class="w-full btn-primary text-white text-xs font-bold py-2.5 rounded-lg hover:opacity-90">
+            <i class="fas fa-plug mr-2"></i> Connect Wallet to Deploy
+          </button>
+        </div>
+        <div id="chainDeployForm" class="hidden">
+          <div class="mb-3">
+            <label class="field-label">Domain Name</label>
+            <input type="text" id="deployDomain" placeholder="onchain.atom"/>
+          </div>
+          <div id="domainStatus" class="hidden text-xs mb-3 flex items-center gap-2"></div>
+          <button id="verifyAndDeployBtn" class="w-full btn-primary text-white text-xs font-bold py-2.5 rounded-lg hover:opacity-90">
+            <i class="fas fa-rocket mr-2"></i> Verify &amp; Deploy On-Chain
+          </button>
+          <div id="deployTxResult" class="hidden mt-3 text-xs">
+            <div class="text-green-400 font-bold mb-1"><i class="fas fa-check-circle mr-1"></i> Deployed!</div>
+            <div class="text-gray-400">TX: <a id="deployTxLink" href="#" target="_blank" class="text-purple-400 hover:text-purple-300 break-all"></a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button id="saveCloseBtn" class="w-full glass-card text-xs text-gray-400 hover:text-white py-2.5 rounded-xl transition-all">
+      Cancel
+    </button>
+  </div>
+</div>
+
+<!-- MAIN PAGE -->
+<main class="relative z-10 max-w-7xl mx-auto px-4 py-6">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div>
+      <a href="/" class="font-display text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500">Atom Registry</a>
+      <span class="text-gray-600 text-xs ml-3 mono">/ Page Builder</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="text-xs text-gray-500 mono" id="sizeIndicator">0 KB / 120 KB</div>
+      <div class="size-bar-track w-24"><div id="mainSizeBar" class="size-bar-fill" style="width:0%"></div></div>
+      <button id="previewBtn" class="glass-card text-xs text-gray-300 hover:text-white px-4 py-2 rounded-lg transition-all hover:border-purple-500/40">
+        <i class="fas fa-eye mr-1"></i> Preview
+      </button>
+      <button id="saveBtn" class="btn-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90">
+        <i class="fas fa-floppy-disk mr-1"></i> Save
+      </button>
+    </div>
+  </div>
+
+  <!-- Two column layout: editor left, live mini-preview right -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+    <!-- LEFT — EDITOR PANELS -->
+    <div class="space-y-4">
+
+      <!-- Identity -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="section-title"><i class="fas fa-user mr-2"></i>Identity</div>
+        <div class="space-y-3">
+          <div>
+            <label class="field-label">Display Name</label>
+            <input type="text" id="f_name" placeholder="Sean F." oninput="live()"/>
+          </div>
+          <div>
+            <label class="field-label">Title / Role</label>
+            <input type="text" id="f_title" placeholder="Builder · Farmer · Songwriter" oninput="live()"/>
+          </div>
+          <div>
+            <label class="field-label">Bio</label>
+            <textarea id="f_bio" rows="3" placeholder="A few sentences about you..." oninput="live()"></textarea>
+          </div>
+          <div>
+            <label class="field-label">Domain Name</label>
+            <input type="text" id="f_domain" placeholder="yourname.atom" oninput="live()"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Image -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="section-title"><i class="fas fa-image mr-2"></i>Profile Image</div>
+        <div id="imgDropZone" class="drop-zone">
+          <i class="fas fa-cloud-arrow-up text-2xl text-purple-400 mb-2 block"></i>
+          <div class="text-xs text-gray-400 mb-1">Drop image here or <span class="text-purple-400 cursor-pointer" id="imgBrowse">browse</span></div>
+          <div class="text-xs text-gray-600">Auto-converted to WebP · Compressed inline · No external URL</div>
+          <input type="file" id="imgInput" accept="image/*" class="hidden"/>
+        </div>
+        <div id="imgPreviewWrap" class="hidden mt-3 flex items-center gap-3">
+          <img id="imgThumb" class="w-16 h-16 rounded-xl object-cover" src="" alt=""/>
+          <div class="flex-1">
+            <div id="imgStats" class="text-xs text-gray-400 mono"></div>
+            <div class="size-bar-track mt-1"><div id="imgSizeBar" class="size-bar-fill" style="width:0%"></div></div>
+          </div>
+          <button id="imgRemove" class="text-xs text-red-400 hover:text-red-300"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="mt-3">
+          <label class="field-label">Quality</label>
+          <div class="flex items-center gap-3">
+            <input type="range" id="imgQuality" min="20" max="85" value="60" class="flex-1 accent-purple-500"/>
+            <span id="imgQualityVal" class="mono text-xs text-gray-400 w-8">60</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="section-title"><i class="fas fa-link mr-2"></i>Links</div>
+        <div id="linksContainer" class="space-y-2 mb-3">
+          <div class="link-row">
+            <select class="w-28 flex-shrink-0" onchange="live()">
+              <option>🌐 Website</option><option>🐦 X / Twitter</option><option>📸 Instagram</option>
+              <option>💼 LinkedIn</option><option>🐙 GitHub</option><option>📺 YouTube</option>
+              <option>🎵 Music</option><option>📧 Email</option><option>💬 Telegram</option><option>🔗 Other</option>
+            </select>
+            <input type="url" placeholder="https://..." oninput="live()"/>
+            <button onclick="this.closest('.link-row').remove();live()" class="text-gray-600 hover:text-red-400 px-2 text-xs"><i class="fas fa-xmark"></i></button>
+          </div>
+        </div>
+        <button id="addLinkBtn" class="text-xs text-purple-400 hover:text-purple-300 transition-colors">
+          <i class="fas fa-plus mr-1"></i> Add Link
+        </button>
+      </div>
+
+      <!-- Design -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="section-title"><i class="fas fa-palette mr-2"></i>Design</div>
+        <div class="space-y-3">
+          <div>
+            <label class="field-label">Color Scheme</label>
+            <select id="f_scheme" onchange="live()">
+              <option value="purple-cyan">Purple → Cyan (Default)</option>
+              <option value="orange-gold">Fire Orange → Gold</option>
+              <option value="green-cyan">Green → Cyan</option>
+              <option value="pink-purple">Pink → Purple</option>
+              <option value="white-gray">White → Gray (Minimal)</option>
+              <option value="custom">Custom Colors</option>
+            </select>
+          </div>
+          <div id="customColors" class="hidden">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="field-label">Primary Color</label>
+                <div class="color-row">
+                  <input type="color" id="f_color1" value="#a78bfa" onchange="live()"/>
+                  <input type="text" id="f_color1_hex" value="#a78bfa" class="flex-1 text-xs" oninput="syncColor(1)"/>
+                </div>
+              </div>
+              <div>
+                <label class="field-label">Accent Color</label>
+                <div class="color-row">
+                  <input type="color" id="f_color2" value="#22d3ee" onchange="live()"/>
+                  <input type="text" id="f_color2_hex" value="#22d3ee" class="flex-1 text-xs" oninput="syncColor(2)"/>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Background</label>
+            <select id="f_bg" onchange="live()">
+              <option value="dark">Deep Space Dark</option>
+              <option value="darker">Pure Black</option>
+              <option value="navy">Deep Navy</option>
+              <option value="forest">Deep Forest</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label">Font Style</label>
+            <select id="f_font" onchange="live()">
+              <option value="mono">Monospace (Tech)</option>
+              <option value="sans">System Sans (Clean)</option>
+              <option value="display">Orbitron (Display)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Extra Content -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="section-title"><i class="fas fa-align-left mr-2"></i>Extra Content</div>
+        <div class="space-y-3">
+          <div>
+            <label class="field-label">Section Title (optional)</label>
+            <input type="text" id="f_section_title" placeholder="What I Build / About / Work" oninput="live()"/>
+          </div>
+          <div>
+            <label class="field-label">Section Content</label>
+            <textarea id="f_section_body" rows="4" placeholder="Anything extra you want to say — projects, skills, philosophy..." oninput="live()"></textarea>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT — LIVE MINI PREVIEW -->
+    <div class="lg:sticky lg:top-4 lg:self-start">
+      <div class="glass-card rounded-2xl overflow-hidden" style="height:600px">
+        <div class="flex items-center gap-2 px-3 py-2 border-b border-white/5" style="background:rgba(0,0,0,0.3)">
+          <div class="flex gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-white/10"></span><span class="w-2.5 h-2.5 rounded-full bg-white/10"></span><span class="w-2.5 h-2.5 rounded-full bg-white/10"></span></div>
+          <span class="mono text-xs text-gray-600 flex-1 text-center" id="livePreviewDomain">yourname.atom</span>
+        </div>
+        <iframe id="liveFrame" style="width:100%;height:calc(100% - 37px);border:none;background:#06020d;" sandbox="allow-scripts"></iframe>
+      </div>
+      <div class="mt-2 text-xs text-gray-600 text-center mono">Live preview updates as you type</div>
+    </div>
+
+  </div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── Config ─────────────────────────────────────────────────────────────────
+const SITE_REGISTRY = "cosmos1xg6jh7nechv6kxrw35m08qdpaysnu97xjz5alql75p2k5xrcdvjs8rx7jt";
+const ATOM_REGISTRY = "cosmos16nff0lmuegn2zr6ca3dp8jnqltpq2c9ayhmqn3avjq0wne95h2xqkhn9qe";
+const CHAIN_ID      = "cosmoshub-4";
+const STORAGE_FEE   = 5_000_000;
+const MAX_BYTES     = 120 * 1024;
+const LCD = ["https://cosmos-rest.publicnode.com","https://rest.cosmos.directory/cosmoshub","https://cosmoshub-api.lavenderfive.com"];
+
+// ── ProtoWriter ────────────────────────────────────────────────────────────
+function PW(){this.c=[];}
+PW.prototype.v=function(n){var b=[];if(typeof n==="bigint"){while(n>127n){b.push(Number(n&0x7Fn)|0x80);n>>=7n;}b.push(Number(n));}else{n=Math.floor(n);while(n>127){b.push((n&0x7F)|0x80);n=Math.floor(n/128);}b.push(n&0x7F);}this.c.push(new Uint8Array(b));return this;};
+PW.prototype.t=function(f,w){return this.v((f<<3)|w);};
+PW.prototype.s=function(f,str){if(!str&&str!==0)return this;str=String(str);if(!str.length)return this;var e=new TextEncoder().encode(str);this.t(f,2).v(e.length).c.push(e);return this;};
+PW.prototype.b=function(f,arr){if(!arr||!arr.length)return this;var u=arr instanceof Uint8Array?arr:new Uint8Array(arr);this.t(f,2).v(u.length).c.push(u);return this;};
+PW.prototype.u64=function(f,n){var bn=typeof n==="bigint"?n:BigInt(Math.floor(Number(n)));if(bn===0n)return this;return this.t(f,0).v(bn);};
+PW.prototype.fin=function(){var tot=0;for(var i=0;i<this.c.length;i++)tot+=this.c[i].length;var o=new Uint8Array(tot),p=0;for(var i=0;i<this.c.length;i++){o.set(this.c[i],p);p+=this.c[i].length;}return o;};
+function toB64(u8){var s="";for(var i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return btoa(s);}
+function unb64(b){var s=atob(b);var u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+function derToCompact(der){var pos=4,rLen=der[3];if(der[pos]===0x00){pos++;rLen--;}var r=der.slice(pos,pos+rLen);pos+=rLen+2;var sLen=der[pos-1];if(der[pos]===0x00){pos++;sLen--;}var s=der.slice(pos,pos+sLen);var out=new Uint8Array(64);out.set(r,32-r.length);out.set(s,64-s.length);return out;}
+function aminoSort(obj){if(typeof obj!=='object'||obj===null)return obj;if(Array.isArray(obj))return obj.map(aminoSort);return Object.keys(obj).sort().reduce(function(a,k){a[k]=aminoSort(obj[k]);return a;},{});}
+async function walletSign(bodyBytes,authBytes,acct,executeMsg,fundsUatom,contractAddr,feeAmount,gasLimit){
+  if(walletType==='keplr'||walletType==='leap'){var w=walletType==='keplr'?window.keplr:window.leap;var resp=await w.signDirect(CHAIN_ID,userAddress,{bodyBytes:bodyBytes,authInfoBytes:authBytes,chainId:CHAIN_ID,accountNumber:String(acct.accountNumber)});return txRaw(resp.signed.bodyBytes,resp.signed.authInfoBytes,unb64(resp.signature.signature));}
+  if(walletType==='ledger'){var doc=aminoSort({account_number:String(acct.accountNumber),chain_id:CHAIN_ID,fee:{amount:[{amount:feeAmount||'10000',denom:'uatom'}],gas:String(gasLimit||GAS_FALLBACK)},memo:'',msgs:[{type:'wasm/MsgExecuteContract',value:{sender:userAddress,contract:contractAddr,msg:executeMsg,funds:fundsUatom>0?[{denom:'uatom',amount:String(fundsUatom)}]:[]}}],sequence:String(acct.sequence)});var res=await ledgerApp.sign([44,118,0,0,0],new TextEncoder().encode(JSON.stringify(doc)));if(!res||res.error_message!=='No errors')throw new Error('Ledger: '+(res.error_message||'signing failed'));return txRaw(bodyBytes,authBytes,derToCompact(res.signature));}
+  throw new Error('No wallet connected');
+}
+var TYPE_EXECUTE="/cosmwasm.wasm.v1.MsgExecuteContract",TYPE_PUBKEY="/cosmos.crypto.secp256k1.PubKey",GAS_PRICE=0.025,GAS_ADJ=1.8,GAS_FALLBACK=8000000;
+function encodeMsgExecute(sender,contract,msgObj,fundsUatom){var pw=new PW().s(1,sender).s(2,contract).b(3,new TextEncoder().encode(JSON.stringify(msgObj)));if(fundsUatom&&fundsUatom>0)pw.b(5,new PW().s(1,"uatom").s(2,String(fundsUatom)).fin());return pw.fin();}
+function anyMsg(t,v){return new PW().s(1,t).b(2,v).fin();}
+function txBody(mb){return new PW().b(1,anyMsg(TYPE_EXECUTE,mb)).fin();}
+function modeInfoDirect(){return new PW().b(1,new PW().u64(1,1n).fin()).fin();}
+function signerInfo(pk,seq){return new PW().b(1,anyMsg(TYPE_PUBKEY,new PW().b(1,pk).fin())).b(2,modeInfoDirect()).u64(3,seq).fin();}
+function feeMsg(amt,gas){return new PW().b(1,new PW().s(1,"uatom").s(2,String(amt)).fin()).u64(2,BigInt(gas)).fin();}
+function authInfo(pk,seq,fee,gas){return new PW().b(1,signerInfo(pk,seq)).b(2,feeMsg(fee,gas)).fin();}
+function txRaw(body,auth,sig){return new PW().b(1,body).b(2,auth).b(3,sig).fin();}
+var pubKey=null,userAddress=null,walletType=null,ledgerApp=null,ledgerTransport=null;
+async function getAccount(addr){for(var i=0;i<LCD.length;i++){try{var r=await fetch(LCD[i]+"/cosmos/auth/v1beta1/accounts/"+addr);if(!r.ok)continue;var d=await r.json();var a=d.account?.base_account||d.account;return{accountNumber:parseInt(a?.account_number||0),sequence:parseInt(a?.sequence||0)};}catch(e){}}return{accountNumber:0,sequence:0};}
+async function simulateGas(bodyBytes,authBytes){var sim=txRaw(bodyBytes,authBytes,new Uint8Array(64));for(var i=0;i<LCD.length;i++){try{var r=await fetch(LCD[i]+"/cosmos/tx/v1beta1/simulate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tx_bytes:toB64(sim)})});if(!r.ok)continue;var j=await r.json();var gas=parseInt((j.gas_info||{}).gas_used||0);if(gas>50000)return Math.ceil(gas*GAS_ADJ);}catch(e){}}return GAS_FALLBACK;}
+async function broadcastTx(rawBytes){var last;for(var i=0;i<LCD.length;i++){try{var r=await fetch(LCD[i]+"/cosmos/tx/v1beta1/txs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tx_bytes:toB64(rawBytes),mode:"BROADCAST_MODE_SYNC"})});if(!r.ok)throw new Error("HTTP "+r.status);var j=await r.json();var res=j.tx_response||j;return{code:parseInt(res.code||0),txhash:res.txhash||"",rawLog:res.raw_log||""};}catch(e){last=e;}}throw last||new Error("Broadcast failed");}
+async function signAndBroadcastSite(contract,executeMsg,fundsUatom){
+  var msgBytes=encodeMsgExecute(userAddress,contract,executeMsg,fundsUatom);
+  var bodyBytes=txBody(msgBytes);
+  var acct=await getAccount(userAddress);
+  var ph=GAS_FALLBACK;
+  var authBytes=authInfo(pubKey,acct.sequence,String(Math.ceil(ph*GAS_PRICE)),ph);
+  var gasLimit=await simulateGas(bodyBytes,authBytes);
+  var feeAmount=String(Math.ceil(gasLimit*GAS_PRICE));
+  authBytes=authInfo(pubKey,acct.sequence,feeAmount,gasLimit);
+  toast("Awaiting wallet signature…");
+  var rawBytes=await walletSign(bodyBytes,authBytes,acct,executeMsg,fundsUatom,contract,feeAmount,gasLimit);
+  toast("Broadcasting…");
+  var result=await broadcastTx(rawBytes);
+  if(result.code!==0)throw new Error("Chain error ("+result.code+"): "+result.rawLog.slice(0,200));
+  return result;
+}
+
+// ── State ──────────────────────────────────────────────────────────────────
+let imgBase64 = null;
+let currentBlobUrl = null;
+
+function $(id){ return document.getElementById(id); }
+
+let toastTimer;
+function toast(msg,type="ok"){
+  const el=$("toast");
+  el.textContent=msg;
+  el.style.borderColor=type==="error"?"rgba(239,68,68,0.4)":"rgba(167,139,250,0.4)";
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove("show"),3500);
+}
+
+function esc(s){ return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+// ── Color schemes ──────────────────────────────────────────────────────────
+const SCHEMES = {
+  "purple-cyan":  { p:"#a78bfa", c:"#22d3ee" },
+  "orange-gold":  { p:"#ff6b00", c:"#ffd700" },
+  "green-cyan":   { p:"#22c55e", c:"#22d3ee" },
+  "pink-purple":  { p:"#ec4899", c:"#a855f7" },
+  "white-gray":   { p:"#ffffff", c:"#9ca3af" },
+  "custom":       { p:"#a78bfa", c:"#22d3ee" },
+};
+
+const BG_COLORS = {
+  "dark":    "#06020d",
+  "darker":  "#000000",
+  "navy":    "#020b18",
+  "forest":  "#020d06",
+};
+
+const FONTS = {
+  "mono":    "'Courier New', Courier, monospace",
+  "sans":    "system-ui, -apple-system, sans-serif",
+  "display": "Georgia, 'Times New Roman', serif",
+};
+
+// ── Read form values ───────────────────────────────────────────────────────
+function getValues(){
+  const scheme = $("f_scheme").value;
+  let p, c;
+  if(scheme === "custom"){
+    p = $("f_color1").value;
+    c = $("f_color2").value;
+  } else {
+    p = SCHEMES[scheme]?.p || "#a78bfa";
+    c = SCHEMES[scheme]?.c || "#22d3ee";
+  }
+  const links = [];
+  $("linksContainer").querySelectorAll(".link-row").forEach(row => {
+    const sel = row.querySelector("select")?.value || "";
+    const url = row.querySelector("input")?.value || "";
+    if(url) links.push({ label: sel, url });
+  });
+  return {
+    name:         $("f_name").value || "Your Name",
+    title:        $("f_title").value || "",
+    bio:          $("f_bio").value || "",
+    domain:       $("f_domain").value || "yourname.atom",
+    section_title:$("f_section_title").value || "",
+    section_body: $("f_section_body").value || "",
+    p, c,
+    bg:           BG_COLORS[$("f_bg").value] || "#06020d",
+    font:         FONTS[$("f_font").value] || FONTS.mono,
+    links,
+    img:          imgBase64 || null,
+  };
+}
+
+// ── Generate HTML ──────────────────────────────────────────────────────────
+function generateHTML(v){
+  const linkHTML = v.links.map(l => `
+    <a href="${esc(l.url)}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:999px;padding:9px 18px;font-size:0.8rem;color:rgba(255,255,255,0.7);text-decoration:none;transition:all 0.2s;letter-spacing:0.05em"
+      onmouseover="this.style.borderColor='${v.p}';this.style.color='${v.p}'"
+      onmouseout="this.style.borderColor='rgba(255,255,255,0.08)';this.style.color='rgba(255,255,255,0.7)'">
+      ${esc(l.label)}
+    </a>`).join("");
+
+  const sectionHTML = (v.section_title || v.section_body) ? `
+    <section style="padding:3rem 2rem;max-width:700px;margin:0 auto;border-top:1px solid rgba(255,255,255,0.06)">
+      ${v.section_title ? `<h2 style="font-size:1.4rem;font-weight:700;margin-bottom:1rem;background:linear-gradient(90deg,${v.p},${v.c});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">${esc(v.section_title)}</h2>` : ""}
+      ${v.section_body ? `<p style="color:rgba(255,255,255,0.55);line-height:1.85;font-size:0.9rem;white-space:pre-wrap">${esc(v.section_body)}</p>` : ""}
+    </section>` : "";
+
+  const imgHTML = v.img ? `
+    <div style="width:120px;height:120px;border-radius:50%;overflow:hidden;border:2px solid ${v.p};box-shadow:0 0 30px rgba(167,139,250,0.3);margin:0 auto 1.5rem;flex-shrink:0">
+      <img src="${v.img}" style="width:100%;height:100%;object-fit:cover"/>
+    </div>` : "";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>${esc(v.name)} — ${esc(v.domain)}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(ellipse 80% 60% at 20% 10%,${v.p}22,transparent 55%),radial-gradient(ellipse 70% 60% at 80% 90%,${v.c}1a,transparent 55%),${v.bg};color:#e8e4ff;font-family:${v.font};min-height:100vh;overflow-x:hidden}
+a{color:${v.p};text-decoration:none}
+@keyframes fup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<main style="max-width:700px;margin:0 auto;padding:5rem 2rem;text-align:center">
+  ${imgHTML}
+  <h1 style="font-size:clamp(2rem,6vw,4rem);font-weight:900;line-height:1;letter-spacing:-0.02em;margin-bottom:0.5rem;background:linear-gradient(135deg,#fff,${v.c},${v.p});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:fup 0.8s both">${esc(v.name)}</h1>
+  ${v.title ? `<p style="font-size:0.85rem;letter-spacing:0.2em;color:rgba(232,228,255,0.4);text-transform:uppercase;margin-bottom:1.5rem;animation:fup 0.8s 0.1s both">${esc(v.title)}</p>` : ""}
+  ${v.bio ? `<p style="font-size:1rem;color:rgba(232,228,255,0.6);line-height:1.8;max-width:500px;margin:0 auto 2.5rem;animation:fup 0.8s 0.2s both">${esc(v.bio)}</p>` : ""}
+  ${v.links.length ? `<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;animation:fup 0.8s 0.3s both">${linkHTML}</div>` : ""}
+</main>
+${sectionHTML}
+<footer style="text-align:center;padding:2rem;border-top:1px solid rgba(255,255,255,0.05);font-size:0.6rem;letter-spacing:0.15em;color:rgba(255,255,255,0.2);text-transform:uppercase">
+  ${esc(v.domain)} · Registered on <a href="https://atomregistry.com" target="_blank" style="color:${v.p}">Atom Registry</a> · Cosmos Hub · Stored On-Chain
+</footer>
+
+<!-- ═══ WALLET PICKER MODAL ═══ -->
+<div id="walletModal" class="wm-ov hidden">
+  <div class="wm-box">
+    <div class="wm-h">Connect Wallet</div>
+    <div class="wm-s">Select your wallet to continue</div>
+    <button class="wm-b" id="wmKeplr">
+      <div class="wm-ico" style="background:rgba(100,60,220,0.25);border:1px solid rgba(100,60,220,0.3)">🔵</div>
+      <div><div class="wm-n">Keplr</div><div class="wm-d">Browser extension · Cosmos ecosystem</div></div>
+    </button>
+    <button class="wm-b" id="wmLeap">
+      <div class="wm-ico" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.25)">🌊</div>
+      <div><div class="wm-n">Leap</div><div class="wm-d">Multi-chain Cosmos wallet</div></div>
+    </button>
+    <button class="wm-b" id="wmLedger">
+      <div class="wm-ico" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2)">🔐</div>
+      <div><div class="wm-n">Ledger</div><div class="wm-d">Hardware wallet · USB · Cosmos app required · Chrome/Edge only</div></div>
+    </button>
+    <span class="wm-cancel" id="wmCancel">Cancel</span>
+  </div>
+</div>
+</body>
+</html>`;
+}
+
+// ── Live preview ───────────────────────────────────────────────────────────
+let liveDebounce;
+function live(){
+  clearTimeout(liveDebounce);
+  liveDebounce = setTimeout(()=>{
+    const v = getValues();
+    $("livePreviewDomain").textContent = v.domain;
+    const html = generateHTML(v);
+    const bytes = new TextEncoder().encode(html).length;
+    const pct = Math.min(100,(bytes/MAX_BYTES)*100);
+    $("sizeIndicator").textContent = `${(bytes/1024).toFixed(1)} KB / 120 KB`;
+    $("mainSizeBar").style.width = pct+"%";
+    $("mainSizeBar").style.background = pct>90?"#ef4444":pct>75?"#f59e0b":"linear-gradient(90deg,#a78bfa,#22d3ee)";
+    // Update live iframe
+    if(currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
+    const blob = new Blob([html],{type:"text/html"});
+    currentBlobUrl = URL.createObjectURL(blob);
+    $("liveFrame").src = currentBlobUrl;
+  }, 200);
+}
+
+// ── Color scheme toggle ────────────────────────────────────────────────────
+$("f_scheme").addEventListener("change", function(){
+  $("customColors").classList.toggle("hidden", this.value !== "custom");
+  live();
+});
+function syncColor(n){
+  const hex = $("f_color"+n+"_hex").value;
+  if(/^#[0-9a-fA-F]{6}$/.test(hex)){ $("f_color"+n).value=hex; live(); }
+}
+$("f_color1").addEventListener("input",()=>{ $("f_color1_hex").value=$("f_color1").value; live(); });
+$("f_color2").addEventListener("input",()=>{ $("f_color2_hex").value=$("f_color2").value; live(); });
+
+// ── Image upload ───────────────────────────────────────────────────────────
+const dropZone = $("imgDropZone");
+$("imgBrowse").addEventListener("click",()=>$("imgInput").click());
+dropZone.addEventListener("click",()=>$("imgInput").click());
+dropZone.addEventListener("dragover",e=>{e.preventDefault();dropZone.classList.add("over");});
+dropZone.addEventListener("dragleave",()=>dropZone.classList.remove("over"));
+dropZone.addEventListener("drop",e=>{e.preventDefault();dropZone.classList.remove("over");processImage(e.dataTransfer.files[0]);});
+$("imgInput").addEventListener("change",e=>processImage(e.target.files[0]));
+$("imgQuality").addEventListener("input",function(){
+  $("imgQualityVal").textContent=this.value;
+  if($("imgInput").files[0]) processImage($("imgInput").files[0]);
+});
+$("imgRemove").addEventListener("click",()=>{
+  imgBase64=null;
+  $("imgPreviewWrap").classList.add("hidden");
+  dropZone.classList.remove("hidden");
+  live();
+});
+
+async function processImage(file){
+  if(!file) return;
+  const quality = parseInt($("imgQuality").value);
+  const bitmap = await createImageBitmap(file);
+  const canvas = document.createElement("canvas");
+  const size = Math.min(bitmap.width, bitmap.height, 400);
+  canvas.width=size; canvas.height=size;
+  const ctx = canvas.getContext("2d");
+  // Center crop
+  const scale = size/Math.min(bitmap.width,bitmap.height);
+  const sx = (bitmap.width - size/scale)/2;
+  const sy = (bitmap.height - size/scale)/2;
+  ctx.drawImage(bitmap, sx, sy, size/scale, size/scale, 0, 0, size, size);
+  // Convert to WebP
+  const dataUrl = canvas.toDataURL("image/webp", quality/100);
+  imgBase64 = dataUrl;
+  const bytes = Math.round(dataUrl.length * 0.75);
+  const kb = (bytes/1024).toFixed(1);
+  const pct = Math.min(100,(bytes/(MAX_BYTES*0.7))*100);
+  $("imgThumb").src = dataUrl;
+  $("imgStats").textContent = `${size}x${size}px · ~${kb}KB · Quality ${quality}`;
+  $("imgSizeBar").style.width = pct+"%";
+  $("imgSizeBar").style.background = pct>85?"#ef4444":"linear-gradient(90deg,#a78bfa,#22d3ee)";
+  $("imgPreviewWrap").classList.remove("hidden");
+  dropZone.classList.add("hidden");
+  live();
+}
+
+// ── Add link ───────────────────────────────────────────────────────────────
+$("addLinkBtn").addEventListener("click",()=>{
+  const row = document.createElement("div");
+  row.className="link-row";
+  row.innerHTML=`
+    <select class="w-28 flex-shrink-0" onchange="live()">
+      <option>🌐 Website</option><option>🐦 X / Twitter</option><option>📸 Instagram</option>
+      <option>💼 LinkedIn</option><option>🐙 GitHub</option><option>📺 YouTube</option>
+      <option>🎵 Music</option><option>📧 Email</option><option>💬 Telegram</option><option>🔗 Other</option>
+    </select>
+    <input type="url" placeholder="https://..." oninput="live()"/>
+    <button onclick="this.closest('.link-row').remove();live()" class="text-gray-600 hover:text-red-400 px-2 text-xs"><i class="fas fa-xmark"></i></button>`;
+  $("linksContainer").appendChild(row);
+});
+
+// ── Preview ────────────────────────────────────────────────────────────────
+$("previewBtn").addEventListener("click", openPreview);
+$("previewSaveBtn").addEventListener("click",()=>{ $("previewModal").classList.remove("show"); openSave(); });
+$("previewCloseBtn").addEventListener("click",()=>$("previewModal").classList.remove("show"));
+
+function openPreview(){
+  const v = getValues();
+  const html = generateHTML(v);
+  const bytes = new TextEncoder().encode(html).length;
+  $("previewDomain").textContent = v.domain;
+  $("previewSize").textContent = `${(bytes/1024).toFixed(1)}KB`;
+  const blob = new Blob([html],{type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  $("previewFrame").src = url;
+  $("previewModal").classList.add("show");
+}
+
+// ── Save ───────────────────────────────────────────────────────────────────
+$("saveBtn").addEventListener("click", openSave);
+$("saveCloseBtn").addEventListener("click",()=>$("saveModal").classList.remove("show"));
+$("previewSaveBtn").addEventListener("click",()=>{ $("previewModal").classList.remove("show"); openSave(); });
+
+function openSave(){
+  const v = getValues();
+  const html = generateHTML(v);
+  const bytes = new TextEncoder().encode(html).length;
+  const kb = (bytes/1024).toFixed(1);
+  const pct = Math.min(100,(bytes/MAX_BYTES)*100);
+  $("saveSizeText").textContent = `${kb}KB`;
+  $("saveSizeBar").style.width = pct+"%";
+  $("saveSizeBar").style.background = pct>90?"#ef4444":pct>75?"#f59e0b":"linear-gradient(90deg,#a78bfa,#22d3ee)";
+  $("saveModal").classList.add("show");
+}
+
+// Save to computer
+$("saveComputerBtn").addEventListener("click",()=>{
+  const v = getValues();
+  const html = generateHTML(v);
+  const blob = new Blob([html],{type:"text/html"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = (v.domain||"mypage").replace(/\./g,"-")+".html";
+  a.click();
+  toast("Downloaded!");
+});
+
+// Multi-wallet
+function openWalletModal(){document.getElementById("walletModal").classList.remove("hidden");}
+function closeWalletModal(){document.getElementById("walletModal").classList.add("hidden");}
+async function connectWallet(type){
+  closeWalletModal();
+  try{
+    if(type==="keplr"){
+      if(!window.keplr){toast("Keplr not found","error");window.open("https://www.keplr.app/","_blank");return;}
+      await window.keplr.enable(CHAIN_ID);const k=await window.keplr.getKey(CHAIN_ID);
+      userAddress=k.bech32Address;pubKey=k.pubKey;walletType="keplr";
+    } else if(type==="leap"){
+      if(!window.leap){toast("Leap not found","error");window.open("https://www.leapwallet.io/","_blank");return;}
+      await window.leap.enable(CHAIN_ID);const k=await window.leap.getKey(CHAIN_ID);
+      userAddress=k.bech32Address;pubKey=k.pubKey;walletType="leap";
+    } else if(type==="ledger"){
+      toast("Opening Ledger — unlock device, open Cosmos app…");
+      try{
+        const t=await import("https://esm.sh/@ledgerhq/hw-transport-webhid@6.34.0");const WebHID=t.default||t;
+        const a=await import("https://esm.sh/@ledgerhq/hw-app-cosmos@6.35.1");const CosmosApp=a.default||a;
+        ledgerTransport=await WebHID.create();ledgerApp=new CosmosApp(ledgerTransport);
+        const addr=await ledgerApp.getAddress("44'/118'/0'/0/0","cosmos");
+        if(addr.error_message&&addr.error_message!=="No errors")throw new Error(addr.error_message);
+        userAddress=addr.address;pubKey=addr.publicKey;walletType="ledger";
+      }catch(le){
+        if(ledgerTransport){try{ledgerTransport.close();}catch(e){} ledgerTransport=null;}
+  try{sessionStorage.removeItem('ar_wallet');}catch(e){}ledgerApp=null;
+        const m=le.message||String(le);
+        if(/hid/i.test(m))toast("WebHID not available — use Chrome or Edge","error");
+        else if(/timeout/i.test(m))toast("Ledger timed out — unlock and open Cosmos app","error");
+        else toast("Ledger: "+m.slice(0,80),"error");
+        return;
+      }
+    }
+    $("chainConnectPrompt").classList.add("hidden");
+    $("chainDeployForm").classList.remove("hidden");
+    $("deployDomain").value=$("f_domain").value||"";
+    const bl=walletType==="leap"?"Leap":walletType==="ledger"?"Ledger":"Keplr";
+    try{sessionStorage.setItem('ar_wallet',JSON.stringify({type:walletType,address:userAddress}));}catch(e){}
+    toast(bl+" connected");
+  }catch(e){toast("Connect failed: "+(e.message||String(e)),"error");}
+}
+$("chainConnectBtn").addEventListener("click",openWalletModal);
+document.addEventListener("DOMContentLoaded",function(){
+  ["wmKeplr","wmLeap","wmLedger","wmCancel"].forEach(function(id){
+    const el=document.getElementById(id);
+    if(!el) return;
+    if(id==="wmKeplr") el.addEventListener("click",function(){connectWallet("keplr");});
+    else if(id==="wmLeap") el.addEventListener("click",function(){connectWallet("leap");});
+    else if(id==="wmLedger") el.addEventListener("click",function(){connectWallet("ledger");});
+    else if(id==="wmCancel") el.addEventListener("click",closeWalletModal);
+  });
+  const wm=document.getElementById("walletModal");
+  if(wm) wm.addEventListener("click",function(e){if(e.target===wm)closeWalletModal();});
+});
+
+// Verify & deploy
+$("verifyAndDeployBtn").addEventListener("click", async()=>{
+  const name = $("deployDomain").value.trim().toLowerCase();
+  if(!name){ toast("Enter domain name","error"); return; }
+  if(!userAddress){ toast("Connect Keplr first","error"); return; }
+
+  const status = $("domainStatus");
+  status.className="text-xs mb-3 flex items-center gap-2 text-gray-400";
+  status.innerHTML=`<span class="spin-icon"></span> Verifying ownership...`;
+  status.classList.remove("hidden");
+
+  try{
+    // Verify ownership
+    const enc = btoa(JSON.stringify({owner_of:{name}}));
+    let owner = null;
+    for(const ep of LCD){
+      try{
+        const r = await fetch(`${ep}/cosmwasm/wasm/v1/contract/${ATOM_REGISTRY}/smart/${enc}`);
+        if(!r.ok) continue;
+        const d = await r.json();
+        owner = d.data?.owner;
+        break;
+      }catch(e){}
+    }
+
+    if(!owner){
+      status.className="text-xs mb-3 flex items-center gap-2 text-red-400";
+      status.innerHTML=`<i class="fas fa-circle-xmark"></i> Domain not registered`;
+      return;
+    }
+    if(owner.toLowerCase() !== userAddress.toLowerCase()){
+      status.className="text-xs mb-3 flex items-center gap-2 text-red-400";
+      status.innerHTML=`<i class="fas fa-circle-xmark"></i> You don't own this domain`;
+      return;
+    }
+
+    // Check if first time
+    let isFirst = true;
+    const enc2 = btoa(JSON.stringify({site:{name}}));
+    for(const ep of LCD){
+      try{
+        const r = await fetch(`${ep}/cosmwasm/wasm/v1/contract/${SITE_REGISTRY}/smart/${enc2}`);
+        if(r.ok){ isFirst=false; break; }
+      }catch(e){}
+    }
+
+    status.className="text-xs mb-3 flex items-center gap-2 text-green-400";
+    status.innerHTML=`<i class="fas fa-circle-check"></i> Verified · ${isFirst?"5 ATOM storage fee":"Free edit (gas only)"}`;
+
+    const v = getValues();
+    const html = generateHTML(v);
+    const bytes = new TextEncoder().encode(html).length;
+    if(bytes > MAX_BYTES){ toast("Page too large — reduce content or image quality","error"); return; }
+
+    const btn = $("verifyAndDeployBtn");
+    btn.disabled=true;
+    btn.innerHTML=`<span class="spin-icon mr-2"></span> Deploying...`;
+
+    const result = await signAndBroadcastSite(
+      SITE_REGISTRY,
+      {set_site:{name,html}},
+      isFirst ? STORAGE_FEE : 0
+    );
+
+    $("deployTxLink").textContent = result.txhash;
+    $("deployTxLink").href = `https://www.mintscan.io/cosmos/tx/${result.txhash}`;
+    $("deployTxResult").classList.remove("hidden");
+    toast("Deployed to Cosmos Hub!");
+
+  }catch(e){
+    const msg=e.message||String(e);
+    if(/rejected|denied|cancel/i.test(msg)) toast("Cancelled","warn");
+    else toast("Deploy failed: "+msg.slice(0,80),"error");
+  }finally{
+    const btn=$("verifyAndDeployBtn");
+    btn.disabled=false;
+    btn.innerHTML=`<i class="fas fa-rocket mr-2"></i> Verify &amp; Deploy On-Chain`;
+  }
+});
+
+// ── Init ───────────────────────────────────────────────────────────────────
+live();
+
+// ── Session restore ───────────────────────────────────────────────────────────
+(async function tryRestore(){
+  try{
+    var saved=JSON.parse(sessionStorage.getItem('ar_wallet')||'null');
+    if(!saved||!saved.type||!saved.address)return;
+    var type=saved.type,CHAIN='cosmoshub-4';
+    var k=null;
+    try{
+      if(type==='keplr'&&window.keplr){await window.keplr.enable(CHAIN);var r=await window.keplr.getKey(CHAIN);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:'keplr'};}
+      else if(type==='leap'&&window.leap){await window.leap.enable(CHAIN);var r=await window.leap.getKey(CHAIN);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:'leap'};}
+      else if(type==='cosmostation'&&window.cosmostation){var cosmo=window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;if(cosmo){await cosmo.enable(CHAIN);var r=await cosmo.getKey(CHAIN);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:'cosmostation'};}else if(window.cosmostation.cosmos){var r=await window.cosmostation.cosmos.request({method:'cos_requestAccount',params:{chainName:CHAIN}});if(r.address===saved.address)k={address:r.address,pubKey:r.publicKey,type:'cosmostation'};}}
+      else if(type==='ledger')k={address:saved.address,pubKey:null,type:'ledger'};
+    }catch(e){sessionStorage.removeItem('ar_wallet');return;}
+    if(k){userAddress=k.address;pubKey=k.pubKey;walletType=k.type;onConnected();}
+  }catch(e){}
+})();
+
+window.addEventListener("load",async()=>{
+  const tryW=async(w,type)=>{try{const k=await w.getKey(CHAIN_ID);if(k?.bech32Address){userAddress=k.bech32Address;pubKey=k.pubKey;walletType=type;$("chainConnectPrompt").classList.add("hidden");$("chainDeployForm").classList.remove("hidden");return true;}}catch(e){}return false;};
+  if(window.keplr) await tryW(window.keplr,"keplr");
+  else if(window.leap) await tryW(window.leap,"leap");
+});
+</script>
+
+<!-- ═══ WALLET PICKER MODAL ═══ -->
+<div id="walletModal" class="wm-ov hidden">
+  <div class="wm-box">
+    <div class="wm-h">Connect Wallet</div>
+    <div class="wm-s">Select your wallet to continue</div>
+    <button class="wm-b" id="wmKeplr">
+      <div class="wm-ico" style="background:rgba(100,60,220,0.25);border:1px solid rgba(100,60,220,0.3)">🔵</div>
+      <div><div class="wm-n">Keplr</div><div class="wm-d">Browser extension · Cosmos ecosystem</div></div>
+    </button>
+    <button class="wm-b" id="wmLeap">
+      <div class="wm-ico" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.25)">🌊</div>
+      <div><div class="wm-n">Leap</div><div class="wm-d">Multi-chain Cosmos wallet</div></div>
+    </button>
+    <button class="wm-b" id="wmLedger">
+      <div class="wm-ico" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2)">🔐</div>
+      <div><div class="wm-n">Ledger</div><div class="wm-d">Hardware wallet · USB · Cosmos app required · Chrome/Edge only</div></div>
+    </button>
+    <span class="wm-cancel" id="wmCancel">Cancel</span>
+  </div>
+</div>
+</body>
+</html>

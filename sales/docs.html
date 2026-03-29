@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATOM Sales Widget Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    body{margin:0;font-family:"Roboto Mono",monospace;color:#fff;background:radial-gradient(1200px 800px at 10% 10%, rgba(167,139,250,.16), transparent 60%),radial-gradient(1200px 800px at 90% 90%, rgba(34,211,238,.14), transparent 60%),#06020d}
+    .wrap{max-width:1120px;margin:0 auto;padding:28px}.panel{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:24px;margin-bottom:20px}
+    h1,h2,h3{font-family:Orbitron,sans-serif;margin:0 0 14px}.grad{background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}
+    p,li{line-height:1.8;color:#cbd5e1}pre{background:#05010b;border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:18px;overflow:auto;color:#c4b5fd;white-space:pre-wrap}.muted{color:#94a3b8}a{color:#67e8f9}code{font-family:inherit}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <h1><span class="grad">ATOM Sales Widget</span> Installer Docs</h1>
+      <p>This package is designed to be installable on <strong>any domain</strong> that can serve static files and run PHP. The front end works anywhere; the full verification + webhook flow requires PHP for <code>/sales/api/verify-sale.php</code>.</p>
+    </div>
+
+    <div class="panel">
+      <h2>1. Upload paths</h2>
+      <p>Upload the <strong>contents</strong> of the <code>sales</code> folder directly into your website's <code>/sales/</code> directory.</p>
+      <pre>/public_html/sales/
+  index.html
+  widget.js
+  widget.html
+  docs.html
+  api/
+  storage/
+  README.md</pre>
+      <p>That should produce these public URLs:</p>
+      <ul>
+        <li><strong>/sales/</strong> → builder page</li>
+        <li><strong>/sales/widget.js</strong> → embeddable script</li>
+        <li><strong>/sales/widget.html</strong> → iframe-ready widget</li>
+        <li><strong>/sales/docs.html</strong> → docs</li>
+        <li><strong>/sales/api/verify-sale.php</strong> → backend verification endpoint</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>2. Backend setup</h2>
+      <ol>
+        <li>Copy <code>/sales/api/config.example.php</code> to <code>/sales/api/config.php</code>.</li>
+        <li>Update <code>downstream_webhook_url</code> and <code>downstream_webhook_secret</code>.</li>
+        <li>Make sure <code>/sales/storage/</code> is writable by PHP.</li>
+      </ol>
+      <p>On many cPanel hosts, that means <code>755</code> for folders and ensuring PHP can write to the storage directory. If needed, use <code>775</code> on <code>/sales/storage/</code>.</p>
+    </div>
+
+    <div class="panel">
+      <h2>3. Front-end builder portability</h2>
+      <p>The builder now includes a <strong>Widget install base URL</strong> field. Set it to your own domain path, for example:</p>
+      <pre>https://yourdomain.com/sales</pre>
+      <p>Generated script and iframe embeds will then point to your own domain instead of <code>atomregistry.com</code>.</p>
+    </div>
+
+    <div class="panel">
+      <h2>4. Script embed example</h2>
+      <pre>&lt;div id="atom-sales-widget"&gt;&lt;/div&gt;
+&lt;script src="https://yourdomain.com/sales/widget.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  window.AtomSalesWidget.mount('#atom-sales-widget', {
+    title: 'Pay with ATOM',
+    walletAddress: 'cosmos1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    amountAtom: '5',
+    itemName: 'Premium Access',
+    memo: 'Order: Premium Access',
+    successUrl: 'https://yourdomain.com/thank-you',
+    verifyEndpoint: 'https://yourdomain.com/sales/api/verify-sale.php',
+    enableKeplr: true,
+    allowManualFallback: true,
+    addressVisibility: 'checkout',
+    showMintscan: true
+  });
+&lt;/script&gt;</pre>
+    </div>
+
+    <div class="panel">
+      <h2>5. Verification payload</h2>
+      <p>After a successful in-widget transaction, the widget can POST this payload to your verification endpoint:</p>
+      <pre>{
+  "txhash": "...",
+  "sender_address": "cosmos1...",
+  "recipient_address": "cosmos1...",
+  "amount_atom": "5",
+  "amount_uatom": "5000000",
+  "memo": "Order: Premium Access",
+  "item_name": "Premium Access",
+  "chain_id": "cosmoshub-4"
+}</pre>
+    </div>
+
+    <div class="panel">
+      <h2>6. What verify-sale.php does</h2>
+      <ul>
+        <li>fetches the tx from Cosmos Hub LCD endpoints</li>
+        <li>checks that the tx succeeded</li>
+        <li>checks recipient match</li>
+        <li>checks amount match</li>
+        <li>checks memo match when provided</li>
+        <li>checks denom is <code>uatom</code></li>
+        <li>stores processed tx hashes to block duplicate fulfillment</li>
+        <li>optionally fires your downstream webhook</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h2>7. How to test it</h2>
+      <ol>
+        <li>Open <code>/sales/</code> on your installed domain.</li>
+        <li>Set your real install base URL in the builder.</li>
+        <li>Set your real verify endpoint to your domain's <code>/sales/api/verify-sale.php</code>.</li>
+        <li>Generate a test widget.</li>
+        <li>Run a small ATOM test payment from Keplr.</li>
+        <li>Confirm the widget shows a Mintscan link.</li>
+        <li>Check <code>/sales/storage/verify-sale.log</code> for verification activity.</li>
+        <li>Confirm your downstream webhook endpoint received a verified payload.</li>
+      </ol>
+    </div>
+
+    <div class="panel">
+      <h2>8. Domain compatibility</h2>
+      <p><strong>Yes, this can be installed on any domain</strong> as long as that domain/server can:</p>
+      <ul>
+        <li>serve static files</li>
+        <li>run PHP</li>
+        <li>allow outbound HTTPS requests to Cosmos Hub LCD endpoints and your webhook target</li>
+      </ul>
+      <p class="muted">If you deploy on a static-only host with no PHP, the widget UI can still work, but the verification endpoint and webhook automation will not.</p>
+    </div>
+
+    <div class="panel">
+      <h2>9. Production checklist</h2>
+      <ul>
+        <li>Do not trust the client callback alone. Always verify tx hash on the backend before fulfillment.</li>
+        <li>Use a memo scheme your order system can match cleanly.</li>
+        <li>Use address visibility <code>checkout</code> or <code>hidden</code> if you do not want the wallet displayed publicly.</li>
+        <li>Keep your verify endpoint same-origin or CORS-enabled for the domains that host the widget.</li>
+        <li>Test duplicate tx behavior before going live.</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="icon" type="image/png" href="/cosmocon.png"/>
+  <title>On-Chain Sites | Atom Registry</title>
+  <meta name="description" content="Store your website permanently on Cosmos Hub. One-time fee. Edit free forever. No servers. No hosting bills."/>
+  <meta name="theme-color" content="#a78bfa"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://use.fontawesome.com/releases/v6.5.1/js/all.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ["Roboto Mono","monospace"], display: ["Orbitron","sans-serif"] } } }
+    }
+  </script>
+  <style>
+    body { background: radial-gradient(1200px 800px at 10% 10%, rgba(167,139,250,0.15), transparent 60%), radial-gradient(1200px 800px at 90% 90%, rgba(34,211,238,0.12), transparent 60%), #06020d; }
+    .glass-panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+    .glass-card  { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .btn-primary { background: linear-gradient(90deg, rgba(147,51,234,1), rgba(34,211,238,1)); }
+    .mono { font-family: "Roboto Mono", monospace; }
+    .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); border:1px solid rgba(255,255,255,0.12); padding:10px 18px; border-radius:12px; color:#fff; z-index:9999; max-width:92vw; font-size:0.85rem; display:none; backdrop-filter:blur(12px); }
+    .toast.show { display:block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-icon { display:inline-block; width:1rem; height:1rem; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; }
+    .beta-banner { background:linear-gradient(90deg,rgba(147,51,234,0.9) 0%,rgba(34,211,238,0.9) 50%,rgba(147,51,234,0.9) 100%); border-bottom:2px solid rgba(255,255,255,0.1); overflow:hidden; position:relative; z-index:1000; max-width:100vw; }
+    .beta-banner::before { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.1) 50%,transparent 100%); animation:shimmer 3s infinite; }
+    @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+    .marquee-content { display:flex; animation:marquee 60s linear infinite; white-space:nowrap; }
+    @keyframes marquee { 0%{transform:translateX(0%)} 100%{transform:translateX(-50%)} }
+    .marquee-item { display:inline-flex; align-items:center; padding:0 3rem; font-weight:600; letter-spacing:0.5px; }
+    input[type=text],input[type=number],select,textarea { background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:0.75rem; color:#fff; padding:0.65rem 0.9rem; outline:none; width:100%; font-family:"Roboto Mono",monospace; transition:border-color 0.2s; }
+    input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus { border-color:rgba(139,92,246,0.6); }
+    input::placeholder,textarea::placeholder { color:rgba(255,255,255,0.25); }
+    .tab-btn { transition:all 0.2s; cursor:pointer; }
+    .tab-btn.active { color:#fff; border-bottom:2px solid #a78bfa; }
+    .page { display:none; }
+    .page.active { display:block; }
+    .size-bar-track { background:rgba(255,255,255,0.06); border-radius:999px; height:6px; overflow:hidden; }
+    .size-bar-fill { height:100%; border-radius:999px; transition:width 0.3s, background 0.3s; }
+    .owner-badge { display:inline-flex; align-items:center; gap:6px; font-size:0.7rem; padding:4px 10px; border-radius:999px; }
+    .owner-ok { background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.3); color:#22c55e; }
+    .owner-fail { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#ef4444; }
+    .owner-checking { background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#9ca3af; }
+    .preview-frame { width:100%; height:420px; border:none; border-radius:0.75rem; background:#06020d; }
+    .version-row { display:flex; justify-content:space-between; align-items:center; padding:0.6rem 0.85rem; border-radius:0.5rem; cursor:pointer; transition:background 0.15s; font-size:0.72rem; }
+    .version-row:hover { background:rgba(255,255,255,0.04); }
+    .version-row.active-ver { background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.2); }
+    .info-row { display:flex; justify-content:space-between; align-items:center; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.72rem; }
+    .info-row:last-child { border-bottom:none; }
+    .drop-zone { border:2px dashed rgba(255,255,255,0.12); border-radius:0.75rem; padding:2.5rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+    .drop-zone:hover, .drop-zone.dragover { border-color:rgba(167,139,250,0.5); background:rgba(167,139,250,0.04); }
+    .atom-price-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(167,139,250,0.08); border:1px solid rgba(167,139,250,0.2); border-radius:0.5rem; padding:0.4rem 0.75rem; font-size:0.7rem; }
+  
+  /* ── Atom Registry Top Nav ── */
+  .ar-topnav {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1.5rem;
+    background: rgba(6,2,13,0.92);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .ar-topnav-logo {
+    font-family: "Orbitron", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #a78bfa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .ar-topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    flex-wrap: wrap;
+  }
+  .ar-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .ar-nav-link:hover {
+    color: #fff;
+    background: rgba(167,139,250,0.08);
+    border-color: rgba(167,139,250,0.15);
+    text-decoration: none;
+  }
+  .ar-nav-active {
+    color: #a78bfa;
+    background: rgba(167,139,250,0.1);
+    border-color: rgba(167,139,250,0.25);
+    cursor: default;
+  }
+  .ar-nav-link i, .ar-nav-active i {
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+  @media (max-width: 700px) {
+    .ar-topnav { flex-direction: column; align-items: flex-start; padding: 0.75rem 1rem; }
+    .ar-nav-link { padding: 0.3rem 0.5rem; font-size: 0.68rem; }
+  }
+
+  
+  .wm-ov{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(6,2,13,0.88);backdrop-filter:blur(10px);padding:1rem;}
+  .wm-ov.hidden{display:none;}
+  .wm-box{background:rgba(8,4,21,0.97);border:1px solid rgba(167,139,250,0.25);border-radius:1.5rem;padding:2rem;max-width:400px;width:100%;box-shadow:0 0 60px rgba(124,58,237,0.2);}
+  .wm-h{font-family:Orbitron,sans-serif;font-size:1.05rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;}
+  .wm-s{font-size:0.72rem;color:#64748b;margin-bottom:1.25rem;}
+  .wm-b{width:100%;display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:0.85rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s;margin-bottom:0.6rem;text-align:left;}
+  .wm-b:hover{border-color:rgba(167,139,250,0.4);background:rgba(124,58,237,0.08);transform:translateX(3px);}
+  .wm-b:last-of-type{margin-bottom:0;}
+  .wm-ico{width:38px;height:38px;border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+  .wm-n{font-weight:700;color:#fff;font-size:0.85rem;}
+  .wm-d{font-size:0.67rem;color:#64748b;margin-top:0.1rem;}
+  .wm-cancel{display:block;text-align:center;margin-top:0.9rem;font-size:0.72rem;color:#475569;cursor:pointer;}
+  .wm-cancel:hover{color:#94a3b8;}
+  .wb{display:inline-flex;align-items:center;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;font-weight:700;margin-left:0.4rem;}
+  .wb-k{background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;}
+  .wb-l{background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.3);color:#22d3ee;}
+  .wb-d{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);color:#fbbf24;}
+</style>
+</head>
+<body class="min-h-screen relative font-sans text-white" style="overflow-x:hidden">
+<!-- ═══ ATOM REGISTRY SITE NAV ═══ -->
+<header class="ar-topnav">
+  <a href="/" class="ar-topnav-logo">Atom Registry</a>
+  <nav class="ar-topnav-links">
+      <a href="/" class="ar-nav-link"><i class="fas fa-home"></i>Home</a>
+      <span class="ar-nav-link ar-nav-active"><i class="fas fa-globe"></i>Sites</span>
+      <a href="/search.html" class="ar-nav-link"><i class="fas fa-search"></i>Search</a>
+      <a href="/profiles.html" class="ar-nav-link"><i class="fas fa-user-circle"></i>Builder</a>
+      <a href="/contracts.html" class="ar-nav-link"><i class="fas fa-code"></i>Contracts</a>
+      <a href="/docmaker.html" class="ar-nav-link"><i class="fas fa-file-contract"></i>Doc→Contract</a>
+      <a href="/browser.html" class="ar-nav-link"><i class="fas fa-puzzle-piece"></i>Extension</a>
+      <a href="/docs.html" class="ar-nav-link"><i class="fas fa-book"></i>Docs</a>
+  </nav>
+</header>
+<!-- ═══════════════════════════════ -->
+
+
+<!-- MARQUEE -->
+<div class="beta-banner py-2.5 relative">
+  <div class="marquee-content text-sm text-white">
+    <span class="marquee-item"><i class="fas fa-globe mr-2"></i> On-Chain Sites — Store Your Website on Cosmos Hub Forever</span>
+    <span class="marquee-item"><i class="fas fa-infinity mr-2"></i> 5 ATOM One-Time Fee — Edit Free Forever</span>
+    <span class="marquee-item"><i class="fas fa-shield-halved mr-2"></i> No Servers — No Hosting Bills — No Expiry</span>
+    <span class="marquee-item"><i class="fas fa-link mr-2"></i> CosmWasm Contract Storage — Cosmos Hub — Atom Registry</span>
+    <span class="marquee-item"><i class="fas fa-globe mr-2"></i> On-Chain Sites — Store Your Website on Cosmos Hub Forever</span>
+    <span class="marquee-item"><i class="fas fa-infinity mr-2"></i> 5 ATOM One-Time Fee — Edit Free Forever</span>
+    <span class="marquee-item"><i class="fas fa-shield-halved mr-2"></i> No Servers — No Hosting Bills — No Expiry</span>
+    <span class="marquee-item"><i class="fas fa-link mr-2"></i> CosmWasm Contract Storage — Cosmos Hub — Atom Registry</span>
+  </div>
+</div>
+
+<!-- BG BLOBS -->
+<div class="fixed top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none" style="z-index:0"></div>
+<div class="fixed bottom-0 left-0 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[100px] pointer-events-none" style="z-index:0"></div>
+
+<main class="relative z-10 w-full max-w-6xl mx-auto px-4 md:px-8 py-8">
+
+  <!-- HEADER -->
+  <div class="flex flex-col items-center mb-10 text-center">
+    <a href="/" class="font-display text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 tracking-tight mb-2">Atom Registry</a>
+    <p class="text-gray-400 text-sm mb-1">On-Chain Sites — Store Your Website on Cosmos Hub</p>
+
+    <!-- NAV TABS -->
+    <div class="glass-panel px-6 py-3 rounded-2xl flex gap-5 flex-wrap justify-center items-center mt-3">
+      <button class="tab-btn font-medium text-sm flex items-center gap-2 active" data-tab="deploy">
+        <i class="fas fa-upload opacity-80"></i> Deploy Site
+      </button>
+      <button class="tab-btn font-medium text-sm flex items-center gap-2 text-gray-400" data-tab="explore">
+        <i class="fas fa-search opacity-80"></i> Explore
+      </button>
+      <button class="tab-btn font-medium text-sm flex items-center gap-2 text-gray-400" data-tab="mysites">
+        <i class="fas fa-folder-open opacity-80"></i> My Sites
+      </button>
+      <button class="tab-btn font-medium text-sm flex items-center gap-2 text-gray-400" data-tab="info">
+        <i class="fas fa-circle-info opacity-80"></i> Info
+      </button>
+    </div>
+
+    <!-- WALLET BAR -->
+    <div id="walletBar" class="hidden mt-3 glass-card px-4 py-2 rounded-xl flex items-center gap-4 text-xs flex-wrap justify-center">
+      <span class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-green-400 inline-block" style="box-shadow:0 0 6px #4ade80"></span>
+        <span class="text-gray-400">Connected:</span><span id="walletBadge" class="wb wb-k" style="margin-left:0.3rem"></span>
+        <span class="mono text-white" id="walletAddrShort">—</span>
+      </span>
+      <span class="text-gray-500">|</span>
+      <span class="text-gray-400">Balance: <span class="text-white font-bold" id="walletBal">—</span> ATOM</span>
+      <button id="disconnectBtn" class="text-red-400 hover:text-red-300 transition-colors ml-2">Disconnect</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       DEPLOY PAGE
+  ═══════════════════════════ -->
+  <div id="deployPage" class="page active max-w-3xl mx-auto">
+
+    <!-- Connect prompt -->
+    <div id="deployConnect" class="glass-card rounded-2xl p-8 text-center mb-6">
+      <div class="font-display text-2xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500">Store a Site On-Chain</div>
+      <p class="text-gray-400 text-sm mb-5 leading-relaxed">Connect your Keplr wallet to deploy or edit an on-chain website. You must own the domain on Atom Registry.</p>
+      <button id="connectDeployBtn" class="btn-primary text-white font-bold text-sm px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity">
+        <i class="fas fa-plug mr-2"></i> Connect Wallet
+      </button>
+    </div>
+
+    <!-- Deploy form (shown after connect) -->
+    <div id="deployForm" class="hidden space-y-5">
+
+      <!-- Domain input -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">DOMAIN NAME</div>
+        <div class="flex gap-3 items-center">
+          <input type="text" id="domainInput" placeholder="e.g. onchain.atom or grok.grok" class="flex-1"/>
+          <button id="verifyDomainBtn" class="btn-primary text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:opacity-90 whitespace-nowrap">
+            Verify Ownership
+          </button>
+        </div>
+        <div id="ownerStatus" class="mt-2 hidden"></div>
+        <div id="siteExistsNote" class="hidden mt-2 text-xs text-cyan-400 flex items-center gap-2">
+          <i class="fas fa-circle-info"></i>
+          <span id="siteExistsMsg"></span>
+        </div>
+      </div>
+
+      <!-- File upload -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">HTML FILE</div>
+        <div id="dropZone" class="drop-zone">
+          <i class="fas fa-file-code text-3xl text-purple-400 mb-3 block"></i>
+          <div class="text-sm text-gray-300 mb-1">Drop your HTML file here or <span class="text-purple-400 cursor-pointer" id="browseBtn">browse</span></div>
+          <div class="text-xs text-gray-500">Self-contained HTML only — no external CDN links · Max 100KB</div>
+          <input type="file" id="fileInput" accept=".html,.htm" class="hidden"/>
+        </div>
+
+        <!-- File stats (shown after upload) -->
+        <div id="fileStats" class="hidden mt-4 space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-gray-400 flex items-center gap-2"><i class="fas fa-file-code text-purple-400"></i> <span id="fileName">—</span></span>
+            <div class="flex items-center gap-3">
+              <span id="fileSizeText" class="mono text-white">0 KB</span>
+              <span id="filePctText" class="mono text-xs text-gray-500">0% of limit</span>
+            </div>
+          </div>
+          <div class="size-bar-track">
+            <div id="sizeBar" class="size-bar-fill" style="width:0%;background:linear-gradient(90deg,#a78bfa,#22d3ee)"></div>
+          </div>
+          <div id="sizeWarning" class="hidden text-xs text-yellow-400 flex items-center gap-1">
+            <i class="fas fa-triangle-exclamation"></i> Approaching 100KB limit — consider minifying CSS/JS
+          </div>
+          <div id="sizeError" class="hidden text-xs text-red-400 flex items-center gap-1">
+            <i class="fas fa-circle-xmark"></i> Exceeds 100KB limit — reduce file size before deploying
+          </div>
+          <button id="previewBtn" class="text-xs text-cyan-400 hover:text-cyan-300 transition-colors">
+            <i class="fas fa-eye mr-1"></i> Preview HTML
+          </button>
+        </div>
+      </div>
+
+      <!-- Preview modal -->
+      <div id="previewModal" class="hidden glass-card rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-3">
+          <span class="font-display text-xs text-purple-400 tracking-widest">PREVIEW</span>
+          <button id="closePreviewBtn" class="text-gray-500 hover:text-white text-xs"><i class="fas fa-xmark"></i> Close</button>
+        </div>
+        <iframe id="previewFrame" class="preview-frame" sandbox="allow-scripts"></iframe>
+      </div>
+
+      <!-- Fee info -->
+      <div id="feeInfo" class="hidden glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">DEPLOYMENT COST</div>
+        <div class="space-y-2">
+          <div class="info-row">
+            <span class="text-gray-400">Storage Fee</span>
+            <span id="storageFeeDisplay" class="mono text-white">—</span>
+          </div>
+          <div class="info-row">
+            <span class="text-gray-400">Gas (estimated)</span>
+            <span id="gasEstimateDisplay" class="mono text-gray-300">—</span>
+          </div>
+          <div class="info-row">
+            <span class="text-gray-400">Future Edits</span>
+            <span class="mono text-green-400">Gas only · forever free</span>
+          </div>
+          <div class="info-row">
+            <span class="text-gray-400">USD Estimate</span>
+            <span id="usdEstimate" class="mono text-gray-300">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deploy button -->
+      <button id="deployBtn" disabled class="w-full btn-primary text-white font-bold font-display text-sm py-3.5 rounded-xl opacity-40 cursor-not-allowed transition-all">
+        <i class="fas fa-upload mr-2"></i> Deploy On-Chain
+      </button>
+
+      <!-- TX result -->
+      <div id="txResult" class="hidden glass-card rounded-2xl p-5 border border-cyan-500/20" style="background:rgba(34,211,238,0.04)">
+        <div class="font-display text-sm font-bold text-cyan-400 mb-3"><i class="fas fa-check-circle mr-2"></i> Deployed Successfully</div>
+        <div class="space-y-2">
+          <div class="info-row">
+            <span class="text-gray-400">Domain</span>
+            <span id="txDomain" class="mono text-cyan-400">—</span>
+          </div>
+          <div class="info-row">
+            <span class="text-gray-400">TX Hash</span>
+            <a id="txHashLink" href="#" target="_blank" class="mono text-purple-400 hover:text-purple-300 text-xs break-all">—</a>
+          </div>
+          <div class="info-row">
+            <span class="text-gray-400">Version</span>
+            <span id="txVersion" class="mono text-white">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       EXPLORE PAGE
+  ═══════════════════════════ -->
+  <div id="explorePage" class="page max-w-4xl mx-auto">
+    <div class="glass-card rounded-2xl p-5 mb-5">
+      <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">LOOK UP ANY DOMAIN</div>
+      <div class="flex gap-3">
+        <input type="text" id="exploreInput" placeholder="e.g. onchain.atom" class="flex-1"/>
+        <button id="exploreBtn" class="btn-primary text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:opacity-90 whitespace-nowrap">
+          <i class="fas fa-search mr-1"></i> Look Up
+        </button>
+      </div>
+    </div>
+
+    <div id="exploreResult" class="hidden space-y-4">
+      <!-- Site metadata -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">SITE INFO</div>
+        <div class="space-y-1">
+          <div class="info-row"><span class="text-gray-400">Domain</span><span id="exDomain" class="mono text-cyan-400">—</span></div>
+          <div class="info-row"><span class="text-gray-400">Owner</span><span id="exOwner" class="mono text-xs text-gray-300 break-all text-right">—</span></div>
+          <div class="info-row"><span class="text-gray-400">Current Version</span><span id="exVersion" class="mono text-white">—</span></div>
+          <div class="info-row"><span class="text-gray-400">Size</span><span id="exSize" class="mono text-white">—</span></div>
+          <div class="info-row"><span class="text-gray-400">Created</span><span id="exCreated" class="mono text-gray-300">—</span></div>
+          <div class="info-row"><span class="text-gray-400">Last Updated</span><span id="exUpdated" class="mono text-gray-300">—</span></div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="glass-card rounded-2xl p-4">
+        <div class="flex justify-between items-center mb-3">
+          <div class="font-display text-xs font-bold text-purple-400 tracking-widest">LIVE PREVIEW</div>
+          <span class="text-xs text-gray-500">Rendered directly from chain</span>
+        </div>
+        <iframe id="exploreFrame" class="preview-frame" sandbox="allow-scripts"></iframe>
+      </div>
+
+      <!-- Version history -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">VERSION HISTORY</div>
+        <div id="versionList" class="space-y-1"></div>
+      </div>
+    </div>
+
+    <div id="exploreNotFound" class="hidden glass-card rounded-2xl p-8 text-center">
+      <i class="fas fa-circle-xmark text-3xl text-red-400 mb-3 block"></i>
+      <div class="font-display text-sm font-bold text-red-400 mb-1">No Site Found</div>
+      <div class="text-xs text-gray-500" id="exploreNotFoundMsg">This domain has no on-chain site stored yet.</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       MY SITES PAGE
+  ═══════════════════════════ -->
+  <div id="mysitesPage" class="page max-w-3xl mx-auto">
+    <div id="mySitesConnect" class="glass-card rounded-2xl p-8 text-center">
+      <i class="fas fa-folder-open text-3xl text-purple-400 mb-3 block"></i>
+      <div class="font-display text-sm font-bold text-white mb-2">Your On-Chain Sites</div>
+      <p class="text-gray-400 text-xs mb-4">Connect wallet to see all domains where you have an on-chain site stored.</p>
+      <button id="connectMySitesBtn" class="btn-primary text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:opacity-90">
+        <i class="fas fa-plug mr-2"></i> Connect Wallet
+      </button>
+    </div>
+    <div id="mySitesList" class="hidden space-y-3"></div>
+    <div id="mySitesEmpty" class="hidden glass-card rounded-2xl p-8 text-center">
+      <i class="fas fa-circle-info text-3xl text-gray-600 mb-3 block"></i>
+      <div class="text-gray-400 text-sm">No on-chain sites found for your address.</div>
+      <button class="mt-4 btn-primary text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:opacity-90" onclick="showPage('deploy')">
+        Deploy Your First Site
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════
+       INFO PAGE
+  ═══════════════════════════ -->
+  <div id="infoPage" class="page max-w-2xl mx-auto">
+    <div class="space-y-4">
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">CONTRACT INFO</div>
+        <div class="space-y-1">
+          <div class="info-row"><span class="text-gray-400">Network</span><span class="mono text-white">Cosmos Hub (cosmoshub-4)</span></div>
+          <div class="info-row"><span class="text-gray-400">Contract</span><a href="https://www.mintscan.io/cosmos/wasm/contract/cosmos1xg6jh7nechv6kxrw35m08qdpaysnu97xjz5alql75p2k5xrcdvjs8rx7jt" target="_blank" class="mono text-purple-400 hover:text-purple-300 text-xs break-all">cosmos1xg6jh7nechv6kxrw35m08qdpaysnu97xjz5alql75p2k5xrcdvjs8rx7jt</a></div>
+          <div class="info-row"><span class="text-gray-400">Registry</span><span class="mono text-xs text-gray-300">cosmos16nff0lmuegn2zr6ca3dp8jnqltpq2c9ayhmqn3avjq0wne95h2xqkhn9qe</span></div>
+          <div class="info-row"><span class="text-gray-400">Storage Fee</span><span class="mono text-white">5 ATOM (first time only)</span></div>
+          <div class="info-row"><span class="text-gray-400">Edit Cost</span><span class="mono text-green-400">Gas only · forever</span></div>
+          <div class="info-row"><span class="text-gray-400">Max Size</span><span class="mono text-white">100 KB</span></div>
+          <div class="info-row"><span class="text-gray-400">ATOM Price</span><span id="atomPriceDisplay" class="mono text-cyan-400">Loading...</span></div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">HOW IT WORKS</div>
+        <div class="space-y-3 text-xs text-gray-400 leading-relaxed">
+          <p><span class="text-purple-400 font-bold">1. Build</span> — Create a self-contained HTML file. No external CDN links, no Google Fonts, no external images. Everything inline. Under 100KB.</p>
+          <p><span class="text-purple-400 font-bold">2. Verify</span> — Connect Keplr. Enter your domain name. We verify you own it against the Atom Registry contract on-chain.</p>
+          <p><span class="text-purple-400 font-bold">3. Deploy</span> — Upload your HTML. Pay 5 ATOM one-time storage fee. Sign with Keplr. Your page is written to CosmWasm state on Cosmos Hub permanently.</p>
+          <p><span class="text-purple-400 font-bold">4. Edit</span> — Update anytime. No fee — just gas. Every version is preserved on-chain with a timestamp.</p>
+          <p><span class="text-purple-400 font-bold">5. Browse</span> — Install the Atom Registry Browser Extension. Type your domain in Chrome. The extension fetches your HTML from the chain and renders it directly. No server. No DNS. Just the chain.</p>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">REQUIREMENTS</div>
+        <div class="space-y-2 text-xs text-gray-400">
+          <div class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5"></i><span>Keplr wallet with Cosmos Hub configured</span></div>
+          <div class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5"></i><span>A registered domain on Atom Registry that you own</span></div>
+          <div class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5"></i><span>5 ATOM in your wallet for first-time storage (+ gas)</span></div>
+          <div class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5"></i><span>Self-contained HTML file under 100KB (no external dependencies)</span></div>
+          <div class="flex items-start gap-2"><i class="fas fa-check text-green-400 mt-0.5"></i><span>Atom Registry Browser Extension to view on-chain sites</span></div>
+        </div>
+      </div>
+
+      <a href="/browser.html" class="block glass-card rounded-2xl p-5 hover:border-purple-500/40 transition-all">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-1">BROWSER EXTENSION</div>
+            <div class="text-xs text-gray-400">Download the Atom Registry Browser Extension to view on-chain sites in Chrome, Edge, Brave & Opera.</div>
+          </div>
+          <i class="fas fa-arrow-right text-purple-400 ml-4"></i>
+        </div>
+      </a>
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script>
+// ── ProtoWriter — no external deps, same as atomregistry.com ─────────────────
+function PW(){this.c=[];}
+PW.prototype.v=function(n){var b=[];if(typeof n==='bigint'){while(n>127n){b.push(Number(n&0x7Fn)|0x80);n>>=7n;}b.push(Number(n));}else{n=Math.floor(n);while(n>127){b.push((n&0x7F)|0x80);n=Math.floor(n/128);}b.push(n&0x7F);}this.c.push(new Uint8Array(b));return this;};
+PW.prototype.t=function(f,w){return this.v((f<<3)|w);};
+PW.prototype.s=function(f,str){if(!str&&str!==0)return this;str=String(str);if(!str.length)return this;var e=new TextEncoder().encode(str);this.t(f,2).v(e.length).c.push(e);return this;};
+PW.prototype.b=function(f,arr){if(!arr||!arr.length)return this;var u=arr instanceof Uint8Array?arr:new Uint8Array(arr);this.t(f,2).v(u.length).c.push(u);return this;};
+PW.prototype.u64=function(f,n){var bn=typeof n==='bigint'?n:BigInt(Math.floor(Number(n)));if(bn===0n)return this;return this.t(f,0).v(bn);};
+PW.prototype.fin=function(){var tot=0;for(var i=0;i<this.c.length;i++)tot+=this.c[i].length;var o=new Uint8Array(tot),p=0;for(var i=0;i<this.c.length;i++){o.set(this.c[i],p);p+=this.c[i].length;}return o;};
+function toB64(u8){var s='';for(var i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return btoa(s);}
+function unb64(b){var s=atob(b);var u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+function derToCompact(der){var pos=4,rLen=der[3];if(der[pos]===0x00){pos++;rLen--;}var r=der.slice(pos,pos+rLen);pos+=rLen+2;var sLen=der[pos-1];if(der[pos]===0x00){pos++;sLen--;}var s=der.slice(pos,pos+sLen);var out=new Uint8Array(64);out.set(r,32-r.length);out.set(s,64-s.length);return out;}
+function aminoSort(obj){if(typeof obj!=='object'||obj===null)return obj;if(Array.isArray(obj))return obj.map(aminoSort);return Object.keys(obj).sort().reduce(function(a,k){a[k]=aminoSort(obj[k]);return a;},{});}
+async function walletSign(bodyBytes,authBytes,acct,executeMsg,fundsUatom,contractAddr,feeAmount,gasLimit){
+  if(walletType==='keplr'||walletType==='leap'){
+    var w=walletType==='keplr'?window.keplr:window.leap;
+    var resp=await w.signDirect(CHAIN_ID,userAddress,{bodyBytes:bodyBytes,authInfoBytes:authBytes,chainId:CHAIN_ID,accountNumber:String(acct.accountNumber)});
+    return txRaw(resp.signed.bodyBytes,resp.signed.authInfoBytes,unb64(resp.signature.signature));
+  }
+  if(walletType==='ledger'){
+    var doc=aminoSort({account_number:String(acct.accountNumber),chain_id:CHAIN_ID,fee:{amount:[{amount:feeAmount||'10000',denom:'uatom'}],gas:String(gasLimit||GAS_FALLBACK)},memo:'',msgs:[{type:'wasm/MsgExecuteContract',value:{sender:userAddress,contract:contractAddr,msg:executeMsg,funds:fundsUatom>0?[{denom:'uatom',amount:String(fundsUatom)}]:[]}}],sequence:String(acct.sequence)});
+    var res=await ledgerApp.sign([44,118,0,0,0],new TextEncoder().encode(JSON.stringify(doc)));
+    if(!res||res.error_message!=='No errors')throw new Error('Ledger: '+(res.error_message||'signing failed'));
+    return txRaw(bodyBytes,authBytes,derToCompact(res.signature));
+  }
+  throw new Error('No wallet connected');
+}
+var TYPE_EXECUTE='/cosmwasm.wasm.v1.MsgExecuteContract';
+var TYPE_PUBKEY='/cosmos.crypto.secp256k1.PubKey';
+var GAS_PRICE=0.025,GAS_ADJ=1.8,GAS_FALLBACK=8000000;
+function encodeMsgExecute(sender,contract,msgObj,fundsUatom){var pw=new PW().s(1,sender).s(2,contract).b(3,new TextEncoder().encode(JSON.stringify(msgObj)));if(fundsUatom&&fundsUatom>0)pw.b(5,new PW().s(1,'uatom').s(2,String(fundsUatom)).fin());return pw.fin();}
+function anyMsg(t,v){return new PW().s(1,t).b(2,v).fin();}
+function txBody(msgBytes){return new PW().b(1,anyMsg(TYPE_EXECUTE,msgBytes)).fin();}
+function modeInfoDirect(){return new PW().b(1,new PW().u64(1,1n).fin()).fin();}
+function signerInfo(pk,seq){return new PW().b(1,anyMsg(TYPE_PUBKEY,new PW().b(1,pk).fin())).b(2,modeInfoDirect()).u64(3,seq).fin();}
+function feeMsg(amt,gas){return new PW().b(1,new PW().s(1,'uatom').s(2,String(amt)).fin()).u64(2,BigInt(gas)).fin();}
+function authInfo(pk,seq,fee,gas){return new PW().b(1,signerInfo(pk,seq)).b(2,feeMsg(fee,gas)).fin();}
+function txRaw(body,auth,sig){return new PW().b(1,body).b(2,auth).b(3,sig).fin();}
+var pubKey=null;
+var walletType=null;
+var ledgerApp=null;
+var ledgerTransport=null;
+async function getAccount(addr){for(var i=0;i<LCD_ENDPOINTS.length;i++){try{var r=await fetch(LCD_ENDPOINTS[i]+'/cosmos/auth/v1beta1/accounts/'+addr);if(!r.ok)continue;var d=await r.json();var a=d.account?.base_account||d.account;return {accountNumber:parseInt(a?.account_number||0),sequence:parseInt(a?.sequence||0)};}catch(e){}}return {accountNumber:0,sequence:0};}
+async function simulateGas(bodyBytes,authBytes){var sim=txRaw(bodyBytes,authBytes,new Uint8Array(64));for(var i=0;i<LCD_ENDPOINTS.length;i++){try{var r=await fetch(LCD_ENDPOINTS[i]+'/cosmos/tx/v1beta1/simulate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tx_bytes:toB64(sim)})});if(!r.ok)continue;var j=await r.json();var gas=parseInt((j.gas_info||{}).gas_used||0);if(gas>50000)return Math.ceil(gas*GAS_ADJ);}catch(e){}}return GAS_FALLBACK;}
+async function broadcastTx(rawBytes){var last;for(var i=0;i<LCD_ENDPOINTS.length;i++){try{var r=await fetch(LCD_ENDPOINTS[i]+'/cosmos/tx/v1beta1/txs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tx_bytes:toB64(rawBytes),mode:'BROADCAST_MODE_SYNC'})});if(!r.ok)throw new Error('HTTP '+r.status);var j=await r.json();var res=j.tx_response||j;return {code:parseInt(res.code||0),txhash:res.txhash||'',rawLog:res.raw_log||''};}catch(e){last=e;}}throw last||new Error('Broadcast failed');}
+async function signAndBroadcastSite(contract,executeMsg,fundsUatom){
+  var msgBytes=encodeMsgExecute(userAddress,contract,executeMsg,fundsUatom);
+  var bodyBytes=txBody(msgBytes);
+  var acct=await getAccount(userAddress);
+  var ph=GAS_FALLBACK;
+  var authBytes=authInfo(pubKey,acct.sequence,String(Math.ceil(ph*GAS_PRICE)),ph);
+  var gasLimit=await simulateGas(bodyBytes,authBytes);
+  var feeAmount=String(Math.ceil(gasLimit*GAS_PRICE));
+  authBytes=authInfo(pubKey,acct.sequence,feeAmount,gasLimit);
+  toast('Awaiting wallet signature…');
+  var rawBytes=await walletSign(bodyBytes,authBytes,acct,executeMsg,fundsUatom,contract,feeAmount,gasLimit);
+  toast('Broadcasting to Cosmos Hub…');
+  var result=await broadcastTx(rawBytes);
+  if(result.code!==0)throw new Error('Chain error ('+result.code+'): '+result.rawLog.slice(0,200));
+  return result;
+}
+
+// ── Config ────────────────────────────────────────────────────────────────────
+const SITE_REGISTRY = "cosmos1xg6jh7nechv6kxrw35m08qdpaysnu97xjz5alql75p2k5xrcdvjs8rx7jt";
+const ATOM_REGISTRY = "cosmos16nff0lmuegn2zr6ca3dp8jnqltpq2c9ayhmqn3avjq0wne95h2xqkhn9qe";
+const CHAIN_ID      = "cosmoshub-4";
+const STORAGE_FEE   = 5_000_000; // uatom
+const MAX_HTML_BYTES = 100 * 1024;
+
+const LCD_ENDPOINTS = [
+  "https://cosmos-rest.publicnode.com",
+  "https://rest.cosmos.directory/cosmoshub",
+  "https://cosmoshub-api.lavenderfive.com",
+  "https://cosmos-api.polkachu.com"
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let userAddress = null;
+let atomPrice   = null;
+let htmlContent = null;
+let verifiedDomain = null;
+let domainIsFirstTime = true;
+let previewBlobUrl = null;
+let exploreBlobUrl = null;
+let lastSimulatedGas = null;
+let lastSimulatedGasAtom = null;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+let toastTimer;
+function toast(msg, type="ok"){
+  const el=$("toast");
+  el.textContent=msg;
+  el.style.borderColor=type==="error"?"rgba(239,68,68,0.4)":type==="warn"?"rgba(251,191,36,0.4)":"rgba(167,139,250,0.4)";
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove("show"),3500);
+}
+
+function uatom(n){ return (parseInt(n||0)/1e6).toFixed(2)+" ATOM"; }
+function fmtBytes(b){ return b<1024?b+" B":(b/1024).toFixed(1)+" KB"; }
+function fmtTs(ts){ return new Date(ts*1000).toLocaleString(); }
+
+function revokeBlobUrl(kind){
+  if(kind==="preview" && previewBlobUrl){ try{ URL.revokeObjectURL(previewBlobUrl); }catch(e){} previewBlobUrl=null; }
+  if(kind==="explore" && exploreBlobUrl){ try{ URL.revokeObjectURL(exploreBlobUrl); }catch(e){} exploreBlobUrl=null; }
+}
+
+function setIframeBlob(iframeId, html, kind){
+  revokeBlobUrl(kind);
+  const blob = new Blob([html],{type:"text/html"});
+  const url = URL.createObjectURL(blob);
+  if(kind==="preview") previewBlobUrl=url;
+  if(kind==="explore") exploreBlobUrl=url;
+  $(iframeId).src = url;
+}
+
+function resetVerificationState(){
+  verifiedDomain = null;
+  domainIsFirstTime = true;
+  lastSimulatedGas = null;
+  lastSimulatedGasAtom = null;
+  $("ownerStatus").classList.add("hidden");
+  $("siteExistsNote").classList.add("hidden");
+  $("feeInfo").classList.add("hidden");
+  $("storageFeeDisplay").textContent = "—";
+  $("gasEstimateDisplay").textContent = "—";
+  $("usdEstimate").textContent = "—";
+  updateDeployBtn();
+}
+
+function inspectHtmlContent(html){
+  const issues = [];
+  const tests = [
+    { re: /<script[^>]+src\s*=\s*["']https?:\/\//i, msg: "External <script src> URLs are not allowed" },
+    { re: /<link[^>]+href\s*=\s*["']https?:\/\//i, msg: "External stylesheet or font links are not allowed" },
+    { re: /<img[^>]+src\s*=\s*["']https?:\/\//i, msg: "External image URLs are not allowed" },
+    { re: /<iframe[^>]+src\s*=\s*["']https?:\/\//i, msg: "External iframe URLs are not allowed" },
+    { re: /@import\s+url\s*\(\s*["']?https?:\/\//i, msg: "External CSS @import URLs are not allowed" },
+    { re: /url\(\s*["']?https?:\/\//i, msg: "External CSS asset URLs are not allowed" },
+    { re: /https?:\/\/fonts\.(googleapis|gstatic)\.com/i, msg: "Google Fonts links are not allowed" },
+    { re: /https?:\/\/cdn\./i, msg: "CDN-hosted assets are not allowed" },
+  ];
+  for(const t of tests){ if(t.re.test(html)) issues.push(t.msg); }
+  return Array.from(new Set(issues));
+}
+
+async function estimateDeploymentCost(){
+  if(!userAddress || !verifiedDomain || !htmlContent || !pubKey) return;
+  try{
+    $("gasEstimateDisplay").textContent = "Estimating…";
+    const msgBytes=encodeMsgExecute(userAddress,SITE_REGISTRY,{ set_site: { name: verifiedDomain, html: htmlContent } },domainIsFirstTime ? STORAGE_FEE : 0);
+    const bodyBytes=txBody(msgBytes);
+    const acct=await getAccount(userAddress);
+    const authBytes=authInfo(pubKey,acct.sequence,String(Math.ceil(GAS_FALLBACK*GAS_PRICE)),GAS_FALLBACK);
+    const gasLimit=await simulateGas(bodyBytes,authBytes);
+    const gasAtom=(Math.ceil(gasLimit*GAS_PRICE)/1e6);
+    lastSimulatedGas = gasLimit;
+    lastSimulatedGasAtom = gasAtom;
+    $("gasEstimateDisplay").textContent = `~${gasLimit.toLocaleString()} gas · ~${gasAtom.toFixed(3)} ATOM`;
+    updateUsdEstimate();
+  }catch(e){
+    lastSimulatedGas = null;
+    lastSimulatedGasAtom = null;
+    $("gasEstimateDisplay").textContent = "Estimate unavailable";
+    updateUsdEstimate();
+  }
+}
+
+async function queryContract(contract, msg){
+  const enc = btoa(JSON.stringify(msg));
+  for(const ep of LCD_ENDPOINTS){
+    try{
+      const r = await fetch(`${ep}/cosmwasm/wasm/v1/contract/${contract}/smart/${enc}`);
+      if(!r.ok) continue;
+      const d = await r.json();
+      return d.data;
+    }catch(e){ continue; }
+  }
+  throw new Error("All endpoints failed");
+}
+
+// ── ATOM Price ────────────────────────────────────────────────────────────────
+async function fetchAtomPrice(){
+  try{
+    const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=cosmos&vs_currencies=usd");
+    const d = await r.json();
+    atomPrice = d.cosmos?.usd || null;
+    if(atomPrice){
+      $("atomPriceDisplay").textContent = "$"+atomPrice.toFixed(2)+" USD";
+      updateUsdEstimate();
+    }
+  }catch(e){
+    $("atomPriceDisplay").textContent = "Unavailable";
+  }
+}
+
+function updateUsdEstimate(){
+  if(!atomPrice){
+    $("usdEstimate").textContent = "—";
+    return;
+  }
+  const feeAtom = domainIsFirstTime ? 5 : 0;
+  const gasAtom = typeof lastSimulatedGasAtom === "number" ? lastSimulatedGasAtom : 0;
+  const total = feeAtom + gasAtom;
+  const usd = (total * atomPrice).toFixed(2);
+  $("usdEstimate").textContent = `~$${usd} USD (${total.toFixed(3)} ATOM)`;
+}
+
+// ── Nav tabs ──────────────────────────────────────────────────────────────────
+function showPage(tab){
+  document.querySelectorAll(".tab-btn[data-tab]").forEach(b=>{
+    b.classList.toggle("active", b.dataset.tab===tab);
+    b.classList.toggle("text-gray-400", b.dataset.tab!==tab);
+  });
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  $(tab+"Page").classList.add("active");
+  if(tab==="mysites" && userAddress) loadMySites();
+}
+
+document.querySelectorAll(".tab-btn[data-tab]").forEach(btn=>{
+  btn.addEventListener("click",()=>showPage(btn.dataset.tab));
+});
+
+// ── Wallet ────────────────────────────────────────────────────────────────────
+function openWalletModal(){$("walletModal").classList.remove("hidden");}
+function closeWalletModal(){$("walletModal").classList.add("hidden");}
+
+async function connectWallet(type){
+  closeWalletModal();
+  try{
+    if(type==='keplr'){
+      if(!window.keplr){toast("Keplr not found","error");window.open("https://www.keplr.app/","_blank");return;}
+      await window.keplr.enable(CHAIN_ID);
+      const k=await window.keplr.getKey(CHAIN_ID);
+      userAddress=k.bech32Address;pubKey=k.pubKey;walletType='keplr';
+    } else if(type==='leap'){
+      if(!window.leap){toast("Leap not found","error");window.open("https://www.leapwallet.io/","_blank");return;}
+      await window.leap.enable(CHAIN_ID);
+      const k=await window.leap.getKey(CHAIN_ID);
+      userAddress=k.bech32Address;pubKey=k.pubKey;walletType='leap';
+    } else if(type==='ledger'){
+      toast("Opening Ledger — unlock device, open Cosmos app…","ok");
+      try{
+        const t=await import("https://esm.sh/@ledgerhq/hw-transport-webhid@6.34.0");
+        const WebHID=t.default||t;
+        const a=await import("https://esm.sh/@ledgerhq/hw-app-cosmos@6.35.1");
+        const CosmosApp=a.default||a;
+        ledgerTransport=await WebHID.create();
+        ledgerApp=new CosmosApp(ledgerTransport);
+        const addr=await ledgerApp.getAddress("44'/118'/0'/0/0","cosmos");
+        if(addr.error_message&&addr.error_message!=="No errors")throw new Error(addr.error_message);
+        userAddress=addr.address;pubKey=addr.publicKey;walletType='ledger';
+      }catch(le){
+        if(ledgerTransport){try{ledgerTransport.close();}catch(e){} ledgerTransport=null;}
+  try{sessionStorage.removeItem('ar_wallet');}catch(e){}ledgerApp=null;
+        const m=le.message||String(le);
+        if(/hid/i.test(m))toast("WebHID not available — use Chrome or Edge","error");
+        else if(/timeout/i.test(m))toast("Ledger timed out — unlock and open Cosmos app","error");
+        else toast("Ledger: "+m.slice(0,80),"error");
+        return;
+      }
+    }
+    onConnected();
+  }catch(e){toast("Connect failed: "+(e.message||String(e)),"error");}
+}
+
+function onConnected(){
+  try{sessionStorage.setItem('ar_wallet',JSON.stringify({type:walletType,address:userAddress}));}catch(e){}
+  $("walletBar").classList.remove("hidden");
+  const bc=walletType==='leap'?'wb-l':walletType==='ledger'?'wb-d':'wb-k';
+  const bl=walletType==='leap'?'Leap':walletType==='ledger'?'Ledger':'Keplr';
+  $("walletAddrShort").textContent = userAddress.slice(0,12)+"..."+userAddress.slice(-6);
+  const badge=$("walletBadge");
+  if(badge){badge.className='wb '+bc;badge.textContent=bl;}
+  $("deployConnect").classList.add("hidden");
+  $("deployForm").classList.remove("hidden");
+  $("mySitesConnect").classList.add("hidden");
+  loadBalance();
+  updateUsdEstimate();
+}
+
+function disconnect(){
+  if(ledgerTransport){try{ledgerTransport.close();}catch(e){} ledgerTransport=null;}
+  try{sessionStorage.removeItem('ar_wallet');}catch(e){}
+  userAddress=null;pubKey=null;walletType=null;ledgerApp=null;
+  revokeBlobUrl("preview");
+  revokeBlobUrl("explore");
+  resetVerificationState();
+  $("walletBar").classList.add("hidden");
+  $("deployConnect").classList.remove("hidden");
+  $("deployForm").classList.add("hidden");
+  $("mySitesConnect").classList.remove("hidden");
+  $("mySitesList").classList.add("hidden");
+  $("mySitesEmpty").classList.add("hidden");
+}
+
+async function loadBalance(){
+  try{
+    for(const ep of LCD_ENDPOINTS){
+      try{
+        const r = await fetch(`${ep}/cosmos/bank/v1beta1/balances/${userAddress}`);
+        if(!r.ok) continue;
+        const d = await r.json();
+        const coin = (d.balances||[]).find(b=>b.denom==="uatom");
+        $("walletBal").textContent = coin ? uatom(coin.amount) : "0.00 ATOM";
+        return;
+      }catch(e){ continue; }
+    }
+  }catch(e){
+    $("atomPriceDisplay").textContent = "Unavailable";
+  }
+}
+
+["connectDeployBtn","connectMySitesBtn"].forEach(id=>{
+  const el=$(id);
+  if(el) el.addEventListener("click",openWalletModal);
+});
+$("disconnectBtn").addEventListener("click",disconnect);
+
+// ── Domain Ownership Verify ───────────────────────────────────────────────────
+$("verifyDomainBtn").addEventListener("click", verifyDomain);
+$("domainInput").addEventListener("keydown", e=>{ if(e.key==="Enter") verifyDomain(); });
+$("domainInput").addEventListener("input", ()=>{ resetVerificationState(); });
+
+async function verifyDomain(){
+  if(!userAddress){ toast("Connect wallet first","warn"); return; }
+  const name = $("domainInput").value.trim().toLowerCase();
+  if(!name){ toast("Enter a domain name","warn"); return; }
+
+  const status = $("ownerStatus");
+  status.className = "mt-2 owner-badge owner-checking";
+  status.innerHTML = `<span class="spin-icon"></span> Checking ownership...`;
+  status.classList.remove("hidden");
+  $("siteExistsNote").classList.add("hidden");
+  verifiedDomain = null;
+  updateDeployBtn();
+
+  try{
+    // Check ownership in registry
+    const ownerResp = await queryContract(ATOM_REGISTRY, { owner_of: { name } });
+    const owner = ownerResp?.owner;
+
+    if(!owner){
+      status.className = "mt-2 owner-badge owner-fail";
+      status.innerHTML = `<i class="fas fa-circle-xmark"></i> Domain not registered`;
+      return;
+    }
+
+    if(owner.toLowerCase() !== userAddress.toLowerCase()){
+      status.className = "mt-2 owner-badge owner-fail";
+      status.innerHTML = `<i class="fas fa-circle-xmark"></i> Not your domain — owner: ${owner.slice(0,12)}...`;
+      return;
+    }
+
+    // Ownership confirmed — now check if site exists
+    status.className = "mt-2 owner-badge owner-ok";
+    status.innerHTML = `<i class="fas fa-circle-check"></i> Verified — you own this domain`;
+    verifiedDomain = name;
+
+    try{
+      const site = await queryContract(SITE_REGISTRY, { site: { name } });
+      if(site && site.html){
+        domainIsFirstTime = false;
+        $("siteExistsMsg").textContent = `Version ${site.version} already stored (${fmtBytes(site.size_bytes)}) — this will be a free edit (gas only)`;
+        $("storageFeeDisplay").textContent = "Free (edit — gas only)";
+      } else {
+        domainIsFirstTime = true;
+        $("storageFeeDisplay").textContent = "5 ATOM (first time)";
+      }
+    }catch(e){
+      domainIsFirstTime = true;
+      $("storageFeeDisplay").textContent = "5 ATOM (first time)";
+    }
+
+    $("siteExistsNote").classList.remove("hidden");
+    $("feeInfo").classList.remove("hidden");
+    updateUsdEstimate();
+    updateDeployBtn();
+    estimateDeploymentCost();
+
+  }catch(e){
+    status.className = "mt-2 owner-badge owner-fail";
+    status.innerHTML = `<i class="fas fa-circle-xmark"></i> Verification failed: ${e.message}`;
+  }
+}
+
+// ── File Upload ───────────────────────────────────────────────────────────────
+const dropZone = $("dropZone");
+const fileInput = $("fileInput");
+
+$("browseBtn").addEventListener("click",()=>fileInput.click());
+dropZone.addEventListener("click",()=>fileInput.click());
+fileInput.addEventListener("change",e=>handleFile(e.target.files[0]));
+
+dropZone.addEventListener("dragover",e=>{ e.preventDefault(); dropZone.classList.add("dragover"); });
+dropZone.addEventListener("dragleave",()=>dropZone.classList.remove("dragover"));
+dropZone.addEventListener("drop",e=>{ e.preventDefault(); dropZone.classList.remove("dragover"); handleFile(e.dataTransfer.files[0]); });
+
+function handleFile(file){
+  if(!file) return;
+  if(!file.name.match(/\.html?$/i)){ toast("HTML files only","error"); return; }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    let nextHtml = e.target.result;
+    const bytes = new TextEncoder().encode(nextHtml).length;
+    const pct = Math.min(100, (bytes/MAX_HTML_BYTES)*100);
+    const issues = inspectHtmlContent(nextHtml);
+
+    $("fileName").textContent = file.name;
+    $("fileSizeText").textContent = fmtBytes(bytes);
+    $("filePctText").textContent = pct.toFixed(1)+"% of 100KB limit";
+    $("fileStats").classList.remove("hidden");
+
+    const bar = $("sizeBar");
+    bar.style.width = pct+"%";
+    if(pct > 90){
+      bar.style.background = "linear-gradient(90deg,#ef4444,#dc2626)";
+      $("sizeError").classList.toggle("hidden", pct<=100);
+      $("sizeWarning").classList.add("hidden");
+    } else if(pct > 75){
+      bar.style.background = "linear-gradient(90deg,#f59e0b,#eab308)";
+      $("sizeWarning").classList.remove("hidden");
+      $("sizeError").classList.add("hidden");
+    } else {
+      bar.style.background = "linear-gradient(90deg,#a78bfa,#22d3ee)";
+      $("sizeWarning").classList.add("hidden");
+      $("sizeError").classList.add("hidden");
+    }
+
+    htmlContent = nextHtml;
+    if(bytes > MAX_HTML_BYTES){
+      htmlContent = null;
+      toast("Exceeds 100KB limit — reduce file size before deploying","error");
+    } else if(issues.length){
+      htmlContent = null;
+      toast("Upload blocked: "+issues[0],"error");
+      $("sizeError").classList.remove("hidden");
+      $("sizeWarning").classList.add("hidden");
+    }
+
+    updateDeployBtn();
+    if(verifiedDomain && htmlContent) estimateDeploymentCost();
+  };
+  reader.readAsText(file);
+}
+
+// ── Preview ───────────────────────────────────────────────────────────────────
+$("previewBtn").addEventListener("click",()=>{
+  if(!htmlContent) return;
+  setIframeBlob("previewFrame", htmlContent, "preview");
+  $("previewModal").classList.remove("hidden");
+});
+
+$("closePreviewBtn").addEventListener("click",()=>{
+  $("previewModal").classList.add("hidden");
+  $("previewFrame").src = "";
+  revokeBlobUrl("preview");
+});
+
+// ── Deploy Button State ───────────────────────────────────────────────────────
+function updateDeployBtn(){
+  const btn = $("deployBtn");
+  const currentDomain = $("domainInput").value.trim().toLowerCase();
+  const ready = verifiedDomain && htmlContent && verifiedDomain===currentDomain;
+  btn.disabled = !ready;
+  btn.classList.toggle("opacity-40",!ready);
+  btn.classList.toggle("cursor-not-allowed",!ready);
+  btn.classList.toggle("hover:opacity-90",ready);
+}
+
+// ── Deploy ────────────────────────────────────────────────────────────────────
+$("deployBtn").addEventListener("click", async ()=>{
+  if(!verifiedDomain || !htmlContent || !userAddress) return;
+
+  const btn = $("deployBtn");
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spin-icon mr-2"></span> Signing with Keplr...`;
+
+  try{
+    const funds = domainIsFirstTime
+      ? [{ denom:"uatom", amount: String(STORAGE_FEE) }]
+      : [];
+
+    const msg = {
+      typeUrl: "/cosmwasm.wasm.v1.MsgExecuteContract",
+      value: {
+        sender: userAddress,
+        contract: SITE_REGISTRY,
+        msg: new TextEncoder().encode(JSON.stringify({
+          set_site: { name: verifiedDomain, html: htmlContent }
+        })),
+        funds
+      }
+    };
+
+    // Use Keplr signAndBroadcast via CosmJS
+    btn.innerHTML = `<span class="spin-icon mr-2"></span> Signing with Keplr...`;
+
+    // Use the same hand-rolled protobuf signing as atomregistry.com — no external libs
+    const result = await signAndBroadcastSite(
+      SITE_REGISTRY,
+      { set_site: { name: verifiedDomain, html: htmlContent } },
+      domainIsFirstTime ? STORAGE_FEE : 0
+    );
+
+    const txHash = result.txhash;
+    $("txDomain").textContent = verifiedDomain;
+    $("txHashLink").textContent = txHash;
+    $("txHashLink").href = `https://www.mintscan.io/cosmos/tx/${txHash}`;
+    $("txVersion").textContent = domainIsFirstTime ? "1 (initial)" : "new version";
+    $("txResult").classList.remove("hidden");
+    toast("Deployed successfully! TX: "+txHash.slice(0,16)+"...");
+
+    // Reset
+    domainIsFirstTime = false;
+    $("storageFeeDisplay").textContent = "Free (edit — gas only)";
+    $("siteExistsMsg").textContent = "Site updated — future edits are free (gas only)";
+    updateUsdEstimate();
+
+  }catch(e){
+    const msg = e.message||String(e);
+    if(/rejected|denied|cancel/i.test(msg)) toast("Cancelled","warn");
+    else toast("Deploy failed: "+msg.slice(0,100),"error");
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-upload mr-2"></i> Deploy On-Chain`;
+    updateDeployBtn();
+  }
+});
+
+// ── Explore ───────────────────────────────────────────────────────────────────
+$("exploreBtn").addEventListener("click", exploreSite);
+$("exploreInput").addEventListener("keydown",e=>{ if(e.key==="Enter") exploreSite(); });
+
+async function exploreSite(){
+  const name = $("exploreInput").value.trim().toLowerCase();
+  if(!name){ toast("Enter a domain name","warn"); return; }
+
+  $("exploreResult").classList.add("hidden");
+  $("exploreNotFound").classList.add("hidden");
+  const btn=$("exploreBtn");
+  btn.innerHTML=`<span class="spin-icon"></span>`;
+  btn.disabled=true;
+
+  try{
+    const site = await queryContract(SITE_REGISTRY,{site:{name}});
+    if(!site || !site.html) throw new Error("not found");
+
+    $("exDomain").textContent = site.name;
+    $("exOwner").textContent = site.owner;
+    $("exVersion").textContent = "v"+site.version;
+    $("exSize").textContent = fmtBytes(site.size_bytes);
+    $("exCreated").textContent = fmtTs(site.created_at);
+    $("exUpdated").textContent = fmtTs(site.updated_at);
+
+    // Render preview
+    setIframeBlob("exploreFrame", site.html, "explore");
+
+    // Load version history
+    await loadVersionHistory(name, site.version);
+
+    $("exploreResult").classList.remove("hidden");
+
+  }catch(e){
+    $("exploreNotFoundMsg").textContent = `No on-chain site found for "${name}".`;
+    $("exploreNotFound").classList.remove("hidden");
+  }finally{
+    btn.innerHTML=`<i class="fas fa-search mr-1"></i> Look Up`;
+    btn.disabled=false;
+  }
+}
+
+async function loadVersionHistory(name, currentVersion){
+  const list = $("versionList");
+  list.innerHTML = `<div class="text-xs text-gray-500"><span class="spin-icon mr-1"></span> Loading...</div>`;
+  try{
+    const resp = await queryContract(SITE_REGISTRY,{site_versions:{name,start_after:null,limit:20}});
+    const versions = resp?.versions||[];
+    if(!versions.length){ list.innerHTML=`<div class="text-xs text-gray-500">No history available.</div>`; return; }
+    list.innerHTML = versions.reverse().map(v=>`
+      <div class="version-row ${v.version===currentVersion?"active-ver":""}" data-version="${v.version}" onclick="loadVersion('${name}',${v.version})">
+        <span class="text-white">v${v.version} ${v.version===currentVersion?"<span class='text-cyan-400 text-xs'>(current)</span>":""}</span>
+        <div class="flex items-center gap-4 text-gray-500">
+          <span>${fmtBytes(v.size_bytes)}</span>
+          <span>${fmtTs(v.updated_at)}</span>
+        </div>
+      </div>
+    `).join("");
+  }catch(e){
+    list.innerHTML=`<div class="text-xs text-red-400">Failed to load history.</div>`;
+  }
+}
+
+async function loadVersion(name, version){
+  try{
+    const v = await queryContract(SITE_REGISTRY,{site_version:{name,version}});
+    if(v?.html){
+      setIframeBlob("exploreFrame", v.html, "explore");
+      document.querySelectorAll(".version-row").forEach(r=>{
+        r.classList.toggle("active-ver", r.dataset.version===String(version));
+      });
+      toast(`Previewing v${version}`);
+    }
+  }catch(e){ toast("Failed to load version","error"); }
+}
+
+// ── My Sites ──────────────────────────────────────────────────────────────────
+async function loadMySites(){
+  if(!userAddress) return;
+  $("mySitesList").classList.add("hidden");
+  $("mySitesEmpty").classList.add("hidden");
+  $("mySitesConnect").classList.add("hidden");
+
+  // Query registry for all names owned by user
+  try{
+    const resp = await queryContract(ATOM_REGISTRY,{names_by_owner:{owner:userAddress,start_after:null,limit:100}});
+    const names = resp?.names||[];
+
+    // Check which ones have sites
+    const settled = await Promise.all(names.map(async (name)=>{
+      try{
+        const site = await queryContract(SITE_REGISTRY,{site:{name}});
+        return site?.html ? {name, site} : null;
+      }catch(e){ return null; }
+    }));
+    const withSites = settled.filter(Boolean);
+
+    if(!withSites.length){
+      $("mySitesEmpty").classList.remove("hidden");
+      return;
+    }
+
+    $("mySitesList").innerHTML = withSites.map(({name,site})=>`
+      <div class="glass-card rounded-2xl p-4">
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <div class="font-display text-sm font-bold text-cyan-400">${esc(name)}</div>
+            <div class="text-xs text-gray-500 mt-0.5">v${site.version} · ${fmtBytes(site.size_bytes)} · Updated ${fmtTs(site.updated_at)}</div>
+          </div>
+          <button onclick="editSite('${esc(name)}')" class="btn-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:opacity-90">
+            <i class="fas fa-pencil mr-1"></i> Edit
+          </button>
+        </div>
+      </div>
+    `).join("");
+    $("mySitesList").classList.remove("hidden");
+
+  }catch(e){
+    toast("Failed to load sites: "+e.message,"error");
+  }
+}
+
+function editSite(name){
+
+// ── Session restore ───────────────────────────────────────────────────────────
+(async function tryRestore(){
+  try{
+    var saved=JSON.parse(sessionStorage.getItem('ar_wallet')||'null');
+    if(!saved||!saved.type||!saved.address)return;
+    var type=saved.type,CHAIN='cosmoshub-4';
+    var k=null;
+    try{
+      if(type==='keplr'&&window.keplr){await window.keplr.enable(CHAIN);var r=await window.keplr.getKey(CHAIN);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:'keplr'};}
+      else if(type==='leap'&&window.leap){await window.leap.enable(CHAIN);var r=await window.leap.getKey(CHAIN);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:'leap'};}
+      else if(type==='cosmostation'&&window.cosmostation){var cosmo=window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;if(cosmo){await cosmo.enable(CHAIN);var r=await cosmo.getKey(CHAIN);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:'cosmostation'};}else if(window.cosmostation.cosmos){var r=await window.cosmostation.cosmos.request({method:'cos_requestAccount',params:{chainName:CHAIN}});if(r.address===saved.address)k={address:r.address,pubKey:r.publicKey,type:'cosmostation'};}}
+      else if(type==='ledger')k={address:saved.address,pubKey:null,type:'ledger'};
+    }catch(e){sessionStorage.removeItem('ar_wallet');return;}
+    if(k){userAddress=k.address;pubKey=k.pubKey;walletType=k.type;onConnected();}
+  }catch(e){}
+})();
+
+  showPage("deploy");
+  $("domainInput").value = name;
+  verifyDomain();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+fetchAtomPrice();
+
+window.addEventListener("beforeunload",()=>{
+  revokeBlobUrl("preview");
+  revokeBlobUrl("explore");
+});
+</script>
+
+<!-- ═══ WALLET PICKER MODAL ═══ -->
+<div id="walletModal" class="wm-ov hidden">
+  <div class="wm-box">
+    <div class="wm-h">Connect Wallet</div>
+    <div class="wm-s">Select your wallet to continue</div>
+    <button class="wm-b" id="wmKeplr">
+      <div class="wm-ico" style="background:rgba(100,60,220,0.25);border:1px solid rgba(100,60,220,0.3)">🔵</div>
+      <div><div class="wm-n">Keplr</div><div class="wm-d">Browser extension · Cosmos ecosystem</div></div>
+    </button>
+    <button class="wm-b" id="wmLeap">
+      <div class="wm-ico" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.25)">🌊</div>
+      <div><div class="wm-n">Leap</div><div class="wm-d">Multi-chain Cosmos wallet</div></div>
+    </button>
+    <button class="wm-b" id="wmLedger">
+      <div class="wm-ico" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2)">🔐</div>
+      <div><div class="wm-n">Ledger</div><div class="wm-d">Hardware wallet · USB · Cosmos app required · Chrome/Edge only</div></div>
+    </button>
+    <span class="wm-cancel" id="wmCancel">Cancel</span>
+  </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var el;
+  el=document.getElementById('wmKeplr');  if(el) el.addEventListener('click',function(){connectWallet('keplr');});
+  el=document.getElementById('wmLeap');   if(el) el.addEventListener('click',function(){connectWallet('leap');});
+  el=document.getElementById('wmLedger'); if(el) el.addEventListener('click',function(){connectWallet('ledger');});
+  el=document.getElementById('wmCancel'); if(el) el.addEventListener('click',closeWalletModal);
+  el=document.getElementById('walletModal'); if(el) el.addEventListener('click',function(e){if(e.target===el)closeWalletModal();});
+});
+</script>
+</body>
+</html>

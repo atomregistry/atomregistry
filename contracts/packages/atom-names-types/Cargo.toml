@@ -1,0 +1,11 @@
+[package]
+name = "atom-names-types"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+cosmwasm-std.workspace = true
+cosmwasm-schema.workspace = true
+serde.workspace = true
+schemars.workspace = true

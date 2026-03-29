@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATOM Sales Widget</title>
+  <style>html,body{margin:0;padding:0;background:transparent}body{display:flex;justify-content:center;align-items:flex-start;padding:12px;box-sizing:border-box;font-family:system-ui,sans-serif}#mount{width:100%;max-width:100%}</style>
+</head>
+<body>
+  <div id="mount"></div>
+  <script src="./widget.js"></script>
+  <script>
+    function parseConfig() {
+      const params = new URLSearchParams(location.search);
+      const encoded = params.get('config');
+      if (encoded) { try { return JSON.parse(decodeURIComponent(escape(atob(encoded)))); } catch {} }
+      return { title:'Pay with ATOM', buttonText:'Pay in ATOM', description:'Accept a Cosmos-native payment.', walletAddress:'cosmos1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', amountAtom:'5', itemName:'Premium Access', memo:'Order: Premium Access', successUrl:'https://atomregistry.com/thank-you', verifyEndpoint:'', postPaymentAction:'redirect', mode:'full', theme:'registry', addressVisibility:'checkout', primaryColor:'#9333ea', accentColor:'#22d3ee', width:'100%', radius:20, showQr:true, showCopy:true, enableKeplr:true, allowManualFallback:true, showMintscan:true, thankYouMessage:'Thank you. Once your ATOM payment is sent, click continue to complete the handoff.' };
+    }
+    window.AtomSalesWidget.mount('#mount', parseConfig());
+  </script>
+</body>
+</html>

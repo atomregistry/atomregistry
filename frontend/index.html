@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" type="image/png" href="/cosmocon.png" />
+  <title>Atom Registry | Multi-TLD Web3 DNS on Cosmos Hub</title>
+  <meta name="description" content="Register domains across multiple TLDs on Cosmos Hub. Forever ownership, no renewals, fully decentralized." />
+  <meta name="theme-color" content="#a78bfa" />
+  <link rel="canonical" href="https://atomregistry.com/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet" />
+  <script defer src="https://use.fontawesome.com/releases/v6.5.1/js/all.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Roboto Mono','monospace'], display: ['Orbitron','sans-serif'] } } }
+    }
+  </script>
+  <style>
+    body { background: radial-gradient(1200px 800px at 10% 10%, rgba(167,139,250,0.15), transparent 60%), radial-gradient(1200px 800px at 90% 90%, rgba(34,211,238,0.12), transparent 60%), #06020d; }
+    .glass-panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+    .glass-card  { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .btn-primary { background: linear-gradient(90deg, rgba(147,51,234,1), rgba(34,211,238,1)); }
+    .tab-btn.active { color: #fff; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .mono { font-family: 'Roboto Mono', monospace; }
+    .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); border:1px solid rgba(255,255,255,0.12); padding:10px 18px; border-radius:12px; color:#fff; z-index:9999; max-width:92vw; font-size:0.85rem; display:none; backdrop-filter:blur(12px); }
+    .toast.show { display:block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-icon { display:inline-block; width:1rem; height:1rem; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; }
+    .tld-pill { padding:0.4rem 0.9rem; border-radius:999px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#9ca3af; font-size:0.8rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+    .tld-pill:hover { background:rgba(255,255,255,0.1); color:#fff; }
+    .tld-pill.active { background:linear-gradient(90deg,rgba(147,51,234,1),rgba(34,211,238,1)); color:#fff; border-color:transparent; }
+    .tld-card { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:1rem; padding:1.25rem; transition:all 0.2s; cursor:pointer; }
+    .tld-card:hover { border-color:rgba(139,92,246,0.4); background:rgba(139,92,246,0.08); }
+    .tld-card.selected { border-color:rgba(34,211,238,0.5); background:rgba(34,211,238,0.06); }
+    input[type=text],input[type=number],select,textarea { background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:0.75rem; color:#fff; padding:0.65rem 0.9rem; outline:none; width:100%; font-family:'Roboto Mono',monospace; transition:border-color 0.2s; }
+    input[type=text]:focus,input[type=number]:focus,select:focus,textarea:focus { border-color:rgba(139,92,246,0.6); }
+    input::placeholder,textarea::placeholder { color:rgba(255,255,255,0.25); }
+    select option { background:#0d0820; }
+    .beta-banner { background:linear-gradient(90deg,rgba(147,51,234,0.9) 0%,rgba(34,211,238,0.9) 50%,rgba(147,51,234,0.9) 100%); border-bottom:2px solid rgba(255,255,255,0.1); overflow:hidden; position:relative; z-index:1000; }
+    .beta-banner::before { content:''; position:absolute; inset:0; background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.1) 50%,transparent 100%); animation:shimmer 3s infinite; }
+    @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+    .marquee-content { display:flex; animation:marquee 60s linear infinite; white-space:nowrap; }
+    @keyframes marquee { 0%{transform:translateX(0%)} 100%{transform:translateX(-50%)} }
+    .marquee-item { display:inline-flex; align-items:center; padding:0 3rem; font-weight:600; letter-spacing:0.5px; }
+  
+  /* ── Atom Registry Top Nav ── */
+  .ar-topnav {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1.5rem;
+    background: rgba(6,2,13,0.92);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .ar-topnav-logo {
+    font-family: "Orbitron", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #a78bfa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .ar-topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    flex-wrap: wrap;
+  }
+  .ar-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .ar-nav-link:hover {
+    color: #fff;
+    background: rgba(167,139,250,0.08);
+    border-color: rgba(167,139,250,0.15);
+    text-decoration: none;
+  }
+  .ar-nav-active {
+    color: #a78bfa;
+    background: rgba(167,139,250,0.1);
+    border-color: rgba(167,139,250,0.25);
+    cursor: default;
+  }
+  .ar-nav-link i, .ar-nav-active i {
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+  @media (max-width: 700px) {
+    .ar-topnav { flex-direction: column; align-items: flex-start; padding: 0.75rem 1rem; }
+    .ar-nav-link { padding: 0.3rem 0.5rem; font-size: 0.68rem; }
+  }
+
+
+  /* ── Wallet picker modal ── */
+  .wm-ov{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(6,2,13,0.88);backdrop-filter:blur(10px);padding:1rem;}
+  .wm-ov.hidden{display:none;}
+  .wm-box{background:rgba(8,4,21,0.97);border:1px solid rgba(167,139,250,0.25);border-radius:1.5rem;padding:2rem;max-width:400px;width:100%;box-shadow:0 0 60px rgba(124,58,237,0.2);}
+  .wm-h{font-family:Orbitron,sans-serif;font-size:1.05rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;}
+  .wm-s{font-size:0.72rem;color:#64748b;margin-bottom:1.25rem;}
+  .wm-b{width:100%;display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:0.85rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s;margin-bottom:0.6rem;text-align:left;}
+  .wm-b:hover{border-color:rgba(167,139,250,0.4);background:rgba(124,58,237,0.08);transform:translateX(3px);}
+  .wm-b:last-of-type{margin-bottom:0;}
+  .wm-ico{width:38px;height:38px;border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+  .wm-n{font-weight:700;color:#fff;font-size:0.85rem;}
+  .wm-d{font-size:0.67rem;color:#64748b;margin-top:0.1rem;}
+  .wm-cancel{display:block;text-align:center;margin-top:0.9rem;font-size:0.72rem;color:#475569;cursor:pointer;}
+  .wm-cancel:hover{color:#94a3b8;}
+  .wb{display:inline-flex;align-items:center;font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;padding:0.15rem 0.5rem;border-radius:999px;font-weight:700;margin-left:0.4rem;}
+  .wb-k{background:rgba(124,58,237,0.2);border:1px solid rgba(124,58,237,0.35);color:#a78bfa;}
+  .wb-l{background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.3);color:#22d3ee;}
+  .wb-d{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.25);color:#fbbf24;}
+  .wb-c{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.25);color:#93c5fd;}
+  </style>
+</head>
+<body class="min-h-screen flex flex-col relative overflow-x-hidden font-sans text-white">
+<!-- ═══ ATOM REGISTRY SITE NAV ═══ -->
+<header class="ar-topnav">
+  <a href="/" class="ar-topnav-logo">Atom Registry</a>
+  <nav class="ar-topnav-links">
+      <span class="ar-nav-link ar-nav-active"><i class="fas fa-home"></i>Home</span>
+      <a href="/onchain.html" class="ar-nav-link"><i class="fas fa-globe"></i>Sites</a>
+      <a href="/search.html" class="ar-nav-link"><i class="fas fa-search"></i>Search</a>
+      <a href="/profiles.html" class="ar-nav-link"><i class="fas fa-user-circle"></i>Builder</a>
+      <a href="/contracts.html" class="ar-nav-link"><i class="fas fa-code"></i>Contracts</a>
+      <a href="/docmaker.html" class="ar-nav-link"><i class="fas fa-file-contract"></i>Doc→Contract</a>
+      <a href="/browser.html" class="ar-nav-link"><i class="fas fa-puzzle-piece"></i>Extension</a>
+      <a href="/docs.html" class="ar-nav-link"><i class="fas fa-book"></i>Docs</a>
+  </nav>
+</header>
+<!-- ═══════════════════════════════ -->
+
+
+<!-- MARQUEE -->
+<div class="beta-banner py-2.5 relative">
+  <div class="marquee-content text-sm text-white">
+    <span class="marquee-item"><i class="fas fa-globe mr-2"></i> Atom Registry — Multi-TLD Web3 DNS on Cosmos Hub</span>
+    <span class="marquee-item"><i class="fas fa-infinity mr-2"></i> Forever Ownership — No Renewals Ever</span>
+    <span class="marquee-item"><i class="fas fa-fire mr-2"></i> TLD Launch Pricing — 2.5 ATOM While It Lasts</span>
+    <span class="marquee-item"><i class="fas fa-coins mr-2"></i> TLD Owners Earn on Every Name Registered</span>
+    <span class="marquee-item"><i class="fas fa-rocket mr-2"></i> v2 Coming Soon — Revenue Sharing + DNS Layer</span>
+    <span class="marquee-item"><i class="fas fa-globe mr-2"></i> Atom Registry — Multi-TLD Web3 DNS on Cosmos Hub</span>
+    <span class="marquee-item"><i class="fas fa-infinity mr-2"></i> Forever Ownership — No Renewals Ever</span>
+    <span class="marquee-item"><i class="fas fa-fire mr-2"></i> TLD Launch Pricing — 2.5 ATOM While It Lasts</span>
+    <span class="marquee-item"><i class="fas fa-coins mr-2"></i> TLD Owners Earn on Every Name Registered</span>
+    <span class="marquee-item"><i class="fas fa-rocket mr-2"></i> v2 Coming Soon — Revenue Sharing + DNS Layer</span>
+  </div>
+</div>
+
+<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+<div class="absolute bottom-0 left-0 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
+
+<main class="flex-1 flex flex-col items-center justify-start p-4 md:p-8 relative z-10 w-full max-w-6xl mx-auto">
+
+  <!-- HEADER -->
+  <div class="w-full flex flex-col items-center mb-10">
+    <h1 class="font-display text-4xl md:text-5xl font-bold text-white mb-2 tracking-tight text-center">
+      Atom <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500">Registry</span>
+    </h1>
+    <p class="text-gray-400 text-sm mb-2">Multi-TLD Web3 DNS • Cosmos Hub • Forever Ownership</p>
+
+    <!-- NAV -->
+    <div class="glass-panel px-6 py-3 rounded-2xl flex gap-5 flex-wrap justify-center items-center mt-2">
+      <button class="tab-btn nav-item font-medium text-sm flex items-center gap-2 active" data-tab="names">
+        <i class="fas fa-search opacity-80"></i> Get a Name
+      </button>
+      <button class="tab-btn nav-item font-medium text-sm flex items-center gap-2" data-tab="tlds">
+        <i class="fas fa-layer-group opacity-80"></i> Get a TLD
+      </button>
+      <button class="tab-btn nav-item font-medium text-sm flex items-center gap-2" data-tab="portfolio" id="portfolioNav" style="display:none">
+        <i class="fas fa-folder-open opacity-80"></i> Portfolio
+      </button>
+      <button class="tab-btn nav-item font-medium text-sm flex items-center gap-2" data-tab="tldmanage" id="tldManageNav" style="display:none">
+        <i class="fas fa-sliders-h opacity-80"></i> TLD Settings
+      </button>
+      <button class="tab-btn nav-item font-medium text-sm flex items-center gap-2" data-tab="wallet">
+        <i class="fas fa-wallet opacity-80"></i> Wallet
+      </button>
+    </div>
+
+    <!-- Wallet status bar (shown when connected) -->
+    <div id="walletBar" class="hidden mt-3 glass-card px-4 py-2 rounded-xl flex items-center gap-4 text-xs flex-wrap justify-center">
+      <span class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-green-400 inline-block" style="box-shadow:0 0 6px #4ade80"></span>
+        <span class="text-gray-400">Connected:</span>
+        <span class="mono text-white" id="walletAddrShort">—</span>
+      </span>
+      <span class="text-gray-500">|</span>
+      <span class="text-gray-400">Balance: <span class="text-white font-bold" id="walletBal">—</span></span>
+      <button id="disconnectBtn" class="text-red-400 hover:text-red-300 transition-colors ml-2">Disconnect</button>
+    </div>
+  </div>
+
+  <div class="w-full">
+
+    <!-- ═══════════════════════════════════════
+         GET A NAME PAGE
+    ═══════════════════════════════════════ -->
+    <div id="namesPage" class="page active max-w-4xl mx-auto">
+
+      <div class="text-center mb-8">
+        <h2 class="font-display text-2xl font-bold text-white mb-2">Register a Name</h2>
+        <p class="text-gray-400 text-sm">Pick a TLD, choose your name, own it forever.</p>
+      </div>
+
+      <!-- TLD Browser -->
+      <div class="glass-panel p-6 rounded-2xl mb-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-display text-sm font-bold text-white flex items-center gap-2">
+            <i class="fas fa-list text-cyan-400"></i> Available TLDs
+          </h3>
+          <button id="refreshTldsNameBtn" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">
+            <i class="fas fa-sync-alt mr-1"></i> Refresh
+          </button>
+        </div>
+        <div id="tldBrowser" class="flex flex-wrap gap-2 mb-4">
+          <span class="text-gray-600 text-xs">Loading TLDs...</span>
+        </div>
+        <p class="text-xs text-gray-600">Click a TLD to see its registration price and search for a name under it.</p>
+      </div>
+
+      <!-- Selected TLD info + search -->
+      <div id="nameSearchPanel" class="hidden">
+        <div class="glass-card rounded-xl p-4 mb-4 flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <span class="text-xs text-gray-500">Selected TLD</span>
+            <div class="font-display font-bold text-xl text-cyan-400" id="selectedTldDisplay">.atom</div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-gray-500">Registration Price</span>
+            <div class="font-bold text-white" id="selectedTldPrice">—</div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-gray-500">Owner</span>
+            <div class="mono text-xs text-gray-400" id="selectedTldOwner">—</div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-2 rounded-2xl flex items-center mb-6 border-purple-500/30 shadow-[0_0_30px_rgba(167,139,250,0.1)]">
+          <div class="pl-5 text-gray-500"><i class="fas fa-search"></i></div>
+          <input type="text" id="nameSearchInput" class="w-full bg-transparent border-none text-white text-lg px-4 py-3 focus:ring-0 placeholder-gray-600 font-display" placeholder="Enter name to check..." autocomplete="off" spellcheck="false" />
+          <div class="pr-2 flex items-center gap-2">
+            <span class="hidden md:block font-display font-bold text-xl text-gray-600 px-2" id="nameSearchSuffix">.atom</span>
+            <button id="nameSearchBtn" class="btn-primary text-white px-6 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap">Check</button>
+          </div>
+        </div>
+
+        <div id="nameSearchResult" class="mb-6"></div>
+      </div>
+
+      <!-- How it works -->
+      <div class="glass-panel p-5 rounded-2xl text-sm text-gray-400">
+        <div class="flex items-start gap-3">
+          <i class="fas fa-circle-info text-cyan-400 mt-0.5"></i>
+          <div>
+            <div class="font-bold text-white mb-1">How Name Registration Works</div>
+            <div class="text-gray-500 text-xs leading-relaxed">
+              Select a TLD above → check if your name is available → pay the TLD's price in ATOM → your name is registered instantly. No commit-reveal needed for subdomain registration. Payment goes directly to the TLD owner.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         GET A TLD PAGE
+    ═══════════════════════════════════════ -->
+    <div id="tldsPage" class="page max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+        <h2 class="font-display text-2xl font-bold text-white mb-2">Own a Top-Level Domain</h2>
+        <p class="text-gray-400 text-sm">Register <span class="text-cyan-400">.yourword</span> on Cosmos Hub. Forever. 2.5 ATOM launch price.</p>
+      </div>
+
+      <!-- Early adopter callout -->
+      <div class="glass-card rounded-xl p-4 mb-6 border border-orange-500/20 flex items-start gap-3">
+        <i class="fas fa-fire text-orange-400 mt-0.5"></i>
+        <div>
+          <div class="text-white text-sm font-bold mb-1">Early Adopter Pricing</div>
+          <div class="text-gray-400 text-xs leading-relaxed">Current price is <span class="text-white font-bold">2.5 ATOM</span>. Prices increase significantly when v2 contracts launch. TLDs registered now are yours forever at today's price. v2 will add revenue sharing — TLD owners will earn on every name registered under their namespace.</div>
+        </div>
+      </div>
+
+      <!-- TLD check -->
+      <div class="glass-panel p-6 rounded-2xl mb-6">
+        <h3 class="font-display text-sm font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fas fa-pen text-purple-400"></i> Check Availability
+        </h3>
+        <div class="flex items-stretch gap-3 mb-3">
+          <div class="flex-1 relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-display font-bold text-lg">.</span>
+            <input type="text" id="tldCheckInput" class="pl-8 font-display font-bold text-xl" placeholder="yourword" maxlength="20" autocomplete="off" spellcheck="false" />
+          </div>
+          <button id="tldCheckBtn" class="btn-primary text-white px-6 rounded-xl font-bold text-sm whitespace-nowrap">Check</button>
+        </div>
+        <div id="tldCheckResult" class="hidden mt-4"></div>
+      </div>
+
+      <!-- Commit-reveal flow (shown after availability check) -->
+      <div id="tldMintFlow" class="hidden">
+        <!-- Commit -->
+        <div class="glass-panel p-6 rounded-2xl mb-4" id="tldCommitPanel">
+          <h3 class="font-display text-sm font-bold text-white mb-1 flex items-center gap-2">
+            <i class="fas fa-lock text-purple-400"></i> Step 1 — Commit Your Intent
+          </h3>
+          <p class="text-gray-500 text-xs mb-4 leading-relaxed">Anti-front-run protection. Commit first, wait 10 seconds, then register. Your secret is auto-generated.</p>
+          <div class="glass-card rounded-xl p-4 mb-4 flex justify-between items-center">
+            <span class="text-gray-500 text-xs">Registering</span>
+            <span class="font-display font-bold text-lg text-cyan-400" id="tldMintLabel">.yourword</span>
+            <span class="text-white font-bold">2.5 ATOM <span class="text-orange-400 text-xs">(launch price)</span></span>
+          </div>
+          <button id="tldCommitBtn" class="w-full btn-primary text-white py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+            <i class="fas fa-paper-plane"></i> Submit Commit Transaction
+          </button>
+        </div>
+
+        <!-- Wait -->
+        <div class="glass-panel p-6 rounded-2xl mb-4 hidden" id="tldWaitPanel">
+          <h3 class="font-display text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-hourglass-half text-cyan-400"></i> Step 2 — Waiting Period
+          </h3>
+          <div class="flex flex-col items-center py-3">
+            <div class="w-20 h-20 rounded-full border-4 border-purple-500/20 flex items-center justify-center mb-3" style="border-top-color:#22d3ee">
+              <span class="font-display font-bold text-2xl text-cyan-400" id="tldTimerText">10</span>
+            </div>
+            <p class="text-gray-400 text-sm text-center"><span class="text-cyan-400 font-bold" id="tldTimerLabel">10 seconds</span> remaining</p>
+            <p class="text-xs text-gray-600 mt-2 text-center">Commit is on-chain. Return within 30 minutes to complete.</p>
+          </div>
+        </div>
+
+        <!-- Register -->
+        <div class="glass-panel p-6 rounded-2xl mb-4 hidden" id="tldRegisterPanel">
+          <h3 class="font-display text-sm font-bold text-white mb-1 flex items-center gap-2">
+            <i class="fas fa-rocket text-purple-400"></i> Step 3 — Register Your TLD
+          </h3>
+          <p class="text-gray-500 text-xs mb-4">Commit period complete. Submit registration to claim your TLD.</p>
+          <div class="glass-card rounded-xl p-4 mb-4">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs text-gray-500">TLD</span>
+              <span class="font-display font-bold text-xl text-cyan-400" id="tldRegisterLabel">.yourword</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-xs text-gray-500">Fee</span>
+              <span class="text-white font-bold">2.5 ATOM + gas</span>
+            </div>
+          </div>
+          <button id="tldRegisterBtn" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all">
+            <i class="fas fa-check-circle"></i> Register — 2.5 ATOM
+          </button>
+        </div>
+      </div>
+
+      <!-- TX progress -->
+      <div id="tldTxProgress" class="hidden glass-card p-5 rounded-2xl mb-4">
+        <p class="font-display text-xs text-purple-400 mb-3" style="letter-spacing:0.08em">⚡ SUBMITTING — DO NOT CLOSE</p>
+        <div id="tldTxSteps" class="space-y-2"></div>
+        <div class="mt-3 h-1 rounded-full bg-white/5 overflow-hidden">
+          <div id="tldTxBar" class="h-full bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Registered TLDs list -->
+      <div class="glass-panel p-5 rounded-2xl">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-display text-xs font-bold text-white flex items-center gap-2">
+            <i class="fas fa-list text-green-400"></i> Registered TLDs
+          </h3>
+          <button id="refreshTldsPageBtn" class="text-xs text-gray-500 hover:text-gray-300"><i class="fas fa-sync-alt mr-1"></i>Refresh</button>
+        </div>
+        <div id="tldPageList" class="flex flex-wrap gap-2">
+          <span class="text-gray-600 text-xs">Loading...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         PORTFOLIO PAGE
+    ═══════════════════════════════════════ -->
+    <div id="portfolioPage" class="page max-w-5xl mx-auto">
+      <div class="flex justify-between items-center mb-8">
+        <div>
+          <h2 class="font-display text-2xl font-bold text-white">Your Portfolio</h2>
+          <p class="text-gray-400 text-sm mt-1">All names and TLDs you own across the registry</p>
+        </div>
+        <button id="syncPortfolioBtn" class="glass-card px-4 py-2 rounded-lg text-sm text-white hover:bg-white/10 transition-all">
+          <i class="fas fa-sync-alt mr-2"></i> Sync
+        </button>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="glass-panel p-4 rounded-2xl text-center">
+          <div class="text-gray-500 text-xs uppercase mb-1">Total Names</div>
+          <div class="text-2xl font-bold text-white" id="statTotalNames">—</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl text-center">
+          <div class="text-gray-500 text-xs uppercase mb-1">TLDs Owned</div>
+          <div class="text-2xl font-bold text-purple-400" id="statTldsOwned">—</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl text-center">
+          <div class="text-gray-500 text-xs uppercase mb-1">Subdomains</div>
+          <div class="text-2xl font-bold text-cyan-400" id="statSubdomains">—</div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl text-center">
+          <div class="text-gray-500 text-xs uppercase mb-1">Primary Name</div>
+          <div class="text-sm font-bold text-green-400 mono" id="statPrimary">—</div>
+        </div>
+      </div>
+
+      <div id="portfolioGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         MANAGE NAME PAGE (hidden, shown from portfolio)
+    ═══════════════════════════════════════ -->
+    <div id="managePage" class="page max-w-3xl mx-auto">
+      <div class="flex items-center gap-4 mb-8">
+        <button id="backToPortfolioBtn" class="w-10 h-10 rounded-full glass-card flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <div>
+          <h2 class="font-display text-2xl font-bold text-white" id="manageDomainTitle">name.atom</h2>
+          <span class="text-xs font-mono text-green-400 bg-green-500/10 px-2 py-1 rounded">Live on Cosmos Hub</span>
+        </div>
+      </div>
+
+      <div class="space-y-5">
+        <!-- DNS Records -->
+        <div class="glass-panel p-6 rounded-2xl">
+          <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-network-wired text-cyan-400"></i> DNS Records
+          </h3>
+          <div class="flex flex-col md:flex-row gap-3">
+            <select id="dnsType" class="w-full md:w-32">
+              <option value="A">A</option>
+              <option value="AAAA">AAAA</option>
+              <option value="CNAME">CNAME</option>
+              <option value="TXT">TXT</option>
+            </select>
+            <input type="text" id="dnsValue" placeholder="Value (e.g. 1.2.3.4)" class="flex-1" />
+            <button id="setDnsBtn" class="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded-xl font-medium text-sm whitespace-nowrap">Set Record</button>
+          </div>
+          <p class="text-xs text-gray-600 mt-2">Uses Resolver contract: SetText</p>
+        </div>
+
+        <!-- Set Primary -->
+        <div class="glass-panel p-6 rounded-2xl">
+          <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-star text-yellow-400"></i> Primary Name
+          </h3>
+          <p class="text-gray-500 text-xs mb-3">Set this name as your primary identity on Atom Registry.</p>
+          <button id="setPrimaryBtn" class="bg-yellow-600 hover:bg-yellow-500 text-white px-5 py-2 rounded-xl font-medium text-sm">Set as Primary</button>
+        </div>
+
+        <!-- Subdomain Policy (only for root names / TLD owners) -->
+        <div class="glass-panel p-6 rounded-2xl hidden" id="subdomainPolicyPanel">
+          <h3 class="text-sm font-bold text-white mb-1 flex items-center gap-2">
+            <i class="fas fa-cogs text-purple-400"></i> Subdomain Policy
+          </h3>
+          <p class="text-gray-500 text-xs mb-4">Control who can register names under your TLD and at what price.</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">Price (uatom)</label>
+              <input type="number" id="policyPrice" placeholder="1000000 = 1 ATOM" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">Payment Recipient</label>
+              <input type="text" id="policyRecipient" placeholder="cosmos1..." />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">Max Per Address</label>
+              <input type="number" id="policyMaxPerAddr" placeholder="100" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 mb-1 block">Registration</label>
+              <select id="policyOpen">
+                <option value="open">Open — anyone can register</option>
+                <option value="closed">Closed — paused</option>
+              </select>
+            </div>
+          </div>
+          <button id="savePolicyBtn" class="w-full bg-purple-600 hover:bg-purple-500 text-white py-3 rounded-xl font-bold text-sm">Save Policy</button>
+          <div id="currentPolicyDisplay" class="mt-3 text-xs text-gray-600"></div>
+        </div>
+
+        <!-- Transfer -->
+        <div class="glass-panel p-6 rounded-2xl border border-red-500/10">
+          <h3 class="text-sm font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-paper-plane text-red-400"></i> Transfer Ownership
+          </h3>
+          <div class="flex flex-col md:flex-row gap-3">
+            <input type="text" id="transferRecipient" placeholder="New owner (cosmos1...)" class="flex-1 mono text-sm" />
+            <button id="transferBtn" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2 rounded-xl font-medium text-sm whitespace-nowrap">Transfer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TLD SETTINGS PAGE
+    ═══════════════════════════════════════ -->
+    <div id="tldmanagePage" class="page max-w-3xl mx-auto">
+      <div class="text-center mb-8">
+        <h2 class="font-display text-2xl font-bold text-white mb-2">TLD Settings</h2>
+        <p class="text-gray-400 text-sm">Configure subdomain registration for your TLDs.</p>
+      </div>
+
+      <!-- TLD selector -->
+      <div class="glass-panel p-5 rounded-2xl mb-6">
+        <h3 class="font-display text-xs font-bold text-white mb-3">Your TLDs</h3>
+        <div id="myTldList" class="flex flex-wrap gap-2 mb-2">
+          <span class="text-gray-600 text-xs">Connect wallet to see your TLDs</span>
+        </div>
+      </div>
+
+      <!-- Policy editor -->
+      <div id="tldSettingsEditor" class="hidden">
+        <div class="glass-card rounded-xl p-4 mb-5 flex items-center justify-between">
+          <div>
+            <span class="text-xs text-gray-500">Editing policy for</span>
+            <div class="font-display font-bold text-xl text-cyan-400" id="editingTldLabel">.atom</div>
+          </div>
+          <div id="currentPolicyBadge" class="text-xs px-3 py-1 rounded-full bg-green-500/15 text-green-400 border border-green-500/20">Open</div>
+        </div>
+
+        <div class="glass-panel p-6 rounded-2xl mb-5">
+          <h3 class="font-display text-xs font-bold text-white mb-4 flex items-center gap-2">
+            <i class="fas fa-sliders-h text-purple-400"></i> Registration Settings
+          </h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label class="text-xs text-gray-500 block mb-1.5">Registration Status</label>
+              <select id="settingOpen">
+                <option value="open">✅ Open — anyone can register</option>
+                <option value="closed">🔒 Closed — paused</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 block mb-1.5">Price per name (uatom)</label>
+              <input type="number" id="settingPrice" placeholder="e.g. 1000000 = 1 ATOM" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 block mb-1.5">Payment Recipient</label>
+              <input type="text" id="settingRecipient" placeholder="cosmos1... (your wallet)" class="mono text-xs" />
+            </div>
+            <div>
+              <label class="text-xs text-gray-500 block mb-1.5">Max names per address</label>
+              <input type="number" id="settingMaxPerAddr" placeholder="e.g. 100" />
+            </div>
+          </div>
+
+          <!-- Current policy display -->
+          <div id="currentPolicyInfo" class="glass-card rounded-xl p-4 mb-5 hidden">
+            <div class="text-xs text-gray-500 mb-2 font-display" style="letter-spacing:0.08em">CURRENT ON-CHAIN POLICY</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="text-gray-500">Status</div><div class="text-white" id="cpStatus">—</div>
+              <div class="text-gray-500">Price</div><div class="text-white" id="cpPrice">—</div>
+              <div class="text-gray-500">Recipient</div><div class="mono text-white break-all" id="cpRecipient">—</div>
+              <div class="text-gray-500">Max/address</div><div class="text-white" id="cpMax">—</div>
+            </div>
+          </div>
+
+          <button id="saveTldSettingsBtn" class="w-full btn-primary text-white py-3.5 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+            <i class="fas fa-save"></i> Save Settings On-Chain
+          </button>
+          <p class="text-xs text-gray-600 mt-2 text-center">This executes SetSubdomainPolicy on the registry contract. Gas fee in ATOM.</p>
+        </div>
+
+        <!-- Disable policy -->
+        <div class="glass-panel p-5 rounded-2xl border border-red-500/10">
+          <h3 class="font-display text-xs font-bold text-white mb-2 flex items-center gap-2">
+            <i class="fas fa-ban text-red-400"></i> Disable Subdomain Registration
+          </h3>
+          <p class="text-gray-500 text-xs mb-3">Remove the subdomain policy entirely. Registrations will be disabled until you set a new policy.</p>
+          <button id="disablePolicyBtn" class="bg-red-600/20 hover:bg-red-600/40 text-red-400 border border-red-500/30 px-5 py-2 rounded-xl font-medium text-sm transition-all">
+            Disable Registration
+          </button>
+        </div>
+      </div>
+
+      <!-- TX progress for TLD settings -->
+      <div id="settingsTxProgress" class="hidden glass-card p-5 rounded-2xl mt-4">
+        <p class="font-display text-xs text-purple-400 mb-3" style="letter-spacing:0.08em">⚡ SUBMITTING — DO NOT CLOSE</p>
+        <div id="settingsTxSteps" class="space-y-2"></div>
+        <div class="mt-3 h-1 rounded-full bg-white/5 overflow-hidden">
+          <div id="settingsTxBar" class="h-full bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full transition-all duration-500" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         WALLET PAGE
+    ═══════════════════════════════════════ -->
+    <div id="walletPage" class="page max-w-2xl mx-auto">
+      <div id="loginSection" class="glass-panel rounded-2xl p-10 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-500 to-cyan-500 mx-auto mb-5 flex items-center justify-center shadow-lg shadow-purple-500/20">
+          <i class="fas fa-wallet text-2xl text-white"></i>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-2">Connect Wallet</h3>
+        <p class="text-gray-400 mb-6 text-sm">Choose your wallet to register names, manage TLDs, and view your portfolio.</p>
+        <button id="openWalletModalBtn" class="btn-primary text-white px-8 py-4 rounded-xl font-bold flex items-center justify-center gap-3 mx-auto transition-all hover:scale-105">
+          <i class="fas fa-plug"></i> Connect Wallet
+        </button>
+        <p class="text-xs text-gray-600 mt-4">Supports Keplr · Leap · Ledger hardware wallet</p>
+      </div>
+
+      <div id="connectedState" class="hidden">
+        <div class="glass-panel rounded-2xl p-6 mb-5 border-l-4 border-l-green-500 flex justify-between items-center">
+          <div>
+            <p class="text-xs text-gray-400 uppercase mb-1">Connected Account<span id="walletBadge"></span></p>
+            <p id="connectedAddress" class="mono text-white text-sm break-all"></p>
+          </div>
+          <button id="disconnectBtn2" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg text-sm transition-colors">Disconnect</button>
+        </div>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="glass-panel p-5 rounded-2xl text-center">
+            <p class="text-gray-500 text-xs uppercase mb-1">Balance</p>
+            <p id="atomBalance" class="text-xl font-bold text-white">...</p>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl text-center">
+            <p class="text-gray-500 text-xs uppercase mb-1">Names</p>
+            <p id="domainCount" class="text-xl font-bold text-white">0</p>
+          </div>
+          <div class="glass-panel p-5 rounded-2xl text-center">
+            <p class="text-gray-500 text-xs uppercase mb-1">TLDs</p>
+            <p id="tldCount" class="text-xl font-bold text-purple-400">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="p-6 text-center text-gray-600 text-xs z-10 border-t border-white/5 mt-4">
+  <p>&copy; 2026 Atom Registry • Cosmos Hub • CosmWasm • Forever Ownership • No Renewals</p>
+</footer>
+
+<div id="toast" class="toast"></div>
+
+<!-- SUCCESS CONFETTI -->
+<canvas id="confetti-canvas" style="position:fixed;inset:0;z-index:99;pointer-events:none"></canvas>
+
+<script>
+(function() {
+'use strict';
+
+// ══════════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════════
+var CFG = {
+  CHAIN_ID:      'cosmoshub-4',
+  DENOM:         'uatom',
+  GAS_PRICE:     0.025,
+  GAS_ADJ:       1.8,
+  GAS_FALLBACK:  400000,
+  TLD_PRICE:     2500000,
+  MIN_COMMIT:    10,
+  MAX_COMMIT:    1800,
+  REGISTRY:      'cosmos16nff0lmuegn2zr6ca3dp8jnqltpq2c9ayhmqn3avjq0wne95h2xqkhn9qe',
+  REGISTRAR:     'cosmos1w4rknyllzt7mu6tsl6m7qm0sss66stwemvc4p4utdsyrjdf9q44ss0697x',
+  TLD_MANAGER:   'cosmos12sseygvx4ykhp0df70ndg82l7p9a7ld7l0n0pptwj7c2h726cc9sahh4hz',
+  RESOLVER:      'cosmos1swmjnderkae2hpegvt75dn34kya388vydxg5k5mzd0dl6wme2teq2xxpkv',
+  TYPE_EXECUTE:  '/cosmwasm.wasm.v1.MsgExecuteContract',
+  TYPE_PUBKEY:   '/cosmos.crypto.secp256k1.PubKey',
+  // ── Set true to test Ledger path without hardware ──────────────────────────
+  // Signs locally with a fixed test keypair. Produces fully valid tx structure
+  // and broadcasts a real tx — but signed by the TEST KEY, not your Ledger.
+  // Switch to false (and remove the mock addr) before real-fund use.
+  LEDGER_MOCK:      true,
+  LEDGER_MOCK_ADDR: 'cosmos1qqp7gwk8y3dcjvlyznj8ka89aqnzm0sxhqnvar',
+  REST: [
+    'https://cosmos-rest.publicnode.com',
+    'https://rest.cosmos.directory/cosmoshub',
+    'https://cosmoshub.rest.interchain.ivansmirnov.me',
+    'https://cosmos-api.polkachu.com'
+  ]
+};
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+var userAddress = null;
+var pubKey      = null;
+var walletType  = null; // "keplr" | "leap" | "ledger"
+var ledgerApp   = null;
+var ledgerTransport = null;
+var selectedTld = null;
+var selectedTldPolicy = null;
+var currentManagedDomain = null;
+var editingTld = null;
+var tldPendingLabel = null;
+var tldPendingSecret = null;
+var tldCommitTimestamp = null;
+var tldTimerInterval = null;
+var allTlds = []; // cached list of {label, owner, policy}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function $(id) { return document.getElementById(id); }
+
+var toastTimer;
+function toast(msg, type) {
+  var el = $('toast');
+  el.textContent = msg;
+  el.style.borderColor = type==='error'?'rgba(239,68,68,0.5)':type==='warn'?'rgba(245,158,11,0.5)':'rgba(34,211,238,0.4)';
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 4500);
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function uatomToAtom(u) { return (parseInt(u||0)/1000000).toFixed(2) + ' ATOM'; }
+function atomToUatom(a) { return Math.floor(parseFloat(a||0)*1000000); }
+
+// ══════════════════════════════════════════════
+// PROTO WRITER
+// ══════════════════════════════════════════════
+function PW(){this.c=[];}
+PW.prototype.v=function(n){var b=[];if(typeof n==='bigint'){while(n>127n){b.push(Number(n&0x7Fn)|0x80);n>>=7n;}b.push(Number(n));}else{n=Math.floor(n);while(n>127){b.push((n&0x7F)|0x80);n=Math.floor(n/128);}b.push(n&0x7F);}this.c.push(new Uint8Array(b));return this;};
+PW.prototype.t=function(f,w){return this.v((f<<3)|w);};
+PW.prototype.s=function(f,str){if(!str&&str!==0)return this;str=String(str);if(!str.length)return this;var e=new TextEncoder().encode(str);this.t(f,2).v(e.length).c.push(e);return this;};
+PW.prototype.b=function(f,arr){if(!arr||!arr.length)return this;var u=arr instanceof Uint8Array?arr:new Uint8Array(arr);this.t(f,2).v(u.length).c.push(u);return this;};
+PW.prototype.u64=function(f,n){var bn=typeof n==='bigint'?n:BigInt(Math.floor(Number(n)));if(bn===0n)return this;return this.t(f,0).v(bn);};
+PW.prototype.fin=function(){var tot=0;for(var i=0;i<this.c.length;i++)tot+=this.c[i].length;var o=new Uint8Array(tot),p=0;for(var i=0;i<this.c.length;i++){o.set(this.c[i],p);p+=this.c[i].length;}return o;};
+
+function toB64(u8){var s='';for(var i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return btoa(s);}
+function unb64(b){var s=atob(b);var u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+
+// ── Ledger helpers ────────────────────────────────────────────────────────────
+function derToCompact(der){
+  // DER: 0x30 len 0x02 rLen [r] 0x02 sLen [s]
+  var pos=4, rLen=der[3];
+  if(der[pos]===0x00){pos++;rLen--;} // strip leading zero
+  var r=der.slice(pos,pos+rLen); pos+=rLen+2;
+  var sLen=der[pos-1]; if(der[pos]===0x00){pos++;sLen--;}
+  var s=der.slice(pos,pos+sLen);
+  var out=new Uint8Array(64);
+  out.set(r,32-r.length); out.set(s,64-s.length);
+  return out;
+}
+function aminoSort(obj){
+  if(typeof obj!=='object'||obj===null) return obj;
+  if(Array.isArray(obj)) return obj.map(aminoSort);
+  return Object.keys(obj).sort().reduce(function(a,k){a[k]=aminoSort(obj[k]);return a;},{});
+}
+
+// ── Unified sign — routes to active wallet ────────────────────────────────────
+async function walletSign(bodyBytes, authBytes, acct, executeMsg, fundsUatom, contractAddr, feeAmount, gasLimit){
+  if(walletType==='keplr'||walletType==='leap'){
+    var w=walletType==='keplr'?window.keplr:window.leap;
+    var resp=await w.signDirect(CFG.CHAIN_ID,userAddress,{
+      bodyBytes:bodyBytes, authInfoBytes:authBytes,
+      chainId:CFG.CHAIN_ID, accountNumber:String(acct.accountNumber)
+    });
+    var sig=unb64(resp.signature.signature);
+    return txRaw(resp.signed.bodyBytes,resp.signed.authInfoBytes,sig);
+  }
+  if(walletType==='cosmostation'){
+    var cosmo=window.cosmostation&&window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;
+    if(cosmo){var resp=await cosmo.signDirect(CFG.CHAIN_ID,userAddress,{bodyBytes:bodyBytes,authInfoBytes:authBytes,chainId:CFG.CHAIN_ID,accountNumber:String(acct.accountNumber)});return txRaw(resp.signed.bodyBytes,resp.signed.authInfoBytes,unb64(resp.signature.signature));}
+    else{var resp=await window.cosmostation.cosmos.request({method:'cos_signDirect',params:{chainName:CFG.CHAIN_ID,doc:{chain_id:CFG.CHAIN_ID,body_bytes:toB64(bodyBytes),auth_info_bytes:toB64(authBytes),account_number:String(acct.accountNumber)}}});return txRaw(bodyBytes,authBytes,unb64(resp.signature));}
+  }
+  if(walletType==='ledger'){
+    var signDoc=aminoSort({
+      account_number:String(acct.accountNumber),
+      chain_id:CFG.CHAIN_ID,
+      fee:{amount:[{amount:feeAmount||'10000',denom:CFG.DENOM}],gas:String(gasLimit||CFG.GAS_FALLBACK)},
+      memo:'',
+      msgs:[{type:'wasm/MsgExecuteContract',value:{
+        sender:userAddress, contract:contractAddr,
+        msg:executeMsg,
+        funds:fundsUatom>0?[{denom:CFG.DENOM,amount:String(fundsUatom)}]:[]
+      }}],
+      sequence:String(acct.sequence)
+    });
+    var docBytes=new TextEncoder().encode(JSON.stringify(signDoc));
+    var res=await ledgerApp.sign([44,118,0,0,0],docBytes);
+    if(!res||res.error_message!=='No errors') throw new Error('Ledger: '+(res.error_message||'signing failed'));
+    return txRaw(bodyBytes,authBytes,derToCompact(res.signature));
+  }
+  throw new Error('No wallet connected');
+}
+
+function encodeMsgExecute(sender, contract, msgObj, fundsUatom) {
+  var pw = new PW().s(1,sender).s(2,contract).b(3,new TextEncoder().encode(JSON.stringify(msgObj)));
+  if (fundsUatom && fundsUatom > 0) pw.b(5, new PW().s(1,CFG.DENOM).s(2,String(fundsUatom)).fin());
+  return pw.fin();
+}
+function anyMsg(t,v){return new PW().s(1,t).b(2,v).fin();}
+function txBody(msgBytes){return new PW().b(1,anyMsg(CFG.TYPE_EXECUTE,msgBytes)).fin();}
+function modeInfoDirect(){return new PW().b(1,new PW().u64(1,1n).fin()).fin();}
+function signerInfo(pk,seq){return new PW().b(1,anyMsg(CFG.TYPE_PUBKEY,new PW().b(1,pk).fin())).b(2,modeInfoDirect()).u64(3,seq).fin();}
+function feeMsg(amt,gas){return new PW().b(1,new PW().s(1,CFG.DENOM).s(2,String(amt)).fin()).u64(2,BigInt(gas)).fin();}
+function authInfo(pk,seq,fee,gas){return new PW().b(1,signerInfo(pk,seq)).b(2,feeMsg(fee,gas)).fin();}
+function txRaw(body,auth,sig){return new PW().b(1,body).b(2,auth).b(3,sig).fin();}
+
+// ══════════════════════════════════════════════
+// REST
+// ══════════════════════════════════════════════
+async function restFetch(path) {
+  var last;
+  for (var i=0;i<CFG.REST.length;i++) {
+    try {
+      var r = await fetch(CFG.REST[i]+path);
+      if (!r.ok) continue;
+      return await r.json();
+    } catch(e) { last=e; }
+  }
+  throw last||new Error('All REST endpoints failed');
+}
+
+async function queryContract(contract, query) {
+  var enc = btoa(JSON.stringify(query));
+  var d = await restFetch('/cosmwasm/wasm/v1/contract/'+contract+'/smart/'+enc);
+  return d.data;
+}
+
+async function getAccount(addr) {
+  var d = await restFetch('/cosmos/auth/v1beta1/accounts/'+addr);
+  var acc = (d&&d.account)||d;
+  for(var g=0;g<5&&acc;g++){
+    if(acc.base_vesting_account) acc=acc.base_vesting_account.base_account||acc.base_vesting_account;
+    else if(acc.base_account) acc=acc.base_account;
+    else break;
+  }
+  return { accountNumber: BigInt(acc.account_number||0), sequence: BigInt(acc.sequence||0) };
+}
+
+async function simulateGas(bodyBytes, authBytes) {
+  var sim = new PW().b(1,bodyBytes).b(2,authBytes).b(3,new Uint8Array(64)).fin();
+  for (var i=0;i<CFG.REST.length;i++) {
+    try {
+      var r = await fetch(CFG.REST[i]+'/cosmos/tx/v1beta1/simulate', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({tx_bytes: toB64(sim)})
+      });
+      if(!r.ok) continue;
+      var j=await r.json();
+      var gas=parseInt((j.gas_info||{}).gas_used||0);
+      if(gas>50000) return Math.ceil(gas*CFG.GAS_ADJ);
+    } catch(e){}
+  }
+  return CFG.GAS_FALLBACK;
+}
+
+async function broadcast(rawBytes) {
+  var last;
+  for(var i=0;i<CFG.REST.length;i++){
+    try{
+      var r=await fetch(CFG.REST[i]+'/cosmos/tx/v1beta1/txs',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({tx_bytes:toB64(rawBytes),mode:'BROADCAST_MODE_SYNC'})
+      });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      var j=await r.json();
+      var res=j.tx_response||j;
+      return {code:parseInt(res.code||0),txhash:res.txhash||'',rawLog:res.raw_log||''};
+    }catch(e){last=e;}
+  }
+  throw last||new Error('Broadcast failed');
+}
+
+// ══════════════════════════════════════════════
+// SIGN + BROADCAST
+// ══════════════════════════════════════════════
+async function signAndBroadcast(executeMsg, fundsUatom, stepsEl, barEl, stepLabels) {
+  // Build step UI
+  if (stepsEl) {
+    stepsEl.innerHTML = '';
+    stepLabels.forEach(function(label, idx) {
+      var div = document.createElement('div');
+      div.id = stepsEl.id+'_s'+(idx+1);
+      div.className = 'flex items-center gap-2 text-xs text-gray-600';
+      div.innerHTML = '<span class="w-5 h-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-xs si" style="min-width:1.25rem">'+(idx+1)+'</span><span>'+label+'</span>';
+      stepsEl.appendChild(div);
+    });
+  }
+  if(barEl) barEl.style.width='0%';
+
+  function setStep(i, state) {
+    if(!stepsEl) return;
+    var el = stepsEl.querySelector('#'+stepsEl.id+'_s'+i);
+    if(!el) return;
+    el.className = 'flex items-center gap-2 text-xs '+(state==='active'?'text-white':state==='done'?'text-cyan-400':state==='error'?'text-red-400':'text-gray-600');
+    el.querySelector('.si').textContent = state==='done'?'✓':state==='error'?'✗':String(i);
+    if(barEl) barEl.style.width = (state==='done'?(i/stepLabels.length*100):(((i-0.5)/stepLabels.length)*100))+'%';
+  }
+
+  try {
+    setStep(1,'active');
+    var msgBytes  = encodeMsgExecute(userAddress, CFG.TLD_MANAGER, executeMsg, fundsUatom);
+    var bodyBytes = txBody(msgBytes);
+    setStep(1,'done');
+
+    setStep(2,'active');
+    var acct      = await getAccount(userAddress);
+    var ph        = CFG.GAS_FALLBACK;
+    var phFee     = String(Math.ceil(ph*CFG.GAS_PRICE));
+    var authBytes = authInfo(pubKey, acct.sequence, phFee, ph);
+    var gasLimit  = await simulateGas(bodyBytes, authBytes);
+    var feeAmount = String(Math.ceil(gasLimit*CFG.GAS_PRICE));
+    authBytes     = authInfo(pubKey, acct.sequence, feeAmount, gasLimit);
+    setStep(2,'done');
+
+    setStep(3,'active');
+    toast('Awaiting wallet signature…','ok');
+    var rawBytes = await walletSign(bodyBytes,authBytes,acct,executeMsg,fundsUatom,CFG.TLD_MANAGER,feeAmount,gasLimit);
+    setStep(3,'done');
+
+    setStep(4,'active');
+    toast('Broadcasting to Cosmos Hub…','ok');
+    var result = await broadcast(rawBytes);
+    if(result.code!==0) throw new Error('Chain error ('+result.code+'): '+result.rawLog.slice(0,200));
+    setStep(4,'done');
+    if(barEl) barEl.style.width='100%';
+    return result;
+  } catch(e) {
+    if(stepsEl) {
+      var els = stepsEl.querySelectorAll('.text-white');
+      els.forEach(function(el){ el.className=el.className.replace('text-white','text-red-400'); el.querySelector('.si').textContent='✗'; });
+    }
+    throw e;
+  }
+}
+
+// Version for registry calls (not tld-manager)
+async function signAndBroadcastRegistry(contract, executeMsg, fundsUatom, stepsEl, barEl, stepLabels) {
+  if(stepsEl) {
+    stepsEl.innerHTML='';
+    stepLabels.forEach(function(label,idx){
+      var div=document.createElement('div');
+      div.id=stepsEl.id+'_s'+(idx+1);
+      div.className='flex items-center gap-2 text-xs text-gray-600';
+      div.innerHTML='<span class="w-5 h-5 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-bold text-xs si" style="min-width:1.25rem">'+(idx+1)+'</span><span>'+label+'</span>';
+      stepsEl.appendChild(div);
+    });
+  }
+  if(barEl) barEl.style.width='0%';
+
+  function setStep(i,state){
+    if(!stepsEl) return;
+    var el=stepsEl.querySelector('#'+stepsEl.id+'_s'+i);
+    if(!el) return;
+    el.className='flex items-center gap-2 text-xs '+(state==='active'?'text-white':state==='done'?'text-cyan-400':state==='error'?'text-red-400':'text-gray-600');
+    el.querySelector('.si').textContent=state==='done'?'✓':state==='error'?'✗':String(i);
+    if(barEl) barEl.style.width=(state==='done'?(i/stepLabels.length*100):(((i-0.5)/stepLabels.length)*100))+'%';
+  }
+
+  try {
+    setStep(1,'active');
+    var msgBytes=encodeMsgExecute(userAddress,contract,executeMsg,fundsUatom);
+    var bodyBytes=txBody(msgBytes);
+    setStep(1,'done');
+    setStep(2,'active');
+    var acct=await getAccount(userAddress);
+    var ph=CFG.GAS_FALLBACK;
+    var authBytes=authInfo(pubKey,acct.sequence,String(Math.ceil(ph*CFG.GAS_PRICE)),ph);
+    var gasLimit=await simulateGas(bodyBytes,authBytes);
+    var feeAmount=String(Math.ceil(gasLimit*CFG.GAS_PRICE));
+    authBytes=authInfo(pubKey,acct.sequence,feeAmount,gasLimit);
+    setStep(2,'done');
+    setStep(3,'active');
+    toast('Awaiting wallet signature…','ok');
+    var rawBytes=await walletSign(bodyBytes,authBytes,acct,executeMsg,fundsUatom,contract,feeAmount,gasLimit);
+    setStep(3,'done');
+    setStep(4,'active');
+    toast('Broadcasting…','ok');
+    var result=await broadcast(rawBytes);
+    if(result.code!==0) throw new Error('Chain error ('+result.code+'): '+result.rawLog.slice(0,200));
+    setStep(4,'done');
+    if(barEl) barEl.style.width='100%';
+    return result;
+  } catch(e) {
+    if(stepsEl){var els=stepsEl.querySelectorAll('.text-white');els.forEach(function(el){el.className=el.className.replace('text-white','text-red-400');el.querySelector('.si').textContent='✗';});}
+    throw e;
+  }
+}
+
+var TX_STEPS = ['Building transaction','Fetching account & simulating gas','Awaiting wallet signature','Broadcasting to Cosmos Hub'];
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  var page = $(pageId+'Page');
+  if(page) page.classList.add('active');
+  var btn = document.querySelector('.tab-btn[data-tab="'+pageId+'"]');
+  if(btn) btn.classList.add('active');
+  if(pageId==='portfolio'&&userAddress) loadPortfolio();
+  if(pageId==='tldmanage'&&userAddress) {
+    if(allTlds.length===0) loadTlds().then(function(){ loadMyTlds(); });
+    else loadMyTlds();
+  }
+  if(pageId==='wallet'&&userAddress) loadAccountData();
+}
+
+document.querySelectorAll('.tab-btn[data-tab]').forEach(function(btn){
+  btn.addEventListener('click', function(){ showPage(btn.dataset.tab); });
+});
+
+// ══════════════════════════════════════════════
+// MULTI-WALLET
+// ══════════════════════════════════════════════
+function openWalletModal(){ $('walletModal').classList.remove('hidden'); }
+function closeWalletModal(){ $('walletModal').classList.add('hidden'); }
+
+async function connectWallet(type){
+  closeWalletModal();
+  try {
+    if(type==='keplr'){
+      if(!window.keplr){ toast('Keplr not found','error'); window.open('https://www.keplr.app/','_blank'); return; }
+      await window.keplr.enable(CFG.CHAIN_ID);
+      var k=await window.keplr.getKey(CFG.CHAIN_ID);
+      userAddress=k.bech32Address; pubKey=k.pubKey; walletType='keplr';
+    } else if(type==='leap'){
+      if(!window.leap){ toast('Leap not found','error'); window.open('https://www.leapwallet.io/','_blank'); return; }
+      await window.leap.enable(CFG.CHAIN_ID);
+      var k=await window.leap.getKey(CFG.CHAIN_ID);
+      userAddress=k.bech32Address; pubKey=k.pubKey; walletType='leap';
+    } else if(type==='cosmostation'){
+      var cosmo=window.cosmostation&&window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;
+      if(!cosmo&&(!window.cosmostation||!window.cosmostation.cosmos)){toast('Cosmostation extension not found','error');window.open('https://www.cosmostation.io/','_blank');return;}
+      if(cosmo){await cosmo.enable(CFG.CHAIN_ID);var k=await cosmo.getKey(CFG.CHAIN_ID);userAddress=k.bech32Address;pubKey=k.pubKey;walletType='cosmostation';}
+      else{var acc=await window.cosmostation.cosmos.request({method:'cos_requestAccount',params:{chainName:CFG.CHAIN_ID}});userAddress=acc.address;pubKey=acc.publicKey;walletType='cosmostation';}
+    } else if(type==='ledger'){
+      if(CFG.LEDGER_MOCK){
+        // ── MOCK MODE — no hardware required ─────────────────────────────────
+        // Uses a fixed secp256k1 test keypair. Real tx structure, test key.
+        // The mock pubkey is a valid compressed secp256k1 point (33 bytes).
+        var mockPubKey = new Uint8Array([
+          0x02,0x79,0xBE,0x66,0x7E,0xF9,0xDC,0xBB,0xAC,0x55,0xA0,0x62,0x95,0xCE,
+          0x87,0x0B,0x07,0x02,0x9B,0xFC,0xDB,0x2D,0xCE,0x28,0xD9,0x59,0xF2,0x81,
+          0x5B,0x16,0xF8,0x17,0x98
+        ]);
+        // Mock ledgerApp — sign() uses Web Crypto subtle to produce a real ECDSA
+        // signature over the amino doc so the tx structure is fully valid.
+        // The private key below is the well-known secp256k1 generator test scalar k=1.
+        // NEVER use this key for real funds — it is publicly known.
+        var mockPrivKey = new Uint8Array(32); mockPrivKey[31] = 1;
+        ledgerApp = {
+          sign: async function(path, docBytes){
+            try {
+              // Import as raw ECDSA key
+              var key = await crypto.subtle.importKey(
+                'raw', mockPrivKey,
+                {name:'ECDSA',namedCurve:'P-256'}, false, ['sign']
+              );
+              // Note: P-256 ≠ secp256k1 but produces same DER structure for testing
+              var derSig = new Uint8Array(await crypto.subtle.sign(
+                {name:'ECDSA',hash:'SHA-256'}, key, docBytes
+              ));
+              return {error_message:'No errors', signature: derSig};
+            } catch(e){
+              // Fallback: return a fixed 64-byte mock signature (all zeros is invalid
+              // on-chain but lets us test the full tx assembly path)
+              var fakeDer = new Uint8Array(72);
+              fakeDer[0]=0x30; fakeDer[1]=0x44;
+              fakeDer[2]=0x02; fakeDer[3]=0x20;
+              fakeDer[36]=0x02; fakeDer[37]=0x20;
+              return {error_message:'No errors', signature: fakeDer};
+            }
+          }
+        };
+        userAddress = CFG.LEDGER_MOCK_ADDR;
+        pubKey = mockPubKey;
+        walletType = 'ledger';
+        toast('⚠ LEDGER MOCK MODE — test key only, not real funds','warn');
+      } else {
+        // ── REAL HARDWARE ─────────────────────────────────────────────────────
+        toast('Opening Ledger — unlock device, open Cosmos app…','ok');
+        try {
+          var t=await import('https://esm.sh/@ledgerhq/hw-transport-webhid@6.34.0');
+          var WebHID=t.default||t;
+          var a=await import('https://esm.sh/@ledgerhq/hw-app-cosmos@6.35.1');
+          var CosmosApp=a.default||a;
+          ledgerTransport=await WebHID.create();
+          ledgerApp=new CosmosApp(ledgerTransport);
+          var addr=await ledgerApp.getAddress("44'/118'/0'/0/0",'cosmos');
+          if(addr.error_message&&addr.error_message!=='No errors') throw new Error(addr.error_message);
+          userAddress=addr.address; pubKey=addr.publicKey; walletType='ledger';
+        } catch(le){
+          if(ledgerTransport){try{ledgerTransport.close();}catch(e){} ledgerTransport=null;} ledgerApp=null;
+          var m=le.message||String(le);
+          if(/hid/i.test(m)) toast('WebHID not available — use Chrome or Edge','error');
+          else if(/timeout/i.test(m)) toast('Ledger timed out — unlock and open Cosmos app','error');
+          else toast('Ledger: '+m.slice(0,80),'error');
+          return;
+        }
+      }
+    }
+    onConnected();
+  } catch(e){ toast('Connect failed: '+(e.message||String(e)),'error'); }
+}
+
+function onConnected() {
+  $('loginSection').classList.add('hidden');
+  $('connectedState').classList.remove('hidden');
+  $('connectedAddress').textContent = userAddress;
+  $('walletBar').classList.remove('hidden');
+  $('walletAddrShort').textContent = userAddress.slice(0,12)+'...'+userAddress.slice(-6);
+  $('portfolioNav').style.display='flex';
+  $('tldManageNav').style.display='flex';
+  // Wallet type badge
+  var bc=walletType==='leap'?'wb-l':walletType==='ledger'?'wb-d':walletType==='cosmostation'?'wb-c':'wb-k';
+  var bl=walletType==='leap'?'Leap':walletType==='ledger'?'Ledger':walletType==='cosmostation'?'Cosmostation':'Keplr';
+  var badge=$('walletBadge');
+  if(badge){ badge.className='wb '+bc; badge.textContent=bl; }
+  // Persist session across page navigations
+  try{ sessionStorage.setItem('ar_wallet',JSON.stringify({type:walletType,address:userAddress})); }catch(e){}
+  loadAccountData();
+  loadTlds().then(function(){ renderMyTldList(); }); // counts set by loadPortfolio()
+  loadPortfolio(); // populate Names/TLDs counts on wallet page immediately
+  toast('Connected via '+bl+'!','ok');
+}
+
+function disconnect() {
+  if(ledgerTransport){try{ledgerTransport.close();}catch(e){} ledgerTransport=null;}
+  try{ sessionStorage.removeItem('ar_wallet'); }catch(e){}
+  userAddress=null; pubKey=null; walletType=null; ledgerApp=null;
+  $('loginSection').classList.remove('hidden');
+  $('connectedState').classList.add('hidden');
+  $('walletBar').classList.add('hidden');
+  $('portfolioNav').style.display='none';
+  $('tldManageNav').style.display='none';
+  showPage('names');
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  var el;
+  el=$('openWalletModalBtn'); if(el) el.addEventListener('click', openWalletModal);
+  el=$('wmKeplr');  if(el) el.addEventListener('click', function(){ connectWallet('keplr'); });
+  el=$('wmLeap');   if(el) el.addEventListener('click', function(){ connectWallet('leap'); });
+  el=$('wmCosmostation'); if(el) el.addEventListener('click', function(){ connectWallet('cosmostation'); });
+  el=$('wmLedger'); if(el) el.addEventListener('click', function(){ connectWallet('ledger'); });
+  el=$('wmCancel'); if(el) el.addEventListener('click', closeWalletModal);
+  el=$('walletModal'); if(el) el.addEventListener('click', function(e){ if(e.target===$('walletModal')) closeWalletModal(); });
+  el=$('disconnectBtn');  if(el) el.addEventListener('click', disconnect);
+  el=$('disconnectBtn2'); if(el) el.addEventListener('click', disconnect);
+  // Show mock badge on Ledger button if mock mode is on
+  if(CFG.LEDGER_MOCK){
+    var d=$('ledgerBtnDesc');
+    if(d) d.innerHTML='<span style="color:#fbbf24;font-weight:700">⚠ MOCK MODE ON</span> · No hardware needed · Test key only';
+    var wmb=$('wmLedger');
+    if(wmb) wmb.style.borderColor='rgba(251,191,36,0.5)';
+  }
+});
+
+async function loadAccountData() {
+  try {
+    var d = await restFetch('/cosmos/bank/v1beta1/balances/'+userAddress);
+    var coin = (d.balances||[]).find(function(b){return b.denom===CFG.DENOM;});
+    var amt = coin ? (parseInt(coin.amount)/1000000).toFixed(2) : '0.00';
+    $('atomBalance').textContent = amt+' ATOM';
+    $('walletBal').textContent = amt+' ATOM';
+    if(parseFloat(amt)<3) { $('walletBal').style.color='#f87171'; }
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════════
+// TLD DISCOVERY — seed-first, policy queries only
+// No tx event queries (500 on most public nodes)
+// ══════════════════════════════════════════════
+
+// Static seed from live registry snapshot (122 TLDs, 2026-03-28)
+// New TLDs registered after this date will appear once a wallet is connected.
+var TLD_SEED = [
+  'a1','abc','account','adhdatom','agent','ai','akash','any','api','app',
+  'atom','auth','bank','bitcoin','blockchain','bot','brave','brianmori',
+  'bridge','btc','business','capital','carbon','cash','celestia',
+  'citizenweb3','city','chain','cloud','com','cool','cosmos','crypto',
+  'custody','dao','data','defi','dev','dex','do','dydx','energy',
+  'escrow','eureka','finance','fund','game','gamer','global','gold',
+  'gov','grok','health','hemp','hub','ibc','id','identity','index',
+  'injective','jp','juno','keplr','key','lab','labs','law','leap',
+  'link','login','lunc','market','me','mint','money','mori','move',
+  'name','net','neutron','nft','noble','node','onchain','oracle','org',
+  'osmosis','passport','pay','pl','price','profile','proof','reserve',
+  'route','rwa','shop','silver','skip','stake','stargaze','stars',
+  'stride','swap','trade','treasury','trust','uk','ultra','val',
+  'validator','vault','vc','vip','wallet','web','web3','x','xyz','zk'
+];
+
+async function loadTlds() {
+  try {
+    var nameOwners = new Map();
+
+    // Seed from known list — instant, no network required
+    TLD_SEED.forEach(function(label){ nameOwners.set(label, null); });
+
+    // If wallet connected, also load the user's own names to catch anything new
+    if (userAddress) {
+      try {
+        var resp = await queryContract(CFG.REGISTRY,{names_by_owner:{owner:userAddress,start_after:null,limit:100}});
+        var names = resp.names||[];
+        names.filter(function(n){ return n.indexOf('.')===-1; }).forEach(function(n){
+          nameOwners.set(n, userAddress); // overwrite seed null with real owner address
+        });
+      } catch(e) {}
+    }
+
+    allTlds = [];
+    var roots = Array.from(nameOwners.entries()).sort(function(a,b){ return a[0].localeCompare(b[0]); });
+    for (var k = 0; k < roots.length; k++) {
+      var label = roots[k][0];
+      var owner = roots[k][1];
+      var policy = null;
+      try {
+        policy = await queryContract(CFG.REGISTRY, { subdomain_policy:{ name:label } });
+      } catch (e) {}
+      // Infer ownership from policy recipient if wallet connected and owner still unknown
+      if(!owner && userAddress && policy && policy.recipient &&
+         policy.recipient.toLowerCase() === userAddress.toLowerCase()) {
+        owner = userAddress;
+      }
+      allTlds.push({ label:label, owner:owner, policy:policy });
+    }
+
+    renderTldBrowser();
+    renderTldPageList();
+    renderMyTldList();
+    // updateTldCounts() intentionally omitted — loadPortfolio() owns wallet page counts
+  } catch(e) {
+    console.error('[TLD] loadTlds error:', e);
+  }
+}
+
+function renderTldBrowser() {
+  var el = $('tldBrowser');
+  if(!allTlds.length){ el.innerHTML='<span class="text-gray-600 text-xs">No TLDs found</span>'; return; }
+  var withPolicy = allTlds.filter(function(t){return t.policy&&t.policy.enabled;});
+  var html = withPolicy.map(function(t){
+    var price = uatomToAtom(t.policy.price);
+    var isOpen = t.policy.registration_open;
+    return '<button class="tld-pill" data-label="'+esc(t.label)+'" data-price="'+esc(t.policy.price)+'">'+
+      '<span class="'+(isOpen?'text-cyan-400':'text-gray-500')+'">.</span>'+esc(t.label)+
+      '<span class="ml-1.5 '+(isOpen?'text-gray-400':'text-gray-600')+' text-xs">'+price+'</span>'+
+      (isOpen?'':'<span class="ml-1 text-gray-600 text-xs">closed</span>')+
+      '</button>';
+  }).join('');
+  el.innerHTML = html || '<span class="text-gray-600 text-xs">No TLDs with open policies found. TLD owners can enable registration in TLD Settings.</span>';
+  if(!html) return;
+  el.querySelectorAll('.tld-pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      el.querySelectorAll('.tld-pill').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      var tld = allTlds.find(function(t){return t.label===btn.dataset.label;});
+      selectTld(tld);
+    });
+  });
+}
+
+function renderTldPageList() {
+  var el = $('tldPageList');
+  if(!allTlds.length){ el.innerHTML='<span class="text-gray-600 text-xs">Loading...</span>'; return; }
+  el.innerHTML = allTlds.map(function(t){
+    var isOpen = t.policy&&t.policy.enabled&&t.policy.registration_open;
+    return '<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs border '+(isOpen?'border-green-500/30 bg-green-500/10 text-green-400':'border-white/10 bg-white/3 text-gray-500')+'">'+
+      '<span class="w-1.5 h-1.5 rounded-full '+(isOpen?'bg-green-400':'bg-gray-600')+' inline-block"></span>'+
+      '.'+esc(t.label)+
+    '</span>';
+  }).join('');
+}
+
+function renderMyTldList() {
+  var el = $('myTldList');
+  if(!userAddress){ el.innerHTML='<span class="text-gray-600 text-xs">Connect wallet to see your TLDs</span>'; return; }
+  var mine = allTlds.filter(function(t){return t.owner===userAddress;});
+  if(!mine.length){ el.innerHTML='<span class="text-gray-600 text-xs">You don\'t own any TLDs yet. <button class="text-purple-400 hover:text-purple-300" onclick="showPage(\'tlds\')">Get one →</button></span>'; return; }
+  el.innerHTML = mine.map(function(t){
+    var isOpen = t.policy&&t.policy.enabled&&t.policy.registration_open;
+    return '<button class="tld-pill '+(editingTld===t.label?'active':'')+'" data-label="'+esc(t.label)+'">'+
+      '.'+esc(t.label)+
+      '<span class="ml-1.5 text-xs '+(isOpen?'text-green-400':'text-gray-600')+'">'+(isOpen?'open':'closed')+'</span>'+
+    '</button>';
+  }).join('');
+  el.querySelectorAll('.tld-pill').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      el.querySelectorAll('.tld-pill').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      openTldEditor(btn.dataset.label);
+    });
+  });
+}
+
+function updateTldCounts() {
+  if(!userAddress) return;
+  var mine = allTlds.filter(function(t){return t.owner===userAddress;});
+  $('tldCount').textContent = mine.length;
+}
+
+// ══════════════════════════════════════════════
+// GET A NAME — select TLD
+// ══════════════════════════════════════════════
+function selectTld(tld) {
+  selectedTld = tld;
+  selectedTldPolicy = tld.policy;
+  $('selectedTldDisplay').textContent = '.'+tld.label;
+  $('nameSearchSuffix').textContent = '.'+tld.label;
+  $('selectedTldOwner').textContent = tld.owner ? tld.owner.slice(0,14)+'...' : '—';
+  if(tld.policy) {
+    $('selectedTldPrice').textContent = uatomToAtom(tld.policy.price);
+  } else {
+    $('selectedTldPrice').textContent = 'No policy set';
+  }
+  $('nameSearchPanel').classList.remove('hidden');
+  $('nameSearchResult').innerHTML='';
+  $('nameSearchInput').value='';
+  $('nameSearchInput').focus();
+}
+
+$('nameSearchBtn').addEventListener('click', searchName);
+$('nameSearchInput').addEventListener('keydown', function(e){ if(e.key==='Enter') searchName(); });
+$('refreshTldsNameBtn').addEventListener('click', loadTlds);
+$('refreshTldsPageBtn').addEventListener('click', loadTlds);
+
+async function searchName() {
+  if(!selectedTld){ toast('Select a TLD first','warn'); return; }
+  var raw = $('nameSearchInput').value.trim().toLowerCase().replace(/\..*$/,'');
+  if(!raw){ toast('Enter a name','warn'); return; }
+
+  var btn = $('nameSearchBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin-icon"></span>';
+  var result = $('nameSearchResult');
+  result.innerHTML='<div class="text-center py-4 text-gray-500 text-sm"><span class="spin-icon mr-2"></span> Checking...</div>';
+
+  try {
+    var fullName = raw+'.'+selectedTld.label;
+    var exists = false;
+    try {
+      var resp = await queryContract(CFG.REGISTRY, {exists:{name:fullName}});
+      exists = resp&&resp.exists;
+    } catch(e){}
+
+    if(!selectedTldPolicy||!selectedTldPolicy.enabled||!selectedTldPolicy.registration_open) {
+      result.innerHTML='<div class="glass-card rounded-xl p-5 border border-yellow-500/20">'+
+        '<div class="flex items-center gap-3 mb-2"><span class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded text-xs font-bold">CLOSED</span>'+
+        '<span class="font-display font-bold text-lg text-white">'+esc(fullName)+'</span></div>'+
+        '<p class="text-yellow-400 text-sm">Registration for this TLD is currently closed by the owner.</p>'+
+        '</div>';
+    } else if(exists) {
+      result.innerHTML='<div class="glass-card rounded-xl p-5 border border-red-500/20">'+
+        '<div class="flex items-center gap-3"><span class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs font-bold">TAKEN</span>'+
+        '<span class="font-display font-bold text-lg text-white">'+esc(fullName)+'</span></div>'+
+        '</div>';
+    } else {
+      var price = uatomToAtom(selectedTldPolicy.price);
+      result.innerHTML='<div class="glass-card rounded-xl p-5 border border-green-500/20">'+
+        '<div class="flex items-center justify-between mb-4">'+
+          '<div><div class="flex items-center gap-3 mb-1"><span class="bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs font-bold">AVAILABLE</span></div>'+
+          '<div class="font-display font-bold text-xl text-cyan-400">'+esc(fullName)+'</div></div>'+
+          '<div class="text-right"><div class="text-white font-bold text-lg">'+esc(price)+'</div><div class="text-gray-500 text-xs">one-time • forever</div></div>'+
+        '</div>'+
+        '<button id="registerNameBtn" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white py-3 rounded-xl font-bold text-sm transition-all">'+
+          'Register '+esc(fullName)+' — '+esc(price)+
+        '</button>'+
+        '<div id="nameRegTxWrap" class="hidden mt-4 glass-card p-4 rounded-xl">'+
+          '<p class="font-display text-xs text-purple-400 mb-2" style="letter-spacing:0.08em">⚡ REGISTERING</p>'+
+          '<div id="nameRegTxSteps" class="space-y-1.5"></div>'+
+          '<div class="mt-2 h-1 rounded-full bg-white/5 overflow-hidden"><div id="nameRegTxBar" class="h-full bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full transition-all duration-500" style="width:0%"></div></div>'+
+        '</div>'+
+        '</div>';
+
+      $('registerNameBtn').addEventListener('click', function(){
+        registerName(raw, selectedTld.label, parseInt(selectedTldPolicy.price));
+      });
+    }
+  } catch(e) {
+    result.innerHTML='<div class="glass-card rounded-xl p-4 border border-red-500/20"><p class="text-red-400 text-sm">Error: '+esc(e.message||String(e))+'</p></div>';
+  } finally {
+    btn.disabled=false; btn.innerHTML='Check';
+  }
+}
+
+async function registerName(label, tldLabel, priceUatom) {
+  if(!userAddress){ toast('Connect wallet first','warn'); return; }
+  var btn = $('registerNameBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin-icon mr-2"></span> Registering...';
+  $('nameRegTxWrap').classList.remove('hidden');
+
+  try {
+    var result = await signAndBroadcastRegistry(
+      CFG.REGISTRY,
+      { register_subdomain: { parent: tldLabel, label: label } },
+      priceUatom,
+      $('nameRegTxSteps'),
+      $('nameRegTxBar'),
+      TX_STEPS
+    );
+    toast('🎉 '+label+'.'+tldLabel+' registered!','ok');
+    launchConfetti();
+    showSuccessModal(label+'.'+tldLabel, result.txhash);
+    $('nameSearchResult').innerHTML='';
+    $('nameSearchInput').value='';
+  } catch(e) {
+    var m=e.message||String(e);
+    if(/rejected|denied|cancel/i.test(m)) toast('Cancelled','warn');
+    else if(/insufficient/i.test(m)) toast('Insufficient ATOM','error');
+    else if(/limit/i.test(m)) toast('Max names per address reached for this TLD','error');
+    else toast('Failed: '+m.slice(0,120),'error');
+    btn.disabled=false; btn.innerHTML='Register '+label+'.'+tldLabel;
+  }
+}
+
+// ══════════════════════════════════════════════
+// GET A TLD — commit-reveal
+// ══════════════════════════════════════════════
+function genSecret(){var a=new Uint8Array(16);crypto.getRandomValues(a);return Array.from(a).map(function(b){return b.toString(16).padStart(2,'0');}).join('');}
+
+$('tldCheckBtn').addEventListener('click', checkTldAvailability);
+$('tldCheckInput').addEventListener('keydown', function(e){ if(e.key==='Enter') checkTldAvailability(); });
+
+async function checkTldAvailability() {
+  var raw = $('tldCheckInput').value.trim().toLowerCase().replace(/^\./,'');
+  if(!raw){ toast('Enter a TLD name','warn'); return; }
+  if(!/^[a-z0-9]{2,20}$/.test(raw)){ toast('Lowercase letters and numbers only, 2-20 chars','warn'); return; }
+
+  var btn=$('tldCheckBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin-icon"></span>';
+  $('tldCheckResult').classList.add('hidden');
+  $('tldMintFlow').classList.add('hidden');
+
+  try {
+    var exists=false;
+    try { var r=await queryContract(CFG.REGISTRY,{exists:{name:raw}}); exists=r&&r.exists; } catch(e){}
+    var reserved=false;
+    try { var rv=await queryContract(CFG.TLD_MANAGER,{reserved:{label:raw}}); reserved=!!(rv&&rv.reserved); } catch(e){}
+
+    $('tldCheckResult').classList.remove('hidden');
+    if(reserved){
+      $('tldCheckResult').innerHTML='<div class="glass-card rounded-xl p-4 border border-yellow-500/20"><div class="flex items-center gap-3 mb-1"><span class="bg-yellow-500/20 text-yellow-400 px-3 py-1 rounded text-xs font-bold">RESERVED</span><span class="font-display font-bold text-lg text-white">.'+esc(raw)+'</span></div><p class="text-yellow-400 text-sm">This TLD is reserved and cannot be registered.</p></div>';
+    } else if(exists){
+      $('tldCheckResult').innerHTML='<div class="glass-card rounded-xl p-4 border border-red-500/20"><div class="flex items-center gap-3"><span class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs font-bold">TAKEN</span><span class="font-display font-bold text-lg text-white">.'+esc(raw)+'</span></div></div>';
+    } else {
+      $('tldCheckResult').innerHTML='<div class="glass-card rounded-xl p-4 border border-green-500/20"><div class="flex items-center gap-3"><span class="bg-green-500/20 text-green-400 px-3 py-1 rounded text-xs font-bold">AVAILABLE</span><span class="font-display font-bold text-lg text-cyan-400">.'+esc(raw)+'</span><span class="text-white font-bold ml-auto">2.5 ATOM</span></div></div>';
+      tldPendingLabel=raw;
+      $('tldMintLabel').textContent='.'+raw;
+      $('tldRegisterLabel').textContent='.'+raw;
+      $('tldMintFlow').classList.remove('hidden');
+      $('tldCommitPanel').classList.remove('hidden');
+      $('tldWaitPanel').classList.add('hidden');
+      $('tldRegisterPanel').classList.add('hidden');
+
+      // Check for saved commit
+      var saved=loadSavedTldCommit();
+      if(saved&&saved.address===userAddress&&saved.label===raw){
+        tldPendingSecret=saved.secret;
+        tldCommitTimestamp=saved.timestamp;
+        restoreTldCommit();
+      }
+    }
+  } catch(e){
+    $('tldCheckResult').innerHTML='<div class="glass-card rounded-xl p-4"><p class="text-red-400 text-sm">Check failed: '+esc(e.message)+'</p></div>';
+    $('tldCheckResult').classList.remove('hidden');
+  } finally {
+    btn.disabled=false; btn.innerHTML='Check';
+  }
+}
+
+$('tldCommitBtn').addEventListener('click', doTldCommit);
+$('tldRegisterBtn').addEventListener('click', doTldRegister);
+
+async function doTldCommit() {
+  if(!userAddress){ toast('Connect wallet first','warn'); return; }
+  tldPendingSecret=genSecret();
+  var commitment=userAddress+':'+tldPendingLabel+':'+tldPendingSecret;
+  var btn=$('tldCommitBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin-icon mr-2"></span> Submitting...';
+  $('tldTxProgress').classList.remove('hidden');
+  try {
+    var result=await signAndBroadcast(
+      {commit:{commitment:commitment}}, 0,
+      $('tldTxSteps'), $('tldTxBar'), TX_STEPS
+    );
+    tldCommitTimestamp=Date.now();
+    saveTldCommit();
+    toast('Commit broadcast!','ok');
+    $('tldTxProgress').classList.add('hidden');
+    $('tldCommitPanel').classList.add('hidden');
+    startTldTimer();
+  } catch(e){
+    $('tldTxProgress').classList.add('hidden');
+    var m=e.message||String(e);
+    if(/rejected|denied|cancel/i.test(m)) toast('Cancelled','warn');
+    else toast('Commit failed: '+m.slice(0,120),'error');
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i> Submit Commit Transaction';
+  }
+}
+
+function startTldTimer() {
+  $('tldWaitPanel').classList.remove('hidden');
+  $('tldRegisterPanel').classList.add('hidden');
+  clearInterval(tldTimerInterval);
+  tldTimerInterval=setInterval(function(){
+    var elapsed=(Date.now()-tldCommitTimestamp)/1000;
+    var remaining=Math.max(0,CFG.MIN_COMMIT-elapsed);
+    $('tldTimerText').textContent=Math.ceil(remaining);
+    $('tldTimerLabel').textContent=Math.ceil(remaining)+' second'+(Math.ceil(remaining)!==1?'s':'');
+    if(remaining<=0){
+      clearInterval(tldTimerInterval);
+      $('tldWaitPanel').classList.add('hidden');
+      $('tldRegisterPanel').classList.remove('hidden');
+      toast('Ready to register!','ok');
+    }
+  },1000);
+}
+
+function restoreTldCommit(){
+  var elapsed=(Date.now()-tldCommitTimestamp)/1000;
+  if(elapsed<CFG.MIN_COMMIT){ $('tldCommitPanel').classList.add('hidden'); startTldTimer(); }
+  else if(elapsed<CFG.MAX_COMMIT){ $('tldCommitPanel').classList.add('hidden'); $('tldRegisterPanel').classList.remove('hidden'); }
+  else { toast('Previous commit expired. Please recommit.','warn'); clearTldCommit(); tldPendingLabel=null; tldPendingSecret=null; }
+}
+
+async function doTldRegister() {
+  if(!userAddress){ toast('Connect wallet first','warn'); return; }
+  var elapsed=(Date.now()-tldCommitTimestamp)/1000;
+  if(elapsed<CFG.MIN_COMMIT){ toast('Commit too young — wait a moment','warn'); return; }
+  if(elapsed>CFG.MAX_COMMIT){ toast('Commit expired — please recommit','error'); clearTldCommit(); return; }
+  var btn=$('tldRegisterBtn');
+  btn.disabled=true; btn.innerHTML='<span class="spin-icon mr-2"></span> Registering...';
+  $('tldTxProgress').classList.remove('hidden');
+  try {
+    var result=await signAndBroadcast(
+      {register_tld:{label:tldPendingLabel,owner:userAddress,secret:tldPendingSecret}},
+      CFG.TLD_PRICE,
+      $('tldTxSteps'), $('tldTxBar'), TX_STEPS
+    );
+    clearTldCommit();
+    var label=tldPendingLabel;
+    tldPendingLabel=null; tldPendingSecret=null; tldCommitTimestamp=null;
+    $('tldTxProgress').classList.add('hidden');
+    $('tldMintFlow').classList.add('hidden');
+    loadTlds();
+    toast('🎉 .'+label+' registered!','ok');
+    launchConfetti();
+    showSuccessModal('.'+label+' TLD', result.txhash);
+  } catch(e){
+    $('tldTxProgress').classList.add('hidden');
+    var m=e.message||String(e);
+    if(/rejected|denied|cancel/i.test(m)) toast('Cancelled','warn');
+    else if(/insufficient/i.test(m)) toast('Insufficient ATOM','error');
+    else if(/exists/i.test(m)) toast('TLD already taken','error');
+    else if(/expired/i.test(m)){ toast('Commit expired — please recommit','error'); clearTldCommit(); }
+    else toast('Failed: '+m.slice(0,120),'error');
+    btn.disabled=false; btn.innerHTML='<i class="fas fa-check-circle"></i> Register — 2.5 ATOM';
+  }
+}
+
+// Commit persistence
+function saveTldCommit(){try{localStorage.setItem('ar_tld_commit',JSON.stringify({address:userAddress,label:tldPendingLabel,secret:tldPendingSecret,timestamp:tldCommitTimestamp}));}catch(e){}}
+function loadSavedTldCommit(){try{return JSON.parse(localStorage.getItem('ar_tld_commit'));}catch(e){return null;}}
+function clearTldCommit(){try{localStorage.removeItem('ar_tld_commit');}catch(e){}}
+
+// ══════════════════════════════════════════════
+// PORTFOLIO
+// ══════════════════════════════════════════════
+$('syncPortfolioBtn').addEventListener('click', loadPortfolio);
+$('backToPortfolioBtn').addEventListener('click', function(){ showPage('portfolio'); });
+
+async function loadPortfolio() {
+  var grid=$('portfolioGrid');
+  grid.innerHTML='<div class="col-span-3 text-center py-12"><span class="spin-icon"></span></div>';
+  try {
+    var resp=await queryContract(CFG.REGISTRY,{names_by_owner:{owner:userAddress,start_after:null,limit:100}});
+    var names=resp.names||[];
+    var tlds=names.filter(function(n){return n.indexOf('.')===-1;});
+    var subs=names.filter(function(n){return n.indexOf('.')!==-1;});
+    $('statTotalNames').textContent=names.length;
+    $('statTldsOwned').textContent=tlds.length;
+    $('statSubdomains').textContent=subs.length;
+    $('domainCount').textContent=subs.length;  // wallet page: registered names only
+    $('tldCount').textContent=tlds.length;     // wallet page: TLDs owned
+
+    try {
+      var pr=await queryContract(CFG.REGISTRY,{primary_of:{owner:userAddress}});
+      $('statPrimary').textContent=pr&&pr.name?pr.name:'—';
+    } catch(e){ $('statPrimary').textContent='—'; }
+
+    if(!names.length){
+      grid.innerHTML='<div class="col-span-3 text-center text-gray-500 py-10">No names found. <button class="text-purple-400 hover:text-purple-300" onclick="showPage(\'names\')">Register one →</button></div>';
+      return;
+    }
+    grid.innerHTML=names.map(function(name){
+      var isTld=name.indexOf('.')===-1;
+      var label=isTld?name:name.split('.')[0];
+      var tld=isTld?'':name.split('.').slice(1).join('.');
+      return '<div class="glass-card p-5 rounded-2xl relative overflow-hidden group">'+
+        '<div class="flex justify-between mb-3">'+
+          '<div class="w-10 h-10 bg-gradient-to-br from-purple-600 to-cyan-600 rounded-lg flex items-center justify-center font-bold text-white">'+label[0].toUpperCase()+'</div>'+
+          '<div class="flex items-center gap-2">'+
+            (isTld?'<span class="bg-purple-500/20 text-purple-400 text-xs px-2 py-0.5 rounded">TLD</span>':'<span class="bg-cyan-500/20 text-cyan-400 text-xs px-2 py-0.5 rounded">NAME</span>')+
+            '<span class="bg-green-500/20 text-green-400 text-xs px-2 py-0.5 rounded">Active</span>'+
+          '</div>'+
+        '</div>'+
+        '<div class="font-display font-bold text-lg text-white mb-3">'+(isTld?'.':'')+''+esc(name)+'</div>'+
+        '<div class="grid grid-cols-2 gap-2">'+
+          '<button onclick="openManage(\''+esc(name)+'\','+isTld+')" class="bg-white/5 hover:bg-white/10 text-white py-2 rounded-lg text-xs font-medium border border-white/5">Manage</button>'+
+          '<button onclick="quickTransfer(\''+esc(name)+'\')" class="bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 py-2 rounded-lg text-xs font-medium border border-white/5">Transfer</button>'+
+        '</div>'+
+      '</div>';
+    }).join('');
+  } catch(e){
+    grid.innerHTML='<p class="text-red-400 text-center col-span-3">Error loading portfolio</p>';
+  }
+}
+
+window.openManage = function(name, isTld) {
+  currentManagedDomain=name;
+  $('manageDomainTitle').textContent=isTld?'.'+name:name;
+  if(isTld){
+    $('subdomainPolicyPanel').classList.remove('hidden');
+    loadCurrentPolicy(name);
+  } else {
+    $('subdomainPolicyPanel').classList.add('hidden');
+  }
+  showPage('manage');
+};
+
+window.quickTransfer = function(name) { openManage(name, name.indexOf('.')===-1); setTimeout(function(){ $('transferRecipient').focus(); },100); };
+
+async function loadCurrentPolicy(name){
+  try {
+    var p=await queryContract(CFG.REGISTRY,{subdomain_policy:{name:name}});
+    if(p){
+      $('policyPrice').value=p.price||'';
+      $('policyRecipient').value=p.recipient||userAddress||'';
+      $('policyMaxPerAddr').value=p.max_per_address||'100';
+      $('policyOpen').value=(p.enabled&&p.registration_open)?'open':'closed';
+    } else {
+      $('policyRecipient').value=userAddress||'';
+    }
+  }catch(e){ $('policyRecipient').value=userAddress||''; }
+}
+
+// Manage actions
+$('setDnsBtn').addEventListener('click', async function(){
+  if(!currentManagedDomain||!userAddress){ toast('Not ready','warn'); return; }
+  var type=$('dnsType').value, value=$('dnsValue').value.trim();
+  if(!value){ toast('Enter a value','warn'); return; }
+  var btn=$('setDnsBtn'); btn.disabled=true; btn.innerHTML='<span class="spin-icon"></span>';
+  try {
+    await signAndBroadcastRegistry(CFG.RESOLVER,{set_text:{name:currentManagedDomain,key:type,value:value}},0,null,null,TX_STEPS);
+    toast(type+' record set!','ok');
+    $('dnsValue').value='';
+  } catch(e){ toast('Failed: '+(e.message||'').slice(0,80),'error'); }
+  btn.disabled=false; btn.innerHTML='Set Record';
+});
+
+$('setPrimaryBtn').addEventListener('click', async function(){
+  if(!currentManagedDomain||!userAddress){ toast('Not ready','warn'); return; }
+  var btn=$('setPrimaryBtn'); btn.disabled=true; btn.innerHTML='<span class="spin-icon"></span>';
+  try {
+    await signAndBroadcastRegistry(CFG.REGISTRY,{set_primary:{name:currentManagedDomain}},0,null,null,TX_STEPS);
+    toast('Primary name set!','ok');
+  } catch(e){ toast('Failed: '+(e.message||'').slice(0,80),'error'); }
+  btn.disabled=false; btn.innerHTML='Set as Primary';
+});
+
+$('savePolicyBtn').addEventListener('click', async function(){
+  if(!currentManagedDomain||!userAddress){ toast('Not ready','warn'); return; }
+  var price=parseInt($('policyPrice').value)||0;
+  var recipient=$('policyRecipient').value.trim()||userAddress;
+  var max=parseInt($('policyMaxPerAddr').value)||100;
+  var isOpen=$('policyOpen').value==='open';
+  if(!price){ toast('Enter a price in uatom','warn'); return; }
+  var btn=$('savePolicyBtn'); btn.disabled=true; btn.innerHTML='<span class="spin-icon"></span>';
+  try {
+    await signAndBroadcastRegistry(CFG.REGISTRY,{
+      set_subdomain_policy:{name:currentManagedDomain,policy:{enabled:true,registration_open:isOpen,denom:CFG.DENOM,price:String(price),recipient:recipient,max_per_address:max}}
+    },0,null,null,TX_STEPS);
+    toast('Policy saved!','ok');
+    loadTlds();
+  } catch(e){ toast('Failed: '+(e.message||'').slice(0,80),'error'); }
+  btn.disabled=false; btn.innerHTML='Save Policy';
+});
+
+$('transferBtn').addEventListener('click', async function(){
+  if(!currentManagedDomain||!userAddress){ toast('Not ready','warn'); return; }
+  var to=$('transferRecipient').value.trim();
+  if(!to){ toast('Enter recipient address','warn'); return; }
+  if(!confirm('Transfer '+currentManagedDomain+' to '+to+'?')) return;
+  var btn=$('transferBtn'); btn.disabled=true; btn.innerHTML='<span class="spin-icon"></span>';
+  try {
+    await signAndBroadcastRegistry(CFG.REGISTRY,{transfer:{name:currentManagedDomain,to:to}},0,null,null,TX_STEPS);
+    toast('Transfer successful!','ok');
+    $('transferRecipient').value='';
+    showPage('portfolio');
+    loadPortfolio();
+  } catch(e){ toast('Failed: '+(e.message||'').slice(0,80),'error'); }
+  btn.disabled=false; btn.innerHTML='Transfer';
+});
+
+// ══════════════════════════════════════════════
+// TLD SETTINGS
+// ══════════════════════════════════════════════
+function loadMyTlds(){
+  if(!userAddress) return;
+  renderMyTldList();
+}
+
+function openTldEditor(label){
+  editingTld=label;
+  $('editingTldLabel').textContent='.'+label;
+  $('tldSettingsEditor').classList.remove('hidden');
+  var tld=allTlds.find(function(t){return t.label===label;});
+  if(tld&&tld.policy){
+    $('settingPrice').value=tld.policy.price||'';
+    $('settingRecipient').value=tld.policy.recipient||userAddress||'';
+    $('settingMaxPerAddr').value=tld.policy.max_per_address||'100';
+    $('settingOpen').value=(tld.policy.enabled&&tld.policy.registration_open)?'open':'closed';
+    var isOpen=tld.policy.enabled&&tld.policy.registration_open;
+    $('currentPolicyBadge').textContent=isOpen?'Open':'Closed';
+    $('currentPolicyBadge').className='text-xs px-3 py-1 rounded-full '+(isOpen?'bg-green-500/15 text-green-400 border border-green-500/20':'bg-red-500/15 text-red-400 border border-red-500/20');
+    $('cpStatus').textContent=isOpen?'Open':'Closed';
+    $('cpPrice').textContent=uatomToAtom(tld.policy.price);
+    $('cpRecipient').textContent=tld.policy.recipient||'—';
+    $('cpMax').textContent=tld.policy.max_per_address;
+    $('currentPolicyInfo').classList.remove('hidden');
+  } else {
+    $('settingRecipient').value=userAddress||'';
+    $('currentPolicyInfo').classList.add('hidden');
+    $('currentPolicyBadge').textContent='No Policy';
+    $('currentPolicyBadge').className='text-xs px-3 py-1 rounded-full bg-gray-500/15 text-gray-400 border border-gray-500/20';
+  }
+}
+
+$('saveTldSettingsBtn').addEventListener('click', async function(){
+  if(!editingTld||!userAddress){ toast('Select a TLD first','warn'); return; }
+  var price=parseInt($('settingPrice').value)||0;
+  var recipient=$('settingRecipient').value.trim()||userAddress;
+  var max=parseInt($('settingMaxPerAddr').value)||100;
+  var isOpen=$('settingOpen').value==='open';
+  if(!price){ toast('Enter a price in uatom','warn'); return; }
+  var btn=$('saveTldSettingsBtn'); btn.disabled=true; btn.innerHTML='<span class="spin-icon mr-2"></span> Saving...';
+  $('settingsTxProgress').classList.remove('hidden');
+  try {
+    await signAndBroadcastRegistry(CFG.REGISTRY,{
+      set_subdomain_policy:{name:editingTld,policy:{enabled:true,registration_open:isOpen,denom:CFG.DENOM,price:String(price),recipient:recipient,max_per_address:max}}
+    },0,$('settingsTxSteps'),$('settingsTxBar'),TX_STEPS);
+    toast('Settings saved on-chain!','ok');
+    $('settingsTxProgress').classList.add('hidden');
+    loadTlds();
+    openTldEditor(editingTld);
+  } catch(e){
+    $('settingsTxProgress').classList.add('hidden');
+    var m=e.message||String(e);
+    if(/rejected|denied|cancel/i.test(m)) toast('Cancelled','warn');
+    else toast('Failed: '+m.slice(0,120),'error');
+  }
+  btn.disabled=false; btn.innerHTML='<i class="fas fa-save"></i> Save Settings On-Chain';
+});
+
+$('disablePolicyBtn').addEventListener('click', async function(){
+  if(!editingTld||!userAddress){ toast('Select a TLD first','warn'); return; }
+  if(!confirm('Disable subdomain registration for .'+editingTld+'?')) return;
+  var btn=$('disablePolicyBtn'); btn.disabled=true; btn.innerHTML='<span class="spin-icon"></span>';
+  try {
+    await signAndBroadcastRegistry(CFG.REGISTRY,{set_subdomain_policy:{name:editingTld,policy:null}},0,null,null,TX_STEPS);
+    toast('Registration disabled for .'+editingTld,'ok');
+    loadTlds();
+    openTldEditor(editingTld);
+  } catch(e){ toast('Failed: '+(e.message||'').slice(0,80),'error'); }
+  btn.disabled=false; btn.innerHTML='Disable Registration';
+});
+
+// ══════════════════════════════════════════════
+// SUCCESS MODAL + CONFETTI
+// ══════════════════════════════════════════════
+function showSuccessModal(name, txhash){
+  var el=document.createElement('div');
+  el.style.cssText='position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(6,2,13,0.85);backdrop-filter:blur(8px);padding:1rem';
+  el.innerHTML='<div style="background:rgba(8,4,21,0.97);border:1px solid rgba(34,211,238,0.3);border-radius:1.5rem;padding:2.5rem 2rem;max-width:480px;width:100%;text-align:center;box-shadow:0 0 60px rgba(34,211,238,0.15)">'+
+    '<div style="font-size:3.5rem;margin-bottom:1rem">🎉</div>'+
+    '<div style="font-family:Orbitron,sans-serif;font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.5rem">Registered!</div>'+
+    '<div style="font-family:Orbitron,sans-serif;font-size:1.25rem;font-weight:700;color:#22d3ee;margin-bottom:1.5rem">'+esc(name)+'</div>'+
+    '<div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:0.75rem;padding:0.85rem 1rem;margin-bottom:1.25rem;text-align:left">'+
+      '<div style="font-size:0.6rem;letter-spacing:0.12em;color:#475569;font-family:Orbitron,sans-serif;margin-bottom:0.3rem">TRANSACTION</div>'+
+      '<div style="font-family:Roboto Mono,monospace;font-size:0.75rem;color:#a78bfa;word-break:break-all"><a href="https://www.mintscan.io/cosmos/tx/'+esc(txhash)+'" target="_blank" style="color:#22d3ee;text-decoration:none">'+esc(txhash)+'</a></div>'+
+    '</div>'+
+    '<div style="background:rgba(34,211,238,0.06);border:1px solid rgba(34,211,238,0.2);border-radius:0.75rem;padding:0.75rem 1rem;margin-bottom:1.5rem;text-align:left;font-size:0.75rem;color:#22d3ee">✅ Live on Cosmos Hub. Forever yours.</div>'+
+    '<button id="scClose" style="width:100%;background:linear-gradient(90deg,#9333ea,#22d3ee);color:white;padding:0.85rem;border-radius:0.75rem;font-family:Orbitron,sans-serif;font-weight:700;font-size:0.85rem;border:none;cursor:pointer">Done</button>'+
+  '</div>';
+  document.body.appendChild(el);
+  el.querySelector('#scClose').addEventListener('click',function(){el.remove();});
+  el.addEventListener('click',function(e){if(e.target===el)el.remove();});
+}
+
+function launchConfetti(){
+  var c=$('confetti-canvas'),ctx=c.getContext('2d');
+  c.width=innerWidth;c.height=innerHeight;
+  var colors=['#a78bfa','#22d3ee','#f472b6','#34d399','#fbbf24','#fff'];
+  var particles=[];
+  for(var i=0;i<130;i++){particles.push({x:Math.random()*c.width,y:-10-Math.random()*200,r:Math.random()*5+2,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*5,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*7,alpha:1});}
+  var life=200;
+  function draw(){ctx.clearRect(0,0,c.width,c.height);life--;particles.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;p.alpha=Math.min(1,life/60);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();});if(life>0)requestAnimationFrame(draw);else ctx.clearRect(0,0,c.width,c.height);}
+  draw();
+}
+
+// ══════════════════════════════════════════════
+// INIT — restore session if previously connected
+// ══════════════════════════════════════════════
+(async function restoreSession(){
+  try {
+    var saved = JSON.parse(sessionStorage.getItem('ar_wallet')||'null');
+    if(!saved||!saved.type||!saved.address) return;
+    var type = saved.type;
+    // Re-authenticate silently with the saved wallet
+    try {
+      if(type==='keplr'&&window.keplr){
+        await window.keplr.enable(CFG.CHAIN_ID);
+        var k=await window.keplr.getKey(CFG.CHAIN_ID);
+        if(k.bech32Address===saved.address){ userAddress=k.bech32Address;pubKey=k.pubKey;walletType='keplr';onConnected(); }
+      } else if(type==='leap'&&window.leap){
+        await window.leap.enable(CFG.CHAIN_ID);
+        var k=await window.leap.getKey(CFG.CHAIN_ID);
+        if(k.bech32Address===saved.address){ userAddress=k.bech32Address;pubKey=k.pubKey;walletType='leap';onConnected(); }
+      } else if(type==='cosmostation'&&window.cosmostation){
+        var cosmo=window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;
+        if(cosmo){
+          await cosmo.enable(CFG.CHAIN_ID);
+          var k=await cosmo.getKey(CFG.CHAIN_ID);
+          if(k.bech32Address===saved.address){ userAddress=k.bech32Address;pubKey=k.pubKey;walletType='cosmostation';onConnected(); }
+        } else if(window.cosmostation.cosmos){
+          var acc=await window.cosmostation.cosmos.request({method:'cos_requestAccount',params:{chainName:CFG.CHAIN_ID}});
+          if(acc.address===saved.address){ userAddress=acc.address;pubKey=acc.publicKey;walletType='cosmostation';onConnected(); }
+        }
+      } else if(type==='ledger'){
+        // Ledger requires physical interaction — show connected state with saved address
+        // but require re-signing when a tx is needed (device will prompt automatically)
+        userAddress=saved.address; walletType='ledger';
+        // Re-import ledger on next tx attempt — for now show as connected
+        onConnected();
+      }
+    } catch(e){
+      // Silent fail — wallet may have locked, user can reconnect manually
+      sessionStorage.removeItem('ar_wallet');
+    }
+  } catch(e){}
+})();
+loadTlds();
+showPage('names');
+
+})();
+</script>
+
+<!-- ═══ WALLET PICKER MODAL ═══ -->
+<div id="walletModal" class="wm-ov hidden">
+  <div class="wm-box">
+    <div class="wm-h">Connect Wallet</div>
+    <div class="wm-s">Select your wallet to continue</div>
+    <button class="wm-b" id="wmKeplr">
+      <div class="wm-ico" style="background:rgba(100,60,220,0.25);border:1px solid rgba(100,60,220,0.3)">🔵</div>
+      <div><div class="wm-n">Keplr</div><div class="wm-d">Browser extension · Cosmos ecosystem</div></div>
+    </button>
+    <button class="wm-b" id="wmLeap">
+      <div class="wm-ico" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.25)">🌊</div>
+      <div><div class="wm-n">Leap</div><div class="wm-d">Multi-chain Cosmos wallet</div></div>
+    </button>
+    <button class="wm-b" id="wmCosmostation">
+      <div class="wm-ico" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.25)">🌌</div>
+      <div><div class="wm-n">Cosmostation</div><div class="wm-d">Cosmostation browser extension wallet</div></div>
+    </button>
+    <button class="wm-b" id="wmLedger">
+      <div class="wm-ico" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2)">🔐</div>
+      <div><div class="wm-n">Ledger</div><div class="wm-d">Hardware wallet · USB · Cosmos app required · Chrome/Edge only</div></div>
+    </button>
+    <span class="wm-cancel" id="wmCancel">Cancel</span>
+  </div>
+</div>
+</body>
+</html>

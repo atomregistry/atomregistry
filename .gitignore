@@ -1,0 +1,21 @@
+# Rust
+target/
+Cargo.lock
+*.wasm
+artifacts/
+
+# Sales config (never commit secrets)
+sales/api/config.php
+sales/storage/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log

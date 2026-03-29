@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ATOM Sales Widget Builder | Atom Registry</title>
+  <meta name="description" content="Build a branded widget to accept ATOM payments on your website. Create, customize, and embed your Cosmos-native payment widget in minutes." />
+  <meta name="theme-color" content="#a78bfa" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#06020d;--panel:rgba(255,255,255,.04);--panel-border:rgba(255,255,255,.08);--text:#fff;--muted:#94a3b8;--accent-a:#9333ea;--accent-b:#22d3ee;--radius:18px}*{box-sizing:border-box}
+    body{margin:0;color:var(--text);font-family:"Roboto Mono",monospace;background:radial-gradient(1200px 800px at 10% 10%, rgba(167,139,250,.16), transparent 60%),radial-gradient(1200px 800px at 90% 90%, rgba(34,211,238,.14), transparent 60%),var(--bg);min-height:100vh}
+    .wrap{max-width:1450px;margin:0 auto;padding:28px}.nav{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px;flex-wrap:wrap}.brand{font-family:Orbitron,sans-serif;font-weight:900;font-size:1.1rem;letter-spacing:.02em;background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}.nav-links{display:flex;gap:10px;flex-wrap:wrap}.nav-links a{color:#cbd5e1;text-decoration:none;font-size:.78rem;padding:10px 14px;border:1px solid rgba(255,255,255,.08);border-radius:999px;background:rgba(255,255,255,.03)}
+    .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:stretch;margin-bottom:24px}.panel{background:var(--panel);border:1px solid var(--panel-border);border-radius:24px;backdrop-filter:blur(16px)}.hero-copy{padding:34px}h1,h2,h3{font-family:Orbitron,sans-serif;margin:0 0 12px}h1{font-size:clamp(2.2rem,5vw,4.1rem);line-height:1.02}.grad{background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent}.lead{font-size:1rem;line-height:1.8;color:#cbd5e1;max-width:56rem}
+    .hero-bullets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:22px}.bullet{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);font-size:.84rem;color:#dbeafe}.hero-side{padding:26px;display:flex;flex-direction:column;justify-content:space-between}.stat{padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:12px}.stat small{display:block;color:#94a3b8;margin-bottom:6px;text-transform:uppercase;font-size:.66rem;letter-spacing:.1em}.stat strong{font-size:1.05rem;line-height:1.6;display:block}
+    .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.btn{border:none;border-radius:14px;padding:14px 18px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}.btn-primary{background:linear-gradient(90deg,var(--accent-a),var(--accent-b));color:#fff;box-shadow:0 18px 50px rgba(34,211,238,.16)}.btn-secondary{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fff}
+    .layout{display:grid;grid-template-columns:560px 1fr;gap:24px;margin-top:24px}.builder,.preview{padding:24px}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.section-head p{margin:0;color:#94a3b8;font-size:.8rem}.stack{display:grid;gap:14px}.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    label{display:grid;gap:8px;font-size:.74rem;color:#cbd5e1;text-transform:uppercase;letter-spacing:.08em}input,select,textarea{width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.32);color:#fff;padding:12px 14px;font:inherit;outline:none}textarea{min-height:90px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:rgba(167,139,250,.8);box-shadow:0 0 0 3px rgba(167,139,250,.14)}
+    .hint{font-size:.72rem;color:#94a3b8;line-height:1.6;text-transform:none;letter-spacing:0}.code{background:#05010b;border:1px solid rgba(255,255,255,.08);padding:16px;border-radius:16px;color:#c4b5fd;overflow:auto;white-space:pre-wrap;word-break:break-word;font-size:.8rem;line-height:1.7}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}.tab{padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);cursor:pointer;color:#cbd5e1;font-size:.76rem}.tab.active{background:linear-gradient(90deg,rgba(147,51,234,.2),rgba(34,211,238,.18));color:#fff;border-color:rgba(167,139,250,.35)}
+    .preview-frame{padding:24px;border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.07);min-height:760px;display:flex;align-items:flex-start;justify-content:center}.mini-note{margin-top:12px;font-size:.72rem;color:#94a3b8;line-height:1.6}.features{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:24px}.card{padding:18px;border-radius:18px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06)}.card p{margin:8px 0 0;color:#94a3b8;font-size:.8rem;line-height:1.7}.footer{padding:30px 0 12px;color:#64748b;text-align:center;font-size:.75rem}.pill{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);font-size:.7rem;color:#e2e8f0;letter-spacing:.08em;text-transform:uppercase}
+    @media (max-width:1260px){.layout{grid-template-columns:1fr}.hero{grid-template-columns:1fr}.features{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:760px){.wrap{padding:18px}.hero-copy,.hero-side,.builder,.preview{padding:18px}.two,.three,.hero-bullets,.features{grid-template-columns:1fr}.preview-frame{padding:14px;min-height:620px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="https://atomregistry.com/">Atom Registry</a>
+      <div class="nav-links"><a href="https://atomregistry.com/">Home</a><a href="https://atomregistry.com/widgets/">Widgets</a><a href="./docs.html">Docs</a><a href="./widget.html">Standalone Widget</a></div>
+    </div>
+
+    <section class="hero">
+      <div class="panel hero-copy">
+        <div class="pill">Keplr-ready ATOM checkout</div>
+        <h1>Build a <span class="grad">production-style ATOM sales widget</span> for your website.</h1>
+        <p class="lead">This builder outputs a wallet-aware payment widget that can detect Keplr, broadcast a buyer transaction, show a Mintscan success link, and optionally call your verification endpoint so your backend can automate order fulfillment or trigger webhooks.</p>
+        <div class="cta-row"><a class="btn btn-primary" href="#builder">Build Your Widget</a><a class="btn btn-secondary" href="./docs.html">Read the docs</a></div>
+        <div class="hero-bullets">
+          <div class="bullet">Accept fixed-price ATOM payments for services, products, memberships, donations, digital downloads, and gated access.</div>
+          <div class="bullet">Detect Keplr in-browser and let buyers pay directly from the widget instead of relying only on manual payment instructions.</div>
+          <div class="bullet">Show Mintscan transaction success and hand off tx data to your own verification endpoint for automation.</div>
+          <div class="bullet">Control address visibility so the public card does not have to expose the recipient wallet by default.</div>
+        </div>
+      </div>
+      <div class="panel hero-side">
+        <div>
+          <div class="stat"><small>Operational features</small><strong>Keplr detection • direct send • Mintscan success state • backend verification callback • success URL handoff</strong></div>
+          <div class="stat"><small>Builder outputs</small><strong>Script embed • iframe embed • config JSON • payment-panel preview</strong></div>
+          <div class="stat"><small>Production note</small><strong>Your backend should verify the tx hash before granting access, delivering files, assigning domains, or firing downstream webhooks.</strong></div>
+        </div>
+        <div class="mini-note">This builder is designed for a real production handoff. The widget can post tx data to your verification endpoint, but your backend still needs to validate recipient, amount, memo, and chain state before fulfillment.</div>
+      </div>
+    </section>
+
+    <section class="layout" id="builder">
+      <div class="panel builder">
+        <div class="section-head"><div><h2>Widget Builder</h2><p>Configure a real ATOM checkout widget and generate deployable embed code.</p></div><button class="btn btn-secondary" id="resetBtn" type="button">Reset</button></div>
+        <div class="stack">
+          <div class="two"><label>Widget headline<input id="title" value="Pay with ATOM" /></label><label>Button label<input id="buttonText" value="Pay in ATOM" /></label></div>
+          <label>Description<textarea id="description">Accept a Cosmos-native ATOM payment directly from this page. Buyers can complete payment from Keplr or fall back to manual payment instructions.</textarea></label>
+          <div class="two"><label>Recipient wallet address<textarea id="walletAddress">cosmos1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</textarea><span class="hint">This is where the buyer sends ATOM.</span></label><label>Success / thank-you URL<textarea id="successUrl">https://atomregistry.com/thank-you</textarea><span class="hint">Optional redirect or handoff destination after success.</span></label></div>
+          <div class="two"><label>Widget install base URL<input id="installBaseUrl" value="" /><span class="hint">Example: https://yourdomain.com/sales . Used for generated script and iframe embed code.</span></label><label>Verification endpoint<textarea id="verifyEndpoint">https://atomregistry.com/sales/api/verify-sale.php</textarea><span class="hint">Optional. The widget can POST tx data here after success so your backend can verify and fire webhooks.</span></label></div>
+          <div class="two"><label>Memo / order reference<input id="memo" value="Order: Premium Access" /><span class="hint">Use something your backend can match against orders.</span></label><label>Success / fulfillment route note<textarea id="thankYouMessage">Thank you. Once your ATOM payment is sent, click continue to complete the handoff.</textarea></label></div>
+          <div class="two"><label>Product image URL<input id="imageUrl" value="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80" /><span class="hint">Shown above the description in the widget and checkout panel.</span></label><label>Download URL<textarea id="downloadUrl">https://atomregistry.com/downloads/premium-access.zip</textarea><span class="hint">If set, the file opens immediately after successful payment broadcast.</span></label></div>
+          <div class="three"><label>Amount (ATOM)<input id="amountAtom" type="number" min="0" step="0.000001" value="5" /></label><label>Item / offer name<input id="itemName" value="Premium Access" /></label><label>Post-payment action<select id="postPaymentAction"><option value="redirect">Redirect to success URL</option><option value="message">Show thank-you message only</option><option value="download">Download after payment</option></select></label></div>
+          <div class="three"><label>Layout mode<select id="mode"><option value="full">Full card</option><option value="compact">Compact card</option><option value="minimal">Minimal button</option></select></label><label>Theme preset<select id="theme"><option value="registry">Atom Registry Dark</option><option value="neon">Neon</option><option value="light">Light</option><option value="slate">Slate</option></select></label><label>Address visibility<select id="addressVisibility"><option value="public">Show publicly on card</option><option value="checkout" selected>Hide on card, show in checkout</option><option value="hidden">Hide entirely in UI</option></select></label></div>
+          <div class="three"><label>Primary color<input id="primaryColor" type="color" value="#9333ea" /></label><label>Accent color<input id="accentColor" type="color" value="#22d3ee" /></label><label>Width<select id="widthPreset"><option value="360px">360px</option><option value="420px" selected>420px</option><option value="520px">520px</option><option value="100%">100%</option></select></label></div>
+          <div class="three"><label>Border radius<input id="radius" type="number" min="0" max="40" value="20" /></label><label>Show QR<select id="showQr"><option value="true" selected>Yes</option><option value="false">No</option></select></label><label>Show copy actions<select id="showCopy"><option value="true" selected>Yes</option><option value="false">No</option></select></label></div>
+          <div class="three"><label>Enable Keplr<select id="enableKeplr"><option value="true" selected>Yes</option><option value="false">No</option></select></label><label>Allow manual fallback<select id="allowManualFallback"><option value="true" selected>Yes</option><option value="false">No</option></select></label><label>Show Mintscan link<select id="showMintscan"><option value="true" selected>Yes</option><option value="false">No</option></select></label></div>
+          
+        </div>
+      </div>
+
+      <div class="panel preview">
+        <div class="section-head"><div><h2>Preview + Embed Output</h2><p>Preview the widget and copy the script or iframe embed.</p></div></div>
+        <div class="tabs"><button class="tab active" type="button" data-target="previewTab">Preview</button><button class="tab" type="button" data-target="scriptTab">Script Embed</button><button class="tab" type="button" data-target="iframeTab">Iframe Embed</button><button class="tab" type="button" data-target="configTab">Config JSON</button></div>
+        <div id="previewTab" class="tab-panel"><div class="preview-frame"><div id="widgetMount"></div></div></div>
+        <div id="scriptTab" class="tab-panel" hidden><div class="code" id="scriptCode"></div><div class="cta-row" style="margin-top:14px"><button class="btn btn-primary" type="button" data-copy="scriptCode">Copy Script Embed</button></div></div>
+        <div id="iframeTab" class="tab-panel" hidden><div class="code" id="iframeCode"></div><div class="cta-row" style="margin-top:14px"><button class="btn btn-primary" type="button" data-copy="iframeCode">Copy Iframe Embed</button></div></div>
+        <div id="configTab" class="tab-panel" hidden><div class="code" id="configCode"></div><div class="cta-row" style="margin-top:14px"><button class="btn btn-primary" type="button" data-copy="configCode">Copy Config JSON</button></div></div>
+        <div class="mini-note">Webhook-safe flow: widget gets tx hash → widget posts tx payload to your verification endpoint → your backend verifies recipient, amount, memo, and chain state → your backend fulfills the sale and fires downstream automation.</div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="card"><h3>Wallet-aware checkout</h3><p>Detect Keplr and let buyers broadcast the payment directly from the widget instead of relying only on manual copy/paste payment steps.</p></div>
+      <div class="card"><h3>Hide the wallet by default</h3><p>Keep the destination address out of the public card and only reveal it in checkout, or hide it from the UI entirely if your flow does not require manual fallback.</p></div>
+      <div class="card"><h3>Success proof</h3><p>Show a transaction success state with a clickable Mintscan hash so buyers and sellers both have a clear receipt path.</p></div>
+      <div class="card"><h3>Automation-ready</h3><p>Send tx hash and order metadata to your verification endpoint so your backend can validate the payment and fire webhooks or fulfillment jobs.</p></div>
+    </section>
+
+    <div class="footer">Atom Registry Sales Builder • Deploy this folder flat at <strong>/sales/</strong> so <strong>https://atomregistry.com/sales/</strong> works directly.</div>
+  </div>
+
+  <script src="./widget.js"></script>
+  <script>
+    const formIds = ['title','buttonText','description','walletAddress','successUrl','installBaseUrl','verifyEndpoint','amountAtom','itemName','imageUrl','downloadUrl','memo','postPaymentAction','mode','theme','addressVisibility','primaryColor','accentColor','widthPreset','radius','showQr','showCopy','enableKeplr','allowManualFallback','showMintscan','thankYouMessage'];
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => tab.addEventListener('click', () => { tabs.forEach(t => t.classList.remove('active')); document.querySelectorAll('.tab-panel').forEach(p => p.hidden = true); tab.classList.add('active'); document.getElementById(tab.dataset.target).hidden = false; }));
+
+    function currentConfig() {
+      return {
+        title: title.value.trim(), buttonText: buttonText.value.trim(), description: description.value.trim(), walletAddress: walletAddress.value.trim(), successUrl: successUrl.value.trim(), installBaseUrl: installBaseUrl.value.trim(), verifyEndpoint: verifyEndpoint.value.trim(), amountAtom: amountAtom.value.trim(), itemName: itemName.value.trim(), imageUrl: imageUrl.value.trim(), downloadUrl: downloadUrl.value.trim(), memo: memo.value.trim(), postPaymentAction: postPaymentAction.value, mode: mode.value, theme: theme.value, addressVisibility: addressVisibility.value, primaryColor: primaryColor.value, accentColor: accentColor.value, width: widthPreset.value, radius: Number(radius.value || 20), showQr: showQr.value === 'true', showCopy: showCopy.value === 'true', enableKeplr: enableKeplr.value === 'true', allowManualFallback: allowManualFallback.value === 'true', showMintscan: showMintscan.value === 'true', thankYouMessage: thankYouMessage.value.trim()
+      };
+    }
+
+    function validateConfig(cfg) {
+      const errors = [];
+      if (!cfg.title) errors.push('Widget headline is required.');
+      if (!/^cosmos1[0-9a-z]{20,}$/i.test(cfg.walletAddress || '')) errors.push('Recipient wallet address must look like a valid Cosmos address.');
+      if (!(Number(cfg.amountAtom) > 0)) errors.push('Amount must be greater than zero.');
+      if (cfg.successUrl && !/^https?:\/\//i.test(cfg.successUrl)) errors.push('Success URL must start with http:// or https://');
+      if (cfg.installBaseUrl && !/^https?:\/\//i.test(cfg.installBaseUrl)) errors.push('Widget install base URL must start with http:// or https://');
+      if (cfg.verifyEndpoint && !/^https?:\/\//i.test(cfg.verifyEndpoint)) errors.push('Verification endpoint must start with http:// or https://');
+      if (cfg.imageUrl && !/^https?:\/\//i.test(cfg.imageUrl)) errors.push('Product image URL must start with http:// or https://');
+      if (cfg.downloadUrl && !/^https?:\/\//i.test(cfg.downloadUrl)) errors.push('Download URL must start with http:// or https://');
+      if (cfg.addressVisibility === 'hidden' && !cfg.enableKeplr && !cfg.allowManualFallback) errors.push('A fully hidden wallet only makes sense if Keplr checkout is enabled.');
+      return errors;
+    }
+
+    function buildScriptCode(cfg) {
+      const json = JSON.stringify(cfg, null, 2).replace(/<\//g, '<\\/');
+      const base = (cfg.installBaseUrl || (window.location.origin + '/sales')).replace(/\/$/, '');
+      return `<div id="atom-sales-widget"></div>\n<script src="${base}/widget.js"><\/script>\n<script>\n  window.AtomSalesWidget.mount('#atom-sales-widget', ${json});\n<\/script>`;
+    }
+
+    function buildIframeCode(cfg) {
+      const base = (cfg.installBaseUrl || (window.location.origin + '/sales')).replace(/\/$/, '');
+      const url = new URL(base + '/widget.html');
+      url.searchParams.set('config', btoa(unescape(encodeURIComponent(JSON.stringify(cfg)))));
+      return `<iframe src="${url.toString()}" width="${cfg.width === '100%' ? '100%' : cfg.width.replace('px','')}" height="820" style="border:0;max-width:100%;border-radius:${cfg.radius}px;overflow:hidden" loading="lazy"></iframe>`;
+    }
+
+    function renderPreview() {
+      const cfg = currentConfig();
+      const errors = validateConfig(cfg);
+      widgetMount.innerHTML = '';
+      configCode.textContent = JSON.stringify(cfg, null, 2);
+      scriptCode.textContent = buildScriptCode(cfg);
+      iframeCode.textContent = buildIframeCode(cfg);
+      if (errors.length) {
+        widgetMount.innerHTML = `<div style="max-width:560px;width:100%;padding:20px;border-radius:18px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#fecaca;line-height:1.8">${errors.map(e => `<div>• ${e}</div>`).join('')}</div>`;
+        return;
+      }
+      window.AtomSalesWidget.mount(widgetMount, cfg);
+    }
+
+    formIds.forEach(id => { document.getElementById(id).addEventListener('input', renderPreview); document.getElementById(id).addEventListener('change', renderPreview); });
+    resetBtn.addEventListener('click', () => location.reload());
+    document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', async () => { const map = { scriptCode:'Copy Script Embed', iframeCode:'Copy Iframe Embed', configCode:'Copy Config JSON' }; try { await navigator.clipboard.writeText(document.getElementById(btn.dataset.copy).textContent); btn.textContent = 'Copied'; setTimeout(() => btn.textContent = map[btn.dataset.copy], 1400); } catch { alert('Copy failed.'); } }));
+    if (!installBaseUrl.value.trim()) { installBaseUrl.value = (window.location.origin.replace(/\/$/, '') + window.location.pathname.replace(/\/index\.html$/,'').replace(/\/$/, '')); }
+    if (!verifyEndpoint.value.trim()) { verifyEndpoint.value = installBaseUrl.value.replace(/\/$/, '') + '/api/verify-sale.php'; }
+    renderPreview();
+  </script>
+</body>
+</html>

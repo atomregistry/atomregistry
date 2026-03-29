@@ -1,0 +1,33 @@
+[workspace]
+members = [
+  "packages/atom-names-types",
+  "packages/atom-names-utils",
+  "packages/atom-names-testkit",
+  "contracts/registry",
+  "contracts/registrar",
+  "contracts/tld-manager",
+  "contracts/marketplace",
+  "contracts/resolver",
+  "contracts/metadata",
+  "contracts/dssl-manager",
+]
+resolver = "2"
+
+[workspace.package]
+version = "3.0.0"
+edition = "2021"
+license = "Apache-2.0"
+authors = ["Atom Registry"]
+
+[workspace.dependencies]
+cosmwasm-std = "1.5.5"
+cosmwasm-schema = "1.5.5"
+cw-storage-plus = "1.2.0"
+cw2 = "1.1.2"
+serde = { version = "1", features = ["derive"] }
+schemars = "0.8"
+thiserror = "1"
+cw-multi-test = "1.2.0"
+atom-names-types = { path = "packages/atom-names-types" }
+atom-names-utils = { path = "packages/atom-names-utils" }
+atom-names-testkit = { path = "packages/atom-names-testkit" }

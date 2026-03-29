@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Atom Registry — Official Web3 Namespace Platform for Cosmos Hub</title>
+<style>
+:root{
+  --bg:#03010a;--bg2:#07030f;--bg3:#0d0520;
+  --purple:#a78bfa;--purple2:#7c3aed;--cyan:#22d3ee;--cyan2:#0891b2;
+  --green:#4ade80;--yellow:#fbbf24;--red:#f87171;--pink:#f472b6;
+  --text:#e2e8f0;--dim:#94a3b8;--muted:#475569;
+  --border:rgba(255,255,255,0.06);--border2:rgba(167,139,250,0.2);
+  --glow:0 0 32px rgba(124,58,237,0.35),0 0 64px rgba(124,58,237,0.15);
+  --font:'Courier New',Courier,monospace;
+  --display:Georgia,'Times New Roman',serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  font-size:14px;
+  line-height:1.7;
+  overflow-x:hidden;
+}
+
+/* ── STARFIELD ── */
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle linear infinite;}
+@keyframes twinkle{0%,100%{opacity:0.1;}50%{opacity:0.8;}}
+
+/* ── NEBULA ── */
+.nebula{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;animation:drift 20s ease-in-out infinite alternate;}
+.nb1{width:700px;height:500px;top:-10%;left:-15%;background:radial-gradient(ellipse,rgba(124,58,237,0.2) 0%,transparent 70%);animation-delay:0s;}
+.nb2{width:800px;height:600px;bottom:-20%;right:-10%;background:radial-gradient(ellipse,rgba(6,182,212,0.15) 0%,transparent 70%);animation-delay:-10s;}
+.nb3{width:400px;height:400px;top:50%;left:50%;background:radial-gradient(ellipse,rgba(244,114,182,0.08) 0%,transparent 70%);animation-delay:-5s;}
+@keyframes drift{0%{transform:translate(0,0) scale(1);}50%{transform:translate(30px,-20px) scale(1.05);}100%{transform:translate(-20px,15px) scale(0.97);}};
+
+/* ── LAYOUT ── */
+main{position:relative;z-index:10;max-width:80%;margin:0 auto;padding:0 2rem 4rem;}
+@media(max-width:900px){main{max-width:95%;}}
+
+/* ── HERO ── */
+.hero{text-align:center;padding:4rem 1rem 3rem;position:relative;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);
+  padding:0.35rem 1rem;border-radius:999px;font-size:0.7rem;
+  letter-spacing:0.15em;text-transform:uppercase;color:var(--purple);
+  margin-bottom:1.5rem;animation:fadeDown 0.8s ease both;
+}
+.hero-title{
+  font-size:clamp(2rem,5vw,3.2rem);
+  font-weight:900;
+  font-family:var(--display);
+  line-height:1.1;
+  background:linear-gradient(135deg,#fff 0%,var(--purple) 40%,var(--cyan) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:1rem;
+  animation:fadeDown 0.8s 0.1s ease both;
+  filter:drop-shadow(0 0 30px rgba(124,58,237,0.4));
+}
+.hero-sub{
+  color:var(--dim);font-size:0.9rem;max-width:600px;margin:0 auto 2.5rem;
+  animation:fadeDown 0.8s 0.2s ease both;
+  line-height:1.8;
+}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── STAT STRIP ── */
+.stat-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border2);border:1px solid var(--border2);border-radius:1rem;
+  overflow:hidden;margin-bottom:3rem;animation:fadeUp 0.8s 0.3s ease both;
+}
+.stat{
+  background:rgba(124,58,237,0.06);padding:1.25rem 1rem;text-align:center;
+  transition:background 0.2s;
+}
+.stat:hover{background:rgba(124,58,237,0.12);}
+.stat-num{
+  font-size:2rem;font-weight:900;font-family:var(--display);
+  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;margin-bottom:0.35rem;
+}
+.stat-lbl{font-size:0.62rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+
+/* ── SECTIONS ── */
+.section{margin-bottom:4rem;}
+.section-badge{
+  display:inline-flex;align-items:center;gap:0.4rem;
+  font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--cyan);background:rgba(34,211,238,0.08);
+  border:1px solid rgba(34,211,238,0.2);padding:0.25rem 0.75rem;
+  border-radius:999px;margin-bottom:0.75rem;
+}
+h2{
+  font-family:var(--display);font-size:1.6rem;font-weight:700;
+  color:var(--text);margin-bottom:1rem;padding-bottom:0.6rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:0.6rem;
+}
+h2 span.ico{color:var(--purple);font-size:1.1rem;}
+h3{
+  font-size:0.85rem;font-weight:700;color:var(--purple);
+  letter-spacing:0.08em;text-transform:uppercase;margin:1.5rem 0 0.6rem;
+}
+p{color:var(--dim);margin-bottom:1rem;line-height:1.8;}
+p strong{color:var(--text);}
+a{color:var(--cyan);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* ── CARDS ── */
+.card{
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+  border-radius:1rem;padding:1.5rem;margin-bottom:1rem;
+  transition:border-color 0.2s,background 0.2s;
+}
+.card:hover{border-color:var(--border2);background:rgba(124,58,237,0.04);}
+
+/* ── CALLOUT ── */
+.callout{
+  border-radius:0.75rem;padding:1rem 1.25rem;margin:1.25rem 0;
+  display:flex;gap:0.75rem;font-size:0.82rem;line-height:1.7;
+}
+.callout.info{background:rgba(34,211,238,0.05);border:1px solid rgba(34,211,238,0.2);color:#a5f3fc;}
+.callout.warn{background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.2);color:#fde68a;}
+.callout.success{background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.2);color:#bbf7d0;}
+.callout .ico{font-size:1.1rem;flex-shrink:0;margin-top:0.1rem;}
+
+/* ── CODE ── */
+code{
+  font-family:var(--font);font-size:0.78rem;
+  background:rgba(167,139,250,0.1);color:var(--purple);
+  padding:0.1rem 0.4rem;border-radius:4px;
+  border:1px solid rgba(167,139,250,0.15);
+}
+pre{
+  background:rgba(0,0,0,0.5);border:1px solid var(--border);
+  border-radius:0.75rem;padding:1.25rem;overflow-x:auto;margin:1rem 0 1.5rem;
+}
+pre code{background:none;border:none;padding:0;font-size:0.75rem;color:#c4b5fd;white-space:pre;line-height:1.7;}
+
+/* ── TABLES ── */
+table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:0.75rem;}
+th{
+  background:rgba(167,139,250,0.08);color:var(--purple);
+  font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;
+  padding:0.6rem 0.75rem;text-align:left;border-bottom:1px solid var(--border2);
+}
+td{padding:0.65rem 0.75rem;border-bottom:1px solid var(--border);color:var(--dim);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(124,58,237,0.03);}
+
+/* ── HOVER TOOLTIP (contract addresses) ── */
+.contract-name{
+  position:relative;display:inline-block;
+  color:var(--cyan);border-bottom:1px dashed rgba(34,211,238,0.4);cursor:help;
+}
+.contract-name .tip{
+  visibility:hidden;opacity:0;
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:rgba(7,3,15,0.98);border:1px solid var(--border2);
+  border-radius:0.75rem;padding:0.75rem 1rem;min-width:420px;max-width:95vw;
+  font-size:0.7rem;color:var(--dim);white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,0,0,0.6),var(--glow);
+  transition:opacity 0.2s,visibility 0.2s;z-index:999;
+  font-family:var(--font);
+}
+.contract-name .tip .addr{color:var(--cyan);font-size:0.68rem;display:block;margin-top:0.35rem;word-break:break-all;white-space:normal;}
+.contract-name .tip::after{
+  content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:var(--border2);
+}
+.contract-name:hover .tip{visibility:visible;opacity:1;}
+
+/* ── PILL ── */
+.pill{
+  display:inline-flex;align-items:center;
+  padding:0.2rem 0.65rem;border-radius:999px;font-size:0.65rem;
+  font-weight:700;letter-spacing:0.05em;
+}
+.pill-purple{background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.3);color:var(--purple);}
+.pill-cyan{background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);color:var(--cyan);}
+.pill-green{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:var(--green);}
+.pill-yellow{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);color:var(--yellow);}
+
+/* ── BENEFIT GRID ── */
+.benefit-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.benefit-card{
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+  border-radius:0.75rem;padding:1rem 1.1rem;
+  transition:all 0.2s;
+}
+.benefit-card:hover{border-color:var(--border2);background:rgba(124,58,237,0.05);transform:translateY(-2px);}
+.benefit-num{
+  font-size:1.4rem;font-weight:900;font-family:var(--display);
+  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;margin-bottom:0.35rem;
+}
+.benefit-title{font-size:0.75rem;font-weight:700;color:var(--text);margin-bottom:0.3rem;}
+.benefit-body{font-size:0.7rem;color:var(--muted);line-height:1.6;}
+
+/* ── GIFT TABLE PILL ── */
+.tld-pill{
+  background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(6,182,212,0.2));
+  border:1px solid rgba(124,58,237,0.4);border-radius:6px;
+  padding:0.2rem 0.5rem;font-weight:700;color:#e0cfff;
+  font-size:0.72rem;white-space:nowrap;
+}
+.dao-special{background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(6,182,212,0.15));border-color:rgba(74,222,128,0.4);color:#bbf7d0;}
+
+/* ── MULTISIG VISUAL ── */
+.msig-wrap{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:1.5rem 0;}
+.msig-row{display:flex;gap:1rem;align-items:center;justify-content:center;flex-wrap:wrap;}
+.msig-key{
+  display:flex;flex-direction:column;align-items:center;gap:0.4rem;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);
+  border-radius:0.75rem;padding:1rem 1.25rem;min-width:130px;text-align:center;
+  transition:all 0.3s;
+}
+.msig-key.founder{border-color:rgba(167,139,250,0.5);background:rgba(124,58,237,0.08);}
+.msig-key.community{border-color:rgba(34,211,238,0.3);background:rgba(6,182,212,0.05);}
+.msig-icon{font-size:1.5rem;}
+.msig-label{font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--dim);}
+.msig-label.founder{color:var(--purple);}
+.msig-label.community{color:var(--cyan);}
+.msig-results{display:flex;flex-direction:column;gap:0.5rem;width:100%;max-width:480px;}
+.msig-result{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.5rem 1rem;border-radius:0.5rem;font-size:0.72rem;
+}
+.msig-result.yes{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);}
+.msig-result.no{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.2);}
+.msig-result .combo{color:var(--dim);}
+.msig-result .verdict{font-weight:700;}
+.msig-result.yes .verdict{color:var(--green);}
+.msig-result.no .verdict{color:var(--red);}
+
+/* ── BAR CHART ── */
+.chart-wrap{padding:1.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:1rem;margin:1rem 0;}
+.chart-title{font-size:0.7rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:1.25rem;}
+.bar-row{display:flex;align-items:center;gap:1rem;margin-bottom:0.75rem;}
+.bar-label{font-size:0.68rem;color:var(--dim);width:80px;text-align:right;flex-shrink:0;}
+.bar-track{flex:1;height:24px;background:rgba(255,255,255,0.04);border-radius:4px;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:0.5rem;}
+.bar-fill.b5{width:18%;background:linear-gradient(90deg,rgba(124,58,237,0.7),rgba(124,58,237,0.4));animation:grow5 1.5s 0.5s ease both;}
+.bar-fill.b10{width:35%;background:linear-gradient(90deg,rgba(124,58,237,0.85),rgba(34,211,238,0.6));animation:grow10 1.5s 0.6s ease both;}
+.bar-fill.b20{width:65%;background:linear-gradient(90deg,rgba(124,58,237,1),rgba(34,211,238,0.9));animation:grow20 1.5s 0.7s ease both;}
+@keyframes grow5{from{width:0}to{width:18%}}
+@keyframes grow10{from{width:0}to{width:35%}}
+@keyframes grow20{from{width:0}to{width:65%}}
+.bar-val{font-size:0.65rem;color:white;font-weight:700;white-space:nowrap;}
+.bar-unit{font-size:0.62rem;color:var(--dim);width:120px;flex-shrink:0;}
+
+/* ── STEPS ── */
+.steps{list-style:none;padding:0;}
+.steps li{display:flex;gap:1rem;margin-bottom:1rem;align-items:flex-start;}
+.step-num{
+  width:26px;height:26px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--purple2),var(--cyan2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.62rem;font-weight:900;color:white;margin-top:0.15rem;
+}
+.step-body{flex:1;color:var(--dim);font-size:0.82rem;}
+.step-body strong{color:var(--text);display:block;margin-bottom:0.15rem;}
+
+/* ── CLAIM BOX ── */
+.claim-box{
+  background:rgba(34,211,238,0.04);border:1px solid rgba(34,211,238,0.2);
+  border-radius:1rem;padding:1.5rem;margin:1.5rem 0;
+}
+.claim-steps{list-style:none;padding:0;}
+.claim-steps li{
+  display:flex;gap:1rem;padding:0.6rem 0;border-bottom:1px solid rgba(255,255,255,0.04);
+  font-size:0.8rem;color:var(--dim);align-items:center;
+}
+.claim-steps li:last-child{border-bottom:none;}
+.claim-num{
+  width:22px;height:22px;border-radius:50%;
+  background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;font-weight:700;color:var(--cyan);flex-shrink:0;
+}
+
+/* ── THE ASK ── */
+.ask-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0;}
+.ask-card{
+  border-radius:1rem;padding:1.5rem;text-align:center;
+}
+.ask-yes{
+  background:rgba(74,222,128,0.06);border:2px solid rgba(74,222,128,0.3);
+}
+.ask-no{
+  background:rgba(248,113,113,0.04);border:1px solid rgba(248,113,113,0.15);
+}
+.ask-vote{font-size:2.5rem;font-weight:900;font-family:var(--display);margin-bottom:0.5rem;}
+.ask-yes .ask-vote{color:var(--green);}
+.ask-no .ask-vote{color:var(--red);}
+.ask-body{font-size:0.72rem;color:var(--dim);line-height:1.7;text-align:left;}
+.ask-body li{margin-bottom:0.35rem;}
+
+/* ── ECOSYSTEM MAP SVG ── */
+.eco-wrap{display:flex;justify-content:center;margin:1.5rem 0;}
+
+/* ── COMPETITOR TABLE ── */
+.comp-better{color:var(--green);font-size:0.7rem;}
+.comp-worse{color:var(--red);font-size:0.7rem;}
+.comp-neutral{color:var(--yellow);font-size:0.7rem;}
+
+/* ── DIVIDER ── */
+.divider{border:none;border-top:1px solid var(--border);margin:3rem 0;}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:10;text-align:center;
+  padding:2rem 1.5rem;border-top:1px solid var(--border);
+  color:var(--muted);font-size:0.72rem;
+}
+footer a{color:var(--purple);}
+
+/* ── ATOM SVG ANIMATION ── */
+@keyframes orbitA{from{transform:rotate(0deg) translateX(55px) rotate(0deg);}to{transform:rotate(360deg) translateX(55px) rotate(-360deg);}}
+@keyframes orbitB{from{transform:rotate(120deg) translateX(55px) rotate(-120deg);}to{transform:rotate(480deg) translateX(55px) rotate(-480deg);}}
+@keyframes orbitC{from{transform:rotate(240deg) translateX(55px) rotate(-240deg);}to{transform:rotate(600deg) translateX(55px) rotate(-600deg);}}
+@keyframes pulse{0%,100%{r:8;}50%{r:11;}}
+@keyframes ringPulse{0%,100%{opacity:0.15;}50%{opacity:0.4;}}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .stat-strip{grid-template-columns:repeat(2,1fr);}
+  .benefit-grid{grid-template-columns:1fr;}
+  .ask-grid{grid-template-columns:1fr;}
+  .msig-row{flex-direction:column;}
+  .contract-name .tip{min-width:280px;font-size:0.62rem;}
+}
+
+/* ── BACK TO TOP ── */
+.btt{
+  position:fixed;bottom:2rem;right:2rem;z-index:999;
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(7,3,15,0.85);
+  border:2px solid rgba(167,139,250,0.4);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;text-decoration:none;
+  box-shadow:0 0 24px rgba(124,58,237,0.4),0 0 48px rgba(124,58,237,0.15);
+  transition:all 0.3s ease;
+  backdrop-filter:blur(12px);
+  animation:bttPulse 3s ease-in-out infinite;
+}
+.btt:hover{
+  border-color:rgba(167,139,250,0.8);
+  box-shadow:0 0 32px rgba(124,58,237,0.7),0 0 64px rgba(124,58,237,0.3);
+  transform:translateY(-3px) scale(1.05);
+}
+.btt img{width:36px;height:36px;border-radius:50%;object-fit:cover;display:block;}
+.btt-arrow{
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:0.55rem;letter-spacing:0.1em;color:rgba(167,139,250,0.6);
+  text-transform:uppercase;white-space:nowrap;
+}
+@keyframes bttPulse{
+  0%,100%{box-shadow:0 0 24px rgba(124,58,237,0.4),0 0 48px rgba(124,58,237,0.15);}
+  50%{box-shadow:0 0 36px rgba(124,58,237,0.65),0 0 72px rgba(124,58,237,0.25);}
+}
+
+</style>
+</head>
+<body id="top">
+
+<!-- STARFIELD -->
+<div class="stars" aria-hidden="true">
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="sg"><stop offset="0%" stop-color="white" stop-opacity="1"/><stop offset="100%" stop-color="white" stop-opacity="0"/></radialGradient>
+    </defs>
+  </svg>
+  <style>
+    .s{position:absolute;border-radius:50%;background:white;}
+  
+/* ── BACK TO TOP ── */
+.btt{
+  position:fixed;bottom:2rem;right:2rem;z-index:999;
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(7,3,15,0.85);
+  border:2px solid rgba(167,139,250,0.4);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;text-decoration:none;
+  box-shadow:0 0 24px rgba(124,58,237,0.4),0 0 48px rgba(124,58,237,0.15);
+  transition:all 0.3s ease;
+  backdrop-filter:blur(12px);
+  animation:bttPulse 3s ease-in-out infinite;
+}
+.btt:hover{
+  border-color:rgba(167,139,250,0.8);
+  box-shadow:0 0 32px rgba(124,58,237,0.7),0 0 64px rgba(124,58,237,0.3);
+  transform:translateY(-3px) scale(1.05);
+}
+.btt img{width:36px;height:36px;border-radius:50%;object-fit:cover;display:block;}
+.btt-arrow{
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:0.55rem;letter-spacing:0.1em;color:rgba(167,139,250,0.6);
+  text-transform:uppercase;white-space:nowrap;
+}
+@keyframes bttPulse{
+  0%,100%{box-shadow:0 0 24px rgba(124,58,237,0.4),0 0 48px rgba(124,58,237,0.15);}
+  50%{box-shadow:0 0 36px rgba(124,58,237,0.65),0 0 72px rgba(124,58,237,0.25);}
+}
+
+</style>
+  <!-- Generated star positions -->
+  <div class="s" style="width:1px;height:1px;top:5%;left:15%;opacity:0.7;animation:twinkle 4s 0.2s infinite;"></div>
+  <div class="s" style="width:2px;height:2px;top:12%;left:78%;opacity:0.5;animation:twinkle 6s 1s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:23%;left:42%;opacity:0.8;animation:twinkle 3s 0.5s infinite;"></div>
+  <div class="s" style="width:2px;height:2px;top:35%;left:8%;opacity:0.4;animation:twinkle 7s 2s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:48%;left:91%;opacity:0.7;animation:twinkle 4s 1.5s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:61%;left:28%;opacity:0.6;animation:twinkle 5s 0.8s infinite;"></div>
+  <div class="s" style="width:2px;height:2px;top:72%;left:65%;opacity:0.5;animation:twinkle 6s 2.5s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:83%;left:18%;opacity:0.8;animation:twinkle 3s 1.2s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:91%;left:52%;opacity:0.6;animation:twinkle 5s 0.3s infinite;"></div>
+  <div class="s" style="width:2px;height:2px;top:7%;left:55%;opacity:0.4;animation:twinkle 8s 1.8s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:18%;left:32%;opacity:0.7;animation:twinkle 4s 0.9s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:29%;left:87%;opacity:0.5;animation:twinkle 6s 1.4s infinite;"></div>
+  <div class="s" style="width:2px;height:2px;top:44%;left:73%;opacity:0.6;animation:twinkle 5s 2.2s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:57%;left:4%;opacity:0.8;animation:twinkle 3s 0.6s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:68%;left:96%;opacity:0.4;animation:twinkle 7s 3s infinite;"></div>
+  <div class="s" style="width:2px;height:2px;top:79%;left:38%;opacity:0.7;animation:twinkle 4s 1.7s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:88%;left:82%;opacity:0.5;animation:twinkle 6s 0.4s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:3%;left:24%;opacity:0.6;animation:twinkle 5s 2.8s infinite;"></div>
+  <div class="s" style="width:1px;height:1px;top:15%;left:63%;opacity:0.8;animation:twinkle 3s 1.1s infinite;"></div>
+  <div class="s" style="width:2px;height:2px;top:95%;left:47%;opacity:0.4;animation:twinkle 7s 0.7s infinite;"></div>
+</div>
+
+<div class="nebula nb1"></div>
+<div class="nebula nb2"></div>
+<div class="nebula nb3"></div>
+
+<main>
+
+<!-- ════ HERO ════ -->
+<div class="hero">
+
+  <!-- Atom SVG -->
+  <div style="display:flex;justify-content:center;margin-bottom:2rem;">
+    <svg width="140" height="140" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+      <!-- Glow rings -->
+      <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(124,58,237,0.12)" stroke-width="1">
+        <animate attributeName="r" values="58;62;58" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.12;0.25;0.12" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="70" cy="70" r="45" fill="none" stroke="rgba(34,211,238,0.1)" stroke-width="1">
+        <animate attributeName="r" values="43;47;43" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.1;0.2;0.1" dur="5s" repeatCount="indefinite"/>
+      </circle>
+      <!-- Orbit paths -->
+      <ellipse cx="70" cy="70" rx="55" ry="22" fill="none" stroke="rgba(167,139,250,0.25)" stroke-width="1" transform="rotate(0,70,70)"/>
+      <ellipse cx="70" cy="70" rx="55" ry="22" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1" transform="rotate(60,70,70)"/>
+      <ellipse cx="70" cy="70" rx="55" ry="22" fill="none" stroke="rgba(167,139,250,0.15)" stroke-width="1" transform="rotate(120,70,70)"/>
+      <!-- Nucleus -->
+      <circle cx="70" cy="70" r="10" fill="url(#nucGrad)">
+        <animate attributeName="r" values="9;12;9" dur="3s" repeatCount="indefinite"/>
+      </circle>
+      <defs>
+        <radialGradient id="nucGrad" cx="40%" cy="35%">
+          <stop offset="0%" stop-color="#e0cfff"/>
+          <stop offset="100%" stop-color="#7c3aed"/>
+        </radialGradient>
+      </defs>
+      <!-- Electrons -->
+      <g transform="rotate(0,70,70)">
+        <circle cx="125" cy="70" r="5" fill="#22d3ee">
+          <animateTransform attributeName="transform" type="rotate" from="0 70 70" to="360 70 70" dur="3s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      <g transform="rotate(60,70,70)">
+        <circle cx="125" cy="70" r="4" fill="#a78bfa">
+          <animateTransform attributeName="transform" type="rotate" from="0 70 70" to="360 70 70" dur="4.5s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+      <g transform="rotate(120,70,70)">
+        <circle cx="125" cy="70" r="4" fill="#f472b6">
+          <animateTransform attributeName="transform" type="rotate" from="360 70 70" to="0 70 70" dur="6s" repeatCount="indefinite"/>
+        </circle>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hero-badge">&#9670; Signaling Proposal · Draft · Cosmos Hub</div>
+  <h1 class="hero-title">Atom Registry<br/>Official Web3 Namespace Platform<br/>for Cosmos Hub</h1>
+  <p class="hero-sub">Eight CosmWasm contracts. Live on mainnet. Zero community pool funds requested. The naming layer Cosmos Hub has always needed — already built, already running, asking only for recognition.</p>
+
+  <div class="callout info" style="text-align:left;margin-bottom:1rem;">
+    <span class="ico">&#9889;</span>
+    <div><strong>Want to show support before the vote?</strong> Register any TLD at <a href="https://atomregistry.com">atomregistry.com</a>. Any word. Yours permanently. 2.5 ATOM. Every registration during the discussion period is a live demonstration that this platform works — and gives you a permanent stake in the ecosystem it becomes.</div>
+  </div>
+  <div class="callout success" style="text-align:left;margin-bottom:2rem;">
+    <span class="ico">&#10003;</span>
+    <div><strong>Free tool — live now:</strong> The <a href="https://atomregistry.com/sales/">ATOM Sales Widget</a> lets any seller accept ATOM payments on their website in 10 minutes. Visual builder, Keplr checkout, on-chain verification, digital delivery. No fees. No middleman. Built, tested, and shipped.</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-strip">
+    <div class="stat"><div class="stat-num">8</div><div class="stat-lbl">Contracts on<br/>cosmoshub-4</div></div>
+    <div class="stat"><div class="stat-num">0</div><div class="stat-lbl">ATOM requested<br/>from community</div></div>
+    <div class="stat"><div class="stat-num">16</div><div class="stat-lbl">TLDs gifted<br/>unconditionally</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-lbl">TLDs any word<br/>can be registered</div></div>
+  </div>
+
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ THE PROBLEM ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; The Problem</div>
+  <h2><span class="ico">&#9888;</span> Cosmos Hub Has No Naming Layer</h2>
+  <p>Every major blockchain ecosystem has a naming layer. <strong>ENS on Ethereum. SNS on Solana. Unstoppable Domains on Polygon.</strong> These are not optional niceties — they are foundational infrastructure that makes wallets readable, websites browsable, and identities portable.</p>
+  <p>Cosmos Hub has none. For a blockchain that calls itself the Internet of Blockchains, this is a conspicuous and consequential gap.</p>
+
+  <!-- Problem vs Solution SVG -->
+  <div style="margin:2rem 0;">
+    <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:800px;display:block;margin:0 auto;">
+      <defs>
+        <linearGradient id="badGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f87171" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#dc2626" stop-opacity="0.3"/>
+        </linearGradient>
+        <linearGradient id="goodGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.8"/>
+          <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.5"/>
+        </linearGradient>
+      </defs>
+      <!-- Bad side -->
+      <rect x="10" y="10" width="360" height="180" rx="12" fill="rgba(248,113,113,0.06)" stroke="rgba(248,113,113,0.25)" stroke-width="1"/>
+      <text x="30" y="40" fill="#f87171" font-size="11" font-family="Courier New" letter-spacing="2" text-anchor="start">TODAY — WITHOUT ATOM REGISTRY</text>
+      <text x="30" y="70" fill="#94a3b8" font-size="10" font-family="Courier New">Send to:</text>
+      <text x="30" y="90" fill="#f87171" font-size="9" font-family="Courier New">cosmos1mn2ekfxs8zc40hdjt44edfaht0</text>
+      <text x="30" y="108" fill="#f87171" font-size="9" font-family="Courier New">pdgquluzrs2j</text>
+      <text x="30" y="135" fill="#94a3b8" font-size="10" font-family="Courier New">Website: ipfs://QmX7... (may 404)</text>
+      <text x="30" y="155" fill="#94a3b8" font-size="10" font-family="Courier New">Identity: unverifiable</text>
+      <text x="30" y="175" fill="#94a3b8" font-size="10" font-family="Courier New">Trust: zero</text>
+      <!-- Arrow -->
+      <text x="395" y="105" fill="#a78bfa" font-size="24" text-anchor="middle">&#8594;</text>
+      <!-- Good side -->
+      <rect x="430" y="10" width="360" height="180" rx="12" fill="rgba(124,58,237,0.06)" stroke="rgba(124,58,237,0.25)" stroke-width="1"/>
+      <text x="450" y="40" fill="#a78bfa" font-size="11" font-family="Courier New" letter-spacing="2" text-anchor="start">WITH ATOM REGISTRY</text>
+      <text x="450" y="70" fill="#94a3b8" font-size="10" font-family="Courier New">Send to:</text>
+      <text x="450" y="90" fill="#22d3ee" font-size="13" font-family="Courier New" font-weight="bold">cosmos.atom</text>
+      <text x="450" y="120" fill="#94a3b8" font-size="10" font-family="Courier New">Website: permanent, on-chain, forever</text>
+      <text x="450" y="140" fill="#94a3b8" font-size="10" font-family="Courier New">Identity: dSSL verified</text>
+      <text x="450" y="160" fill="#4ade80" font-size="10" font-family="Courier New">&#10003; Citadel Trust Level</text>
+    </svg>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ WHAT IT IS ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; The Platform</div>
+  <h2><span class="ico">&#9671;</span> Eight Contracts. Already Live.</h2>
+  <p>Atom Registry is not a whitepaper. Not a roadmap. Not a grant proposal. It is a functioning platform deployed to <strong>cosmoshub-4 mainnet</strong>, built entirely with private funds.</p>
+
+  <div class="callout success">
+    <span class="ico">&#10003;</span>
+    <div>All contracts below are live and queryable. Hover any contract name to see its address.</div>
+  </div>
+
+  <table>
+    <thead><tr><th>Contract</th><th>Function</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="contract-name">Registry<span class="tip">Registry Contract<span class="addr">cosmos16nff0lmuegn2zr6ca3dp8jnqltpq2c9ayhmqn3avjq0wne95h2xqkhn9qe</span></span></span></td>
+        <td>Source of truth for all domain and TLD ownership. Permanent, transferable, no expiry.</td>
+        <td><span class="pill pill-green">&#9679; Production</span></td>
+      </tr>
+      <tr>
+        <td><span class="contract-name">Registrar<span class="tip">Registrar Contract<span class="addr">cosmos1w4rknyllzt7mu6tsl6m7qm0sss66stwemvc4p4utdsyrjdf9q44ss0697x</span></span></span></td>
+        <td>Commit-reveal name registration with tiered pricing by name length. Anti-front-running.</td>
+        <td><span class="pill pill-green">&#9679; Production</span></td>
+      </tr>
+      <tr>
+        <td><span class="contract-name">TLD Manager<span class="tip">TLD Manager Contract<span class="addr">cosmos12sseygvx4ykhp0df70ndg82l7p9a7ld7l0n0pptwj7c2h726cc9sahh4hz</span></span></span></td>
+        <td>Commit-reveal TLD registration. Anyone can own any top-level domain.</td>
+        <td><span class="pill pill-green">&#9679; Production</span></td>
+      </tr>
+      <tr>
+        <td><span class="contract-name">Resolver<span class="tip">Resolver Contract<span class="addr">cosmos1swmjnderkae2hpegvt75dn34kya388vydxg5k5mzd0dl6wme2teq2xxpkv</span></span></span></td>
+        <td>Maps names to DNS records, cross-chain addresses, IPFS hashes, federation handles.</td>
+        <td><span class="pill pill-green">&#9679; Production</span></td>
+      </tr>
+      <tr>
+        <td><span class="contract-name">Marketplace<span class="tip">Marketplace Contract<span class="addr">cosmos1m962xzr0teztzlp39y7leefhqadxwxv4vg4jyzq6jxh64e93v9hsmg62rc</span></span></span></td>
+        <td>Fixed-price listings with contract-verified ownership checks and royalty-aware settlement.</td>
+        <td><span class="pill pill-cyan">&#9679; Beta</span></td>
+      </tr>
+      <tr>
+        <td><span class="contract-name">Metadata<span class="tip">Metadata Contract<span class="addr">cosmos1cu35kuzrvlprssa3j5p0ypwy9v6j4s6ugc5sm7gz6klj4pxmjeksvxcea0</span></span></span></td>
+        <td>On-chain key/value metadata fields keyed by domain, with public/private visibility controls.</td>
+        <td><span class="pill pill-cyan">&#9679; Beta</span></td>
+      </tr>
+      <tr>
+        <td><span class="contract-name">dSSL Manager<span class="tip">dSSL Manager Contract<span class="addr">cosmos1pmuxqc3ehdjkm8wzpqz5saxztwn97a84ga27uktt6huckxw3j8lszgjnpp</span></span></span></td>
+        <td>dSSL records plus attestation aggregation for trust, verification, and site reputation signals.</td>
+        <td><span class="pill pill-cyan">&#9679; Beta</span></td>
+      </tr>
+      <tr>
+        <td><span class="contract-name">Site Registry<span class="tip">Site Registry Contract<span class="addr">cosmos1xg6jh7nechv6kxrw35m08qdpaysnu97xjz5alql75p2k5xrcdvjs8rx7jt</span></span></span></td>
+        <td>Full HTML pages stored permanently on-chain with version history.</td>
+        <td><span class="pill pill-cyan">&#9679; Beta</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>ATOM Sales Widget — Live at atomregistry.com/sales/</h3>
+  <div class="card" style="background:rgba(34,211,238,0.04);border-color:rgba(34,211,238,0.2);">
+    <p>A complete self-hostable ATOM payment system built and tested by the Atom Registry team over three days of development. <strong>Free. No fees. No middleman. Open for anyone to use right now.</strong></p>
+    <div class="benefit-grid" style="margin-top:1rem;">
+      <div class="benefit-card">
+        <div class="benefit-title">Visual Widget Builder</div>
+        <div class="benefit-body">Configure product name, price, image, description, colors, and layout. Get script tag, iframe, or raw HTML embed code generated live.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-title">Keplr-Native Checkout</div>
+        <div class="benefit-body">Detects Keplr automatically. Buyer pays directly from wallet inside the widget. QR code and manual copy fallback included.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-title">On-Chain TX Verification</div>
+        <div class="benefit-body">PHP backend queries Cosmos Hub LCD directly — verifies recipient, amount, memo, and chain state before fulfillment. Duplicate TX blocking built in.</div>
+      </div>
+      <div class="benefit-card">
+        <div class="benefit-title">Automation Ready</div>
+        <div class="benefit-body">Downstream webhook firing, digital download delivery on payment, redirect or thank-you message flows. Drop it on any PHP host and accept ATOM in 10 minutes.</div>
+      </div>
+    </div>
+    <p style="margin-top:1rem;font-size:0.78rem;color:var(--muted);">Every sale made through the widget is an ATOM transaction. Every seller who wants a storefront registers <code>mystore.atom</code>. Commerce and naming grow together.</p>
+  </div>
+
+  <h3>Audit Status</h3>
+  <div class="callout warn">
+    <span class="ico">&#9888;</span>
+    <div>No formal third-party security audit has been performed. The contracts were developed using rigorous internal methodology — invariant-driven design, authorization validation, overflow-checked arithmetic, and adversarial path simulation throughout. The codebase will be published to <a href="https://github.com/atomregistry/atomregistry">github.com/atomregistry/atomregistry</a> upon proposal passage for full community review. If the community requires a formal audit as a condition of acceptance, it will be conducted at the community's expense.</div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ WHY COSMOS HUB ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Why Here</div>
+  <h2><span class="ico">&#9670;</span> Why This Belongs on Cosmos Hub</h2>
+
+  <!-- Ecosystem map SVG -->
+  <div class="eco-wrap">
+    <svg viewBox="0 0 600 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:600px;">
+      <defs>
+        <radialGradient id="hubGrad" cx="50%" cy="50%">
+          <stop offset="0%" stop-color="#a78bfa"/>
+          <stop offset="100%" stop-color="#7c3aed"/>
+        </radialGradient>
+      </defs>
+      <!-- Connection lines -->
+      <line x1="300" y1="160" x2="120" y2="70" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="300" y1="160" x2="480" y2="70" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="300" y1="160" x2="80" y2="200" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="300" y1="160" x2="520" y2="200" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="300" y1="160" x2="160" y2="280" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="300" y1="160" x2="440" y2="280" stroke="rgba(167,139,250,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <line x1="300" y1="160" x2="300" y2="290" stroke="rgba(34,211,238,0.3)" stroke-width="1" stroke-dasharray="4,3"/>
+      <!-- Hub -->
+      <circle cx="300" cy="160" r="42" fill="url(#hubGrad)" opacity="0.9">
+        <animate attributeName="r" values="40;44;40" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="300" cy="160" r="56" fill="none" stroke="rgba(167,139,250,0.3)" stroke-width="1">
+        <animate attributeName="r" values="54;60;54" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.3;0.6;0.3" dur="4s" repeatCount="indefinite"/>
+      </circle>
+      <text x="300" y="153" fill="white" font-size="11" font-family="Courier New" text-anchor="middle" font-weight="bold">COSMOS</text>
+      <text x="300" y="168" fill="white" font-size="11" font-family="Courier New" text-anchor="middle" font-weight="bold">HUB</text>
+      <text x="300" y="184" fill="rgba(255,255,255,0.7)" font-size="8" font-family="Courier New" text-anchor="middle">ATOM REGISTRY</text>
+      <!-- Chain nodes -->
+      <circle cx="120" cy="70" r="26" fill="rgba(251,191,36,0.1)" stroke="rgba(251,191,36,0.4)" stroke-width="1"/>
+      <text x="120" y="65" fill="#fbbf24" font-size="8" font-family="Courier New" text-anchor="middle">OSMOSIS</text>
+      <text x="120" y="78" fill="rgba(251,191,36,0.6)" font-size="7" font-family="Courier New" text-anchor="middle">.osmosis</text>
+      <circle cx="480" cy="70" r="26" fill="rgba(244,114,182,0.1)" stroke="rgba(244,114,182,0.4)" stroke-width="1"/>
+      <text x="480" y="65" fill="#f472b6" font-size="8" font-family="Courier New" text-anchor="middle">STARGAZE</text>
+      <text x="480" y="78" fill="rgba(244,114,182,0.6)" font-size="7" font-family="Courier New" text-anchor="middle">.stars</text>
+      <circle cx="80" cy="200" r="26" fill="rgba(167,139,250,0.1)" stroke="rgba(167,139,250,0.4)" stroke-width="1"/>
+      <text x="80" y="195" fill="#a78bfa" font-size="8" font-family="Courier New" text-anchor="middle">KEPLR</text>
+      <text x="80" y="208" fill="rgba(167,139,250,0.6)" font-size="7" font-family="Courier New" text-anchor="middle">.keplr</text>
+      <circle cx="520" cy="200" r="26" fill="rgba(34,211,238,0.1)" stroke="rgba(34,211,238,0.4)" stroke-width="1"/>
+      <text x="520" y="195" fill="#22d3ee" font-size="8" font-family="Courier New" text-anchor="middle">STRIDE</text>
+      <text x="520" y="208" fill="rgba(34,211,238,0.6)" font-size="7" font-family="Courier New" text-anchor="middle">.stride</text>
+      <circle cx="160" cy="280" r="26" fill="rgba(74,222,128,0.1)" stroke="rgba(74,222,128,0.4)" stroke-width="1"/>
+      <text x="160" y="275" fill="#4ade80" font-size="8" font-family="Courier New" text-anchor="middle">NEUTRON</text>
+      <text x="160" y="288" fill="rgba(74,222,128,0.6)" font-size="7" font-family="Courier New" text-anchor="middle">.neutron</text>
+      <circle cx="440" cy="280" r="26" fill="rgba(251,191,36,0.08)" stroke="rgba(251,191,36,0.35)" stroke-width="1"/>
+      <text x="440" y="275" fill="#fbbf24" font-size="8" font-family="Courier New" text-anchor="middle">INJECTIVE</text>
+      <text x="440" y="288" fill="rgba(251,191,36,0.6)" font-size="7" font-family="Courier New" text-anchor="middle">.injective</text>
+      <circle cx="300" cy="300" r="22" fill="rgba(34,211,238,0.08)" stroke="rgba(34,211,238,0.3)" stroke-width="1"/>
+      <text x="300" y="296" fill="#22d3ee" font-size="7" font-family="Courier New" text-anchor="middle">+ 100s more</text>
+      <text x="300" y="308" fill="rgba(34,211,238,0.5)" font-size="7" font-family="Courier New" text-anchor="middle">via IBC</text>
+    </svg>
+  </div>
+
+  <div class="card">
+    <h3>Not just .atom — any TLD</h3>
+    <p>ENS gives you <code>.eth</code>. One TLD. Controlled by one organization. Atom Registry is a <strong>universal namespace marketplace</strong>. Anyone can own any top-level domain. Any word. Permanently. The owner sets the price, sets the policy, and earns 100% of all registration fees under their namespace forever. No ICANN. No registrar. No expiry.</p>
+  </div>
+
+  <div class="card">
+    <h3>Keplr integration — the switch</h3>
+    <p>A lightweight Keplr update integrating Atom Registry name resolution instantly makes Web3 browsing available to millions of existing users simultaneously. Not a gradual adoption curve. A switch. The moment Keplr resolves <code>.atom</code> names natively, Keplr becomes a browser as well as a wallet.</p>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ COMPETITIVE LANDSCAPE ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Competitive Landscape</div>
+  <h2><span class="ico">&#9671;</span> Honest Comparison</h2>
+  <p>Other naming projects exist in the Cosmos ecosystem. They deserve honest acknowledgment.</p>
+
+  <table>
+    <thead><tr><th>Project</th><th>Deployed On</th><th>Multi-TLD</th><th>On-Chain Sites</th><th>Marketplace</th><th>dSSL Trust</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Atom Registry</strong></td>
+        <td><span class="comp-better">&#10003; Cosmos Hub</span></td>
+        <td><span class="comp-better">&#10003; Any word</span></td>
+        <td><span class="comp-better">&#10003; Built in</span></td>
+        <td><span class="comp-better">&#10003; Built in</span></td>
+        <td><span class="comp-better">&#10003; Built in</span></td>
+        <td><span class="pill pill-green">Live</span></td>
+      </tr>
+      <tr>
+        <td>ICNS</td>
+        <td><span class="comp-worse">Sidechain</span></td>
+        <td><span class="comp-worse">&#10007; .cosmos only</span></td>
+        <td><span class="comp-worse">&#10007; No</span></td>
+        <td><span class="comp-worse">&#10007; No</span></td>
+        <td><span class="comp-worse">&#10007; No</span></td>
+        <td><span class="pill pill-yellow">Limited</span></td>
+      </tr>
+      <tr>
+        <td>Stargaze Names</td>
+        <td><span class="comp-neutral">Stargaze chain</span></td>
+        <td><span class="comp-worse">&#10007; .stars only</span></td>
+        <td><span class="comp-worse">&#10007; No</span></td>
+        <td><span class="comp-better">&#10003; NFT market</span></td>
+        <td><span class="comp-worse">&#10007; No</span></td>
+        <td><span class="pill pill-green">Active</span></td>
+      </tr>
+      <tr>
+        <td>ENS / Unstoppable</td>
+        <td><span class="comp-worse">Ethereum/Polygon</span></td>
+        <td><span class="comp-neutral">Limited</span></td>
+        <td><span class="comp-worse">&#10007; No</span></td>
+        <td><span class="comp-better">&#10003; Yes</span></td>
+        <td><span class="comp-worse">&#10007; No</span></td>
+        <td><span class="pill pill-green">Active</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size:0.78rem;color:var(--muted);">Note: Stargaze Foundation will receive both <code>.stargaze</code> and <code>.stars</code> as unconditional gifts under this proposal. Stargaze Names can continue to operate independently or integrate with Atom Registry as they see fit. There is no conflict.</p>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ ECOSYSTEM BENEFITS ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Ecosystem Benefits</div>
+  <h2><span class="ico">&#9670;</span> What the Cosmos Ecosystem Gains</h2>
+
+  <div class="benefit-grid">
+    <div class="benefit-card">
+      <div class="benefit-num">01</div>
+      <div class="benefit-title">Human-Readable Identity</div>
+      <div class="benefit-body">Every Cosmos address becomes human-readable. Reverse lookup built in. Single change that makes Cosmos accessible to non-technical users.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">02</div>
+      <div class="benefit-title">Cross-Chain Address Resolution</div>
+      <div class="benefit-body">One <code>.atom</code> name stores addresses for Cosmos, Ethereum, Bitcoin, Solana simultaneously. Single identity spanning the multi-chain world.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">03</div>
+      <div class="benefit-title">Permanent Web Presence</div>
+      <div class="benefit-body">On-chain sites on Cosmos Hub. No hosting. No expiry. No registrar. The website IS the contract. Permanent. Censorship-resistant. Always available.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">04</div>
+      <div class="benefit-title">Verifiable Trust via dSSL</div>
+      <div class="benefit-body">Projects publish <code>cosmos.toml</code> manifests. Attestors verify. Trust levels resolve to badges in the browser extension. Scams become harder.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">05</div>
+      <div class="benefit-title">Validator Transparency</div>
+      <div class="benefit-body">Validators publish verifiable on-chain credentials. Delegators make decisions based on cryptographic proof rather than marketing copy.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">06</div>
+      <div class="benefit-title">DAO & Governance Identity</div>
+      <div class="benefit-body">DAOs get persistent on-chain identities. Proposals authored from readable names. Votes attributed to identities with histories. Governance becomes legible.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">07</div>
+      <div class="benefit-title">IBC Routing Legibility</div>
+      <div class="benefit-body"><code>channel-141</code> becomes <code>osmosis.atom</code>. Human-readable IBC routing is the long-term path. The foundation is already built.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">08</div>
+      <div class="benefit-title">Fediverse & Social Identity</div>
+      <div class="benefit-body">The resolver stores ActivityPub and Matrix federation handles. <code>.atom</code> names become Fediverse identities connecting to the decentralized social web.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">09</div>
+      <div class="benefit-title">Truly On-Chain NFTs & RWA</div>
+      <div class="benefit-body">128KB CosmWasm state + WebP compression = full photographic NFT entirely on Cosmos Hub. No IPFS. No Arweave. No external dependency. The asset IS the contract.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">10</div>
+      <div class="benefit-title">Developer Platform</div>
+      <div class="benefit-body">Contract Launcher, Document Pipeline, Widget SDK — tools that lower the barrier to building on Cosmos Hub. More builders, more projects, more activity.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">11</div>
+      <div class="benefit-title">Economic Flywheel for ATOM</div>
+      <div class="benefit-body">Every TLD, every domain, every site deployment, every marketplace trade requires ATOM. Direct, measurable, continuous economic activity denominated in ATOM.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">12</div>
+      <div class="benefit-title">Wallet Monetization Layer</div>
+      <div class="benefit-body">Keplr and Leap gain a native revenue stream for the first time. Every <code>name.keplr</code> registration pays Keplr directly. Integration incentive is financial.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-num">13</div>
+      <div class="benefit-title">ATOM Commerce Layer</div>
+      <div class="benefit-body">The ATOM Sales Widget is a complete self-hostable payment system — Keplr checkout, on-chain TX verification, digital delivery, webhook automation. Free to any seller. Every sale moves ATOM.</div>
+    </div>
+  </div>
+</div>
+
+
+<hr class="divider"/>
+
+<!-- ════ LIVE NAMESPACE INVENTORY ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Live Namespace Inventory</div>
+  <h2><span class="ico">&#9854;</span> Registered TLD Inventory Snapshot</h2>
+  <p>This section summarizes the current TLD inventory from live registry mint history and policy state. It reports the number of distinct owners without exposing wallet addresses.</p>
+
+  <div class="stat-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.5rem;">
+    <div class="stat"><div class="stat-num">122</div><div class="stat-lbl">Minted TLDs</div></div>
+    <div class="stat"><div class="stat-num">33</div><div class="stat-lbl">Open for<br/>Registration</div></div>
+    <div class="stat"><div class="stat-num">89</div><div class="stat-lbl">Closed / No<br/>Policy</div></div>
+    <div class="stat"><div class="stat-num">10</div><div class="stat-lbl">Distinct<br/>Owners</div></div>
+  </div>
+
+  <div class="callout info">
+    <span class="ico">&#9432;</span>
+    <div>The namespace is already distributed across 10 independent owner accounts. Wallet addresses are withheld intentionally — the live registry is publicly queryable by anyone.</div>
+  </div>
+
+  <h3>Open TLDs — 33 Available for Registration Now</h3>
+  <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.75rem;">These namespaces are presently open for downstream name registration. The clearest indicator that the registry is already functioning as a live namespace marketplace.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.5rem;">
+    <span class="tld-pill">.any</span><span class="tld-pill">.atom</span><span class="tld-pill">.bitcoin</span><span class="tld-pill">.blockchain</span><span class="tld-pill">.btc</span><span class="tld-pill">.chain</span><span class="tld-pill">.custody</span><span class="tld-pill">.dev</span><span class="tld-pill">.do</span><span class="tld-pill">.eureka</span><span class="tld-pill">.global</span><span class="tld-pill">.grok</span><span class="tld-pill">.index</span><span class="tld-pill">.lab</span><span class="tld-pill">.link</span><span class="tld-pill">.lunc</span><span class="tld-pill">.mint</span><span class="tld-pill">.mori</span><span class="tld-pill">.name</span><span class="tld-pill">.onchain</span><span class="tld-pill">.oracle</span><span class="tld-pill">.org</span><span class="tld-pill">.price</span><span class="tld-pill">.reserve</span><span class="tld-pill">.route</span><span class="tld-pill">.skip</span><span class="tld-pill">.treasury</span><span class="tld-pill">.ultra</span><span class="tld-pill">.val</span><span class="tld-pill">.vip</span><span class="tld-pill">.web</span><span class="tld-pill">.xyz</span><span class="tld-pill">.zk</span>
+  </div>
+
+  <h3>Closed / Policy-Restricted TLDs — 89</h3>
+  <p style="font-size:0.78rem;color:var(--muted);margin-bottom:0.75rem;">Minted but not currently open for public registration. Some are ecosystem-reserved, some owner-controlled, some awaiting policy configuration.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1rem;">
+    <span class="tld-pill" style="opacity:0.6">.a1</span><span class="tld-pill" style="opacity:0.6">.abc</span><span class="tld-pill" style="opacity:0.6">.account</span><span class="tld-pill" style="opacity:0.6">.agent</span><span class="tld-pill" style="opacity:0.6">.ai</span><span class="tld-pill" style="opacity:0.6">.akash</span><span class="tld-pill" style="opacity:0.6">.api</span><span class="tld-pill" style="opacity:0.6">.app</span><span class="tld-pill" style="opacity:0.6">.auth</span><span class="tld-pill" style="opacity:0.6">.bank</span><span class="tld-pill" style="opacity:0.6">.bot</span><span class="tld-pill" style="opacity:0.6">.brave</span><span class="tld-pill" style="opacity:0.6">.bridge</span><span class="tld-pill" style="opacity:0.6">.business</span><span class="tld-pill" style="opacity:0.6">.capital</span><span class="tld-pill" style="opacity:0.6">.carbon</span><span class="tld-pill" style="opacity:0.6">.cash</span><span class="tld-pill" style="opacity:0.6">.celestia</span><span class="tld-pill" style="opacity:0.6">.city</span><span class="tld-pill" style="opacity:0.6">.cloud</span><span class="tld-pill" style="opacity:0.6">.com</span><span class="tld-pill" style="opacity:0.6">.cool</span><span class="tld-pill" style="opacity:0.6">.cosmos</span><span class="tld-pill" style="opacity:0.6">.crypto</span><span class="tld-pill" style="opacity:0.6">.dao</span><span class="tld-pill" style="opacity:0.6">.data</span><span class="tld-pill" style="opacity:0.6">.defi</span><span class="tld-pill" style="opacity:0.6">.dex</span><span class="tld-pill" style="opacity:0.6">.dydx</span><span class="tld-pill" style="opacity:0.6">.energy</span><span class="tld-pill" style="opacity:0.6">.escrow</span><span class="tld-pill" style="opacity:0.6">.finance</span><span class="tld-pill" style="opacity:0.6">.fund</span><span class="tld-pill" style="opacity:0.6">.game</span><span class="tld-pill" style="opacity:0.6">.gamer</span><span class="tld-pill" style="opacity:0.6">.gold</span><span class="tld-pill" style="opacity:0.6">.gov</span><span class="tld-pill" style="opacity:0.6">.health</span><span class="tld-pill" style="opacity:0.6">.hub</span><span class="tld-pill" style="opacity:0.6">.ibc</span><span class="tld-pill" style="opacity:0.6">.id</span><span class="tld-pill" style="opacity:0.6">.identity</span><span class="tld-pill" style="opacity:0.6">.injective</span><span class="tld-pill" style="opacity:0.6">.jp</span><span class="tld-pill" style="opacity:0.6">.juno</span><span class="tld-pill" style="opacity:0.6">.keplr</span><span class="tld-pill" style="opacity:0.6">.key</span><span class="tld-pill" style="opacity:0.6">.labs</span><span class="tld-pill" style="opacity:0.6">.law</span><span class="tld-pill" style="opacity:0.6">.leap</span><span class="tld-pill" style="opacity:0.6">.login</span><span class="tld-pill" style="opacity:0.6">.market</span><span class="tld-pill" style="opacity:0.6">.me</span><span class="tld-pill" style="opacity:0.6">.money</span><span class="tld-pill" style="opacity:0.6">.move</span><span class="tld-pill" style="opacity:0.6">.net</span><span class="tld-pill" style="opacity:0.6">.neutron</span><span class="tld-pill" style="opacity:0.6">.nft</span><span class="tld-pill" style="opacity:0.6">.noble</span><span class="tld-pill" style="opacity:0.6">.node</span><span class="tld-pill" style="opacity:0.6">.osmosis</span><span class="tld-pill" style="opacity:0.6">.passport</span><span class="tld-pill" style="opacity:0.6">.pay</span><span class="tld-pill" style="opacity:0.6">.profile</span><span class="tld-pill" style="opacity:0.6">.proof</span><span class="tld-pill" style="opacity:0.6">.rwa</span><span class="tld-pill" style="opacity:0.6">.shop</span><span class="tld-pill" style="opacity:0.6">.silver</span><span class="tld-pill" style="opacity:0.6">.stake</span><span class="tld-pill" style="opacity:0.6">.stargaze</span><span class="tld-pill" style="opacity:0.6">.stars</span><span class="tld-pill" style="opacity:0.6">.stride</span><span class="tld-pill" style="opacity:0.6">.swap</span><span class="tld-pill" style="opacity:0.6">.trade</span><span class="tld-pill" style="opacity:0.6">.trust</span><span class="tld-pill" style="opacity:0.6">.validator</span><span class="tld-pill" style="opacity:0.6">.vault</span><span class="tld-pill" style="opacity:0.6">.vc</span><span class="tld-pill" style="opacity:0.6">.wallet</span><span class="tld-pill" style="opacity:0.6">.web3</span><span class="tld-pill" style="opacity:0.6">.x</span>
+  </div>
+
+  <div class="callout success">
+    <span class="ico">&#10003;</span>
+    <div><strong>Why this matters:</strong> the Cosmos Hub naming layer is not hypothetical. The namespace market already exists, already has real ownership distribution across 10 independent accounts, and already has 33 live registrable TLDs open right now. This is a functioning marketplace, not a proposal for one.</div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ GIFT TABLE ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; TLD Gifts</div>
+  <h2><span class="ico">&#9825;</span> Unconditional TLD Gifts to the Ecosystem</h2>
+
+  <div class="callout success">
+    <span class="ico">&#10003;</span>
+    <div><strong>These gifts are not conditional on this proposal passing.</strong> No conditions. No waiting. Claim any time by DMing <strong>@atomregistry</strong> on X from your official account with your Cosmos Hub wallet address. Transfer within 24 hours.</div>
+  </div>
+
+  <table>
+    <thead><tr><th>TLD</th><th>Recipient</th><th>Economic Value</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tld-pill">.osmosis</span></td><td>Osmosis Labs / Osmosis DAO</td><td>Permanent revenue from every <code>anything.osmosis</code> registration. Every user identity under the largest DEX in Cosmos pays Osmosis directly.</td></tr>
+      <tr><td><span class="tld-pill">.stargaze</span></td><td>Stargaze Foundation</td><td>Every NFT creator, collector, and community member who wants <code>myart.stargaze</code> pays Stargaze.</td></tr>
+      <tr><td><span class="tld-pill">.stars</span></td><td>Stargaze Foundation</td><td>Premium short TLD. Full brand coverage for Stargaze — both <code>.stargaze</code> and <code>.stars</code>.</td></tr>
+      <tr><td><span class="tld-pill">.keplr</span></td><td>Keplr / Chainapsis</td><td>Every Keplr user who registers <code>username.keplr</code> pays Keplr directly. First native revenue stream at scale.</td></tr>
+      <tr><td><span class="tld-pill">.leap</span></td><td>Leap Wallet</td><td>Same model as Keplr. Every Leap user identity pays Leap directly.</td></tr>
+      <tr><td><span class="tld-pill">.ibc</span></td><td>Interchain Foundation</td><td>The entire IBC protocol identity layer. <code>transfer.ibc</code>, <code>channel.ibc</code>, <code>relayer.ibc</code>. Infrastructure for the infrastructure.</td></tr>
+      <tr><td><span class="tld-pill">.cosmos</span></td><td>Interchain Foundation</td><td>The most valuable TLD on the platform outside of <code>.atom</code>. Canonical identity for the entire ecosystem.</td></tr>
+      <tr><td><span class="tld-pill dao-special">.dao</span></td><td><strong>&#9733; Cosmos Hub Community Pool</strong></td><td><strong>Revenue from every .dao registration flows permanently to the community pool.</strong> First governance proposal to give the pool a revenue-generating asset rather than request a spend.</td></tr>
+      <tr><td><span class="tld-pill">.stride</span></td><td>Stride Labs</td><td>Every liquid staker, every validator integration, every partner under <code>.stride</code> pays Stride.</td></tr>
+      <tr><td><span class="tld-pill">.injective</span></td><td>Injective Labs</td><td>Every trader, protocol, and dApp in the Injective ecosystem gets a native identity. Injective earns on every one.</td></tr>
+      <tr><td><span class="tld-pill">.neutron</span></td><td>Neutron</td><td>Every dApp and developer deploying on Neutron gets a <code>.neutron</code> identity. Neutron earns on every registration.</td></tr>
+      <tr><td><span class="tld-pill">.celestia</span></td><td>Celestia Labs</td><td>Rollups, validators, and ecosystem projects under <code>.celestia</code> generate fees to Celestia.</td></tr>
+      <tr><td><span class="tld-pill">.akash</span></td><td>Overclock Labs / Akash</td><td>Cloud providers, tenants, and ecosystem projects under <code>.akash</code> generate fees to Akash.</td></tr>
+      <tr><td><span class="tld-pill">.noble</span></td><td>Noble</td><td>USDC issuers, asset creators, and protocol integrations under <code>.noble</code> generate fees to Noble.</td></tr>
+      <tr><td><span class="tld-pill">.dydx</span></td><td>dYdX Foundation</td><td>Traders, protocol integrations, and governance participants under <code>.dydx</code> generate fees to the dYdX ecosystem.</td></tr>
+      <tr><td><span class="tld-pill">.juno</span></td><td>Juno Network / DAODAO</td><td>Every DAO, every dApp, every developer on Juno gets a native identity. Juno earns on every registration.</td></tr>
+    </tbody>
+  </table>
+
+  <!-- Wallet monetization chart -->
+  <h3>Projected Keplr Revenue — .keplr TLD (Illustrative)</h3>
+  <div class="chart-wrap">
+    <div class="chart-title">KEPLR TREASURY INFLOW — PROJECTED AT VARIOUS ADOPTION RATES (1 ATOM / REGISTRATION)</div>
+    <div class="bar-row">
+      <div class="bar-label">5% adopt</div>
+      <div class="bar-track"><div class="bar-fill b5"><span class="bar-val">~150K ATOM</span></div></div>
+      <div class="bar-unit">~3M users × 5%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">10% adopt</div>
+      <div class="bar-track"><div class="bar-fill b10"><span class="bar-val">~300K ATOM</span></div></div>
+      <div class="bar-unit">~3M users × 10%</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-label">20% adopt</div>
+      <div class="bar-track"><div class="bar-fill b20"><span class="bar-val">~600K ATOM</span></div></div>
+      <div class="bar-unit">~3M users × 20%</div>
+    </div>
+    <p style="font-size:0.65rem;color:var(--muted);margin-top:0.75rem;margin-bottom:0;">Illustrative only. Keplr sets their own price. Revenue flows directly to Keplr treasury wallet at registration time, automatically, with no claiming step.</p>
+  </div>
+
+  <div class="claim-box">
+    <h3 style="margin-top:0;">How to Claim</h3>
+    <ol class="claim-steps">
+      <li><span class="claim-num">1</span>Send a DM from your <strong>official X (Twitter) account</strong> to <strong>@atomregistry</strong></li>
+      <li><span class="claim-num">2</span>Include your <strong>Cosmos Hub wallet address</strong> to receive the TLD</li>
+      <li><span class="claim-num">3</span>Transfer executed on-chain within <strong>24 hours</strong></li>
+      <li><span class="claim-num">4</span>You receive a reply with the <strong>transaction hash</strong> as confirmation</li>
+    </ol>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ FUTURE VISION ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Future Vision</div>
+  <h2><span class="ico">&#9770;</span> The On-Chain Administrative Backbone of Enterprise</h2>
+  <p>The naming layer is the entry point. What follows is significantly larger.</p>
+
+  <div class="card">
+    <h3>The Corporate Namespace Model</h3>
+    <p>A company registers <code>.big</code>. One transaction. Permanent. They now have blockchain-native identity infrastructure mapped onto their entire organization:</p>
+    <pre><code>ceo.big          cfo.big          legal.big
+hr.big           engineering.big  john.smith.big
+vendor.acme.big  contract.2026.q1.big
+project.apollo.big</code></pre>
+    <p>Every name is a wallet. Every wallet holds contracts, credentials, and documents. The company's entire administrative paper trail moves on-chain. The infrastructure to do this is already deployed today.</p>
+  </div>
+
+  <div class="benefit-grid">
+    <div class="benefit-card">
+      <div class="benefit-title">&#128084; Human Resources</div>
+      <div class="benefit-body">Employment contracts through the document pipeline. Credentials, certifications, performance reviews — all on-chain. Termination is a transfer. Record is immutable.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-title">&#128203; Legal &amp; Compliance</div>
+      <div class="benefit-body">NDAs, SOWs, filings stored on-chain with timestamps. Court-admissible chain of custody. dSSL attestations from legal counsel add verifiable third-party validation.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-title">&#127979; Verified Credentials</div>
+      <div class="benefit-body">Universities and certification bodies issue credentials as on-chain contracts. <code>aws-certified.cloud</code>. Permanent. Publicly queryable. No fake certificates.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-title">&#127968; Real Estate Title</div>
+      <div class="benefit-body">Title searches become contract queries. Chain of title is transfer history on the blockchain. Title insurance becomes actuarial math on verifiable on-chain data.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-title">&#127963; Government Services</div>
+      <div class="benefit-body">Business licenses, permits, inspections issued as contracts. Renewal is a contract call. No paper files. No corruption — only an immutable blockchain.</div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-title">&#127973; Healthcare Records</div>
+      <div class="benefit-body">Patients own their medical identity. Records on-chain. Patient controls access. Complete medical history follows the patient without a fax machine.</div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <span class="ico">&#9670;</span>
+    <div>Every company that has ever paid for DocuSign, Salesforce, an HR platform, or a title company is paying for a trust and record-keeping layer. Blockchain does that natively and permanently. Atom Registry makes it accessible. Cosmos Hub, by endorsing Atom Registry, positions itself as the administrative backbone of Web3 enterprise. Every operation pays gas in ATOM.</div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ COMMITMENTS ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Commitments</div>
+  <h2><span class="ico">&#9670;</span> What Atom Registry Commits To</h2>
+
+  <div class="card">
+    <h3>1. Full Open-Source Publication</h3>
+    <p>All eight CosmWasm contracts, all browser tools, all deployment scripts — published to <a href="https://github.com/atomregistry/atomregistry">github.com/atomregistry/atomregistry</a> under an open-source license within <strong>30 days</strong> of proposal passage.</p>
+  </div>
+
+  <div class="card">
+    <h3>2. Community Governance — 2-of-3 Multisig</h3>
+    <p>Atom Registry transitions to a 2-of-3 multisig governance structure. This is not a courtesy arrangement. It is enforced by math.</p>
+
+    <div class="msig-wrap">
+      <div class="msig-row">
+        <div class="msig-key founder">
+          <span class="msig-icon">&#128273;</span>
+          <span class="msig-label founder">Founder Key</span>
+          <span style="font-size:0.62rem;color:var(--muted);">Permanent · Required</span>
+        </div>
+        <div class="msig-key community">
+          <span class="msig-icon">&#128101;</span>
+          <span class="msig-label community">Community Key A</span>
+          <span style="font-size:0.62rem;color:var(--muted);">Elected by Hub Gov</span>
+        </div>
+        <div class="msig-key community">
+          <span class="msig-icon">&#128101;</span>
+          <span class="msig-label community">Community Key B</span>
+          <span style="font-size:0.62rem;color:var(--muted);">Elected by Hub Gov</span>
+        </div>
+      </div>
+      <div class="msig-results">
+        <div class="msig-result no"><span class="combo">Community A + Community B</span><span class="verdict">&#10007; No threshold. Nothing executes.</span></div>
+        <div class="msig-result yes"><span class="combo">Founder + Community A</span><span class="verdict">&#10003; Executes</span></div>
+        <div class="msig-result yes"><span class="combo">Founder + Community B</span><span class="verdict">&#10003; Executes</span></div>
+        <div class="msig-result no"><span class="combo">Founder alone</span><span class="verdict">&#10007; No threshold. Nothing executes.</span></div>
+      </div>
+    </div>
+    <p style="font-size:0.78rem;">The founder's role as <strong>Builder and Technical Lead</strong> is permanent by structural design. It cannot be altered, revoked, or voted away without the founder's own signature.</p>
+  </div>
+
+  <div class="card">
+    <h3>3. 50% of Platform Earnings to Cosmos LP — One Year</h3>
+    <p>All platform earnings split 50/50 for one year from proposal passage. The community's 50% goes into a designated Cosmos Hub liquidity pool on Osmosis (specific pool determined by community governance vote prior to contract migration).</p>
+    <p>After one year: LP principal contributed on behalf of the founder is returned interest-free. Yield generated during the year remains in the pool as a permanent contribution to Cosmos liquidity. Default split after year one: <strong>50% founder / 50% community pool</strong> unless governance proposes otherwise.</p>
+  </div>
+
+  <div class="card">
+    <h3>4. Security Audit</h3>
+    <p>The Atom Registry contracts were developed using rigorous internal methodology built on the author's CosmWasm development expertise and smart contract security experience. Standard security practices — invariant-driven design, authorization validation on every entrypoint, overflow-checked arithmetic, reentrancy-safe state management, and adversarial path simulation — were applied throughout.</p>
+    <p>No formal audit from an outside agency has been performed at this time. If the community conditions acceptance of this proposal on a rigorous third-party audit of the new contracts, <strong>that audit will be conducted at the community's expense</strong>. The codebase will be published to <a href="https://github.com/atomregistry/atomregistry">github.com/atomregistry/atomregistry</a> immediately upon proposal passage, enabling full independent community review in the interim.</p>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ NOT ASKING FOR ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; What We Are NOT Asking For</div>
+  <h2><span class="ico">&#9940;</span> To Be Explicit</h2>
+  <div class="callout warn">
+    <span class="ico">&#9888;</span>
+    <div>
+      <strong>No community pool funds</strong> — not requesting a single ATOM from the community pool.<br/>
+      <strong>No grant</strong> — this is not a spend proposal.<br/>
+      <strong>No exclusivity</strong> — if a better naming system emerges, the community should adopt it. This proposal does not prevent future governance from endorsing alternatives.<br/>
+      <strong>No lock-in</strong> — the community retains the ability to revoke recognition through subsequent governance at any time.
+    </div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ THE ASK ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; The Vote</div>
+  <h2><span class="ico">&#9670;</span> The Ask</h2>
+  <p>This is a <strong>signaling proposal</strong>.</p>
+
+  <div class="ask-grid">
+    <div class="ask-card ask-yes">
+      <div class="ask-vote">YES</div>
+      <div class="ask-body">
+        <p style="margin-bottom:0.75rem;color:#bbf7d0;font-size:0.8rem;">A YES vote signals the community:</p>
+        <ul style="padding-left:1.1rem;font-size:0.72rem;color:#86efac;">
+          <li>Recognizes Atom Registry as the official Web3 naming layer for Cosmos Hub</li>
+          <li>Endorses it as a Cosmos Hub public good</li>
+          <li>Encourages wallets, chains, and dApps to integrate natively</li>
+          <li>Supports the open-source, multisig, and LP commitments above</li>
+          <li>Directs the team to proceed with audit, governance, and GitHub publication</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ask-card ask-no">
+      <div class="ask-vote">NO</div>
+      <div class="ask-body">
+        <p style="margin-bottom:0.75rem;color:#fca5a5;font-size:0.8rem;">A NO vote signals the community:</p>
+        <ul style="padding-left:1.1rem;font-size:0.72rem;color:#fca5a5;">
+          <li>Does not endorse Atom Registry for this role at this time</li>
+          <li>The team will take specific concerns raised in forum discussion and return with a revised proposal</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout info" style="margin-top:1.5rem;">
+    <span class="ico">&#9889;</span>
+    <div><strong>Forum discussion period:</strong> This draft will remain open for community feedback for a minimum of two weeks before on-chain submission. All substantive feedback will be addressed in the final version.</div>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ ABOUT ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; About the Builder</div>
+  <h2><span class="ico">&#9670;</span> About the Builder</h2>
+  <div class="card">
+    <p>Atom Registry was conceived and funded by a single builder — an entrepreneur and technology developer who has been building in the Cosmos ecosystem quietly and methodically without outside investment, without hype, and without asking for anything in return. This proposal is the first formal ask directed at the community and it is not a request for money. It is a request to recognize work that has already been done, infrastructure that is already running, and a commitment to the long-term health of the Cosmos ecosystem that is already being honored.</p>
+    <p>The platform has been built this way deliberately. When you accept outside investment there is pressure to overpromise and underdeliver. When you fund it yourself you can focus on building something that actually works. Atom Registry works. It is live. It is on Cosmos Hub. It is yours if you want it.</p>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ NEXT STEPS ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Next Steps</div>
+  <h2><span class="ico">&#9670;</span> If This Passes</h2>
+  <ul class="steps">
+    <li><div class="step-num">1</div><div class="step-body"><strong>GitHub Publication — 30 days</strong>Full codebase published to <a href="https://github.com/atomregistry/atomregistry">github.com/atomregistry/atomregistry</a> under open-source license.</div></li>
+    <li><div class="step-num">2</div><div class="step-body"><strong>Governance Structure — 60 days</strong>2-of-3 multisig structure with elected community keyholders proposed on-chain.</div></li>
+    <li><div class="step-num">3</div><div class="step-body"><strong>Security Audit — Community Conditional</strong>If the community conditions acceptance on a formal third-party audit, it will be scoped, firmed, and conducted at the community's expense. Codebase published to GitHub immediately enabling independent review from day one.</div></li>
+    <li><div class="step-num">4</div><div class="step-body"><strong>Contract Migration — 90 days</strong>Updated contracts reflecting community governance deployed to cosmoshub-4.</div></li>
+    <li><div class="step-num">5</div><div class="step-body"><strong>LP Activation — On migration</strong>50/50 earnings split to designated Osmosis LP activated at contract migration.</div></li>
+    <li><div class="step-num">6</div><div class="step-body"><strong>Keplr Integration Proposal</strong>Formal integration proposal submitted to the Keplr team.</div></li>
+    <li><div class="step-num">7</div><div class="step-body"><strong>IBC Chain Outreach</strong>Formal integration requests to Osmosis, Stargaze, Stride, Injective, Neutron, and other major IBC chains.</div></li>
+    <li><div class="step-num">8</div><div class="step-body"><strong>TLD Gift Transfers — Ongoing</strong>All claimed TLDs transferred within 24 hours of claim via X DM to @atomregistry.</div></li>
+  </ul>
+</div>
+
+<hr class="divider"/>
+
+<!-- ════ LINKS ════ -->
+<div class="section">
+  <div class="section-badge">&#9679; Links</div>
+  <h2><span class="ico">&#9670;</span> Resources</h2>
+  <table>
+    <thead><tr><th>Resource</th><th>Link</th></tr></thead>
+    <tbody>
+      <tr><td>Platform</td><td><a href="https://atomregistry.com">atomregistry.com</a></td></tr>
+      <tr><td>Documentation</td><td><a href="https://atomregistry.com/docs.html">atomregistry.com/docs.html</a></td></tr>
+      <tr><td>Chrome Extension</td><td><a href="https://atomregistry.com/atomextension.zip">atomregistry.com/atomextension.zip</a></td></tr>
+      <tr><td>GitHub</td><td><a href="https://github.com/atomregistry/atomregistry">github.com/atomregistry/atomregistry</a> (public on passage)</td></tr>
+      <tr><td>X / Twitter</td><td><a href="https://x.com/atomregistry">@atomregistry</a></td></tr>
+      <tr><td>Forum — Explorer</td><td><a href="https://forum.cosmos.network/t/atom-registry-blockchain-explorer/16675">forum.cosmos.network/t/16675</a></td></tr>
+      <tr><td>Forum — .atom Domains</td><td><a href="https://forum.cosmos.network/t/web3-atom-domain-registration/16588">forum.cosmos.network/t/16588</a></td></tr>
+    </tbody>
+  </table>
+</div>
+
+</main>
+
+<footer>
+  <div style="margin-bottom:0.5rem;">
+    <a href="https://atomregistry.com">atomregistry.com</a> &nbsp;·&nbsp;
+    <a href="https://x.com/atomregistry">@atomregistry</a> &nbsp;·&nbsp;
+    cosmoshub-4 · CosmWasm 1.5+
+  </div>
+  <div style="color:var(--muted);">This proposal was authored by the Atom Registry team and submitted for community discussion. All feedback, criticism, and questions are welcome. This draft will be revised based on community input before submission as a formal on-chain signaling proposal.</div>
+</footer>
+
+
+<a href="#top" class="btt" title="Back to top">
+  <svg width="36" height="36" viewBox="0 0 36 36" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="btnNuc" cx="40%" cy="35%">
+        <stop offset="0%" stop-color="#e0cfff"/>
+        <stop offset="100%" stop-color="#7c3aed"/>
+      </radialGradient>
+    </defs>
+    <!-- Orbit rings -->
+    <ellipse cx="18" cy="18" rx="14" ry="5.5" fill="none" stroke="rgba(167,139,250,0.5)" stroke-width="1" transform="rotate(0,18,18)"/>
+    <ellipse cx="18" cy="18" rx="14" ry="5.5" fill="none" stroke="rgba(167,139,250,0.4)" stroke-width="1" transform="rotate(60,18,18)"/>
+    <ellipse cx="18" cy="18" rx="14" ry="5.5" fill="none" stroke="rgba(167,139,250,0.3)" stroke-width="1" transform="rotate(120,18,18)"/>
+    <!-- Nucleus -->
+    <circle cx="18" cy="18" r="4.5" fill="url(#btnNuc)">
+      <animate attributeName="r" values="4;5.5;4" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Electrons -->
+    <circle cx="32" cy="18" r="2.2" fill="#22d3ee">
+      <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="32" cy="18" r="1.8" fill="#a78bfa">
+      <animateTransform attributeName="transform" type="rotate" from="120 18 18" to="480 18 18" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="32" cy="18" r="1.8" fill="#f472b6">
+      <animateTransform attributeName="transform" type="rotate" from="240 18 18" to="-120 18 18" dur="5s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Up arrow -->
+    <path d="M18 8 L13 14 L15.5 14 L15.5 20 L20.5 20 L20.5 14 L23 14 Z" fill="rgba(255,255,255,0.85)"/>
+  </svg>
+  <span class="btt-arrow">top</span>
+</a>
+
+</body>
+</html>

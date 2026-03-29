@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="icon" type="image/png" href="/cosmocon.png"/>
+  <title>Smart Contract Launcher | Atom Registry</title>
+  <meta name="description" content="Compile and deploy CosmWasm smart contracts on Cosmos Hub from your browser."/>
+  <meta name="theme-color" content="#a78bfa"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;700&display=swap" rel="stylesheet"/>
+  <script defer src="https://use.fontawesome.com/releases/v6.5.1/js/all.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ["Roboto Mono","monospace"], display: ["Orbitron","sans-serif"] } } }
+    }
+  </script>
+  <style>
+    body { background: radial-gradient(1200px 800px at 10% 10%, rgba(167,139,250,0.15), transparent 60%), radial-gradient(1200px 800px at 90% 90%, rgba(34,211,238,0.12), transparent 60%), #06020d; }
+    .glass-panel { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+    .glass-card  { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+    .btn-primary { background: linear-gradient(90deg, rgba(147,51,234,1), rgba(34,211,238,1)); }
+    .mono { font-family: "Roboto Mono", monospace; }
+    .toast { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.85); border:1px solid rgba(255,255,255,0.12); padding:10px 18px; border-radius:12px; color:#fff; z-index:9999; max-width:92vw; font-size:0.85rem; display:none; backdrop-filter:blur(12px); }
+    .toast.show { display:block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin-icon { display:inline-block; width:1rem; height:1rem; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; vertical-align:middle; }
+    .beta-banner { background:linear-gradient(90deg,rgba(147,51,234,0.9) 0%,rgba(34,211,238,0.9) 50%,rgba(147,51,234,0.9) 100%); border-bottom:2px solid rgba(255,255,255,0.1); overflow:hidden; position:relative; z-index:1000; max-width:100vw; }
+    .beta-banner::before { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.1) 50%,transparent 100%); animation:shimmer 3s infinite; }
+    @keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(100%)} }
+    .marquee-content { display:flex; animation:marquee 60s linear infinite; white-space:nowrap; }
+    @keyframes marquee { 0%{transform:translateX(0%)} 100%{transform:translateX(-50%)} }
+    .marquee-item { display:inline-flex; align-items:center; padding:0 3rem; font-weight:600; letter-spacing:0.5px; }
+    input[type=text],input[type=number],input[type=password],select,textarea { background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:0.75rem; color:#fff; padding:0.65rem 0.9rem; outline:none; width:100%; font-family:"Roboto Mono",monospace; transition:border-color 0.2s; font-size:0.8rem; }
+    input:focus,textarea:focus,select:focus { border-color:rgba(139,92,246,0.6); }
+    input::placeholder,textarea::placeholder { color:rgba(255,255,255,0.25); }
+    select option { background:#0d0820; }
+    .field-label { font-size:0.65rem; letter-spacing:0.15em; color:rgba(255,255,255,0.4); text-transform:uppercase; margin-bottom:4px; display:block; }
+    .field-hint { font-size:0.65rem; color:rgba(255,255,255,0.25); margin-top:4px; line-height:1.5; }
+    .drop-zone { border:2px dashed rgba(255,255,255,0.1); border-radius:0.75rem; padding:2.5rem; text-align:center; cursor:pointer; transition:all 0.2s; }
+    .drop-zone:hover,.drop-zone.over { border-color:rgba(139,92,246,0.5); background:rgba(139,92,246,0.04); }
+    .step-circle { width:32px; height:32px; border-radius:50%; border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.03); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:700; color:rgba(255,255,255,0.3); transition:all 0.3s; font-family:"Orbitron",sans-serif; }
+    .step-circle.active { border-color:rgba(139,92,246,0.8); background:rgba(139,92,246,0.15); color:#a78bfa; box-shadow:0 0 16px rgba(139,92,246,0.3); }
+    .step-circle.done { border-color:#22c55e; background:rgba(34,197,94,0.15); color:#22c55e; }
+    .step-connector { flex:1; height:1px; background:rgba(255,255,255,0.08); margin:0 4px; margin-bottom:20px; transition:background 0.3s; }
+    .step-connector.done { background:#22c55e; }
+    .tx-row { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.7rem; }
+    .tx-row:last-child { border-bottom:none; }
+    .progress-bar { height:3px; background:rgba(255,255,255,0.06); border-radius:999px; overflow:hidden; margin-top:12px; }
+    .progress-fill { height:100%; background:linear-gradient(90deg,rgba(147,51,234,1),rgba(34,211,238,1)); transition:width 0.5s ease; }
+    .result-card { background:rgba(34,211,238,0.04); border:1px solid rgba(34,211,238,0.2); border-radius:0.75rem; padding:1.25rem; }
+    .code-block { background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.08); border-radius:0.5rem; padding:10px 14px; font-family:"Roboto Mono",monospace; font-size:0.72rem; color:#a78bfa; word-break:break-all; line-height:1.6; position:relative; }
+    .copy-btn { position:absolute; top:6px; right:8px; font-size:0.6rem; color:rgba(255,255,255,0.3); cursor:pointer; transition:color 0.2s; padding:2px 6px; border:1px solid rgba(255,255,255,0.1); border-radius:4px; }
+    .copy-btn:hover { color:#a78bfa; border-color:rgba(139,92,246,0.4); }
+    .tab-btn { padding:8px 20px; font-size:0.72rem; font-weight:700; letter-spacing:0.08em; border-radius:999px; cursor:pointer; transition:all 0.2s; color:rgba(255,255,255,0.4); border:1px solid transparent; font-family:"Orbitron",sans-serif; }
+    .tab-btn.active { background:rgba(139,92,246,0.15); border-color:rgba(139,92,246,0.4); color:#a78bfa; }
+    .tab-btn:hover:not(.active) { color:#fff; }
+    .workflow-step { display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .workflow-step:last-child { border-bottom:none; }
+    .workflow-num { width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,rgba(147,51,234,1),rgba(34,211,238,1)); display:flex; align-items:center; justify-content:center; font-size:0.65rem; font-weight:900; color:#fff; flex-shrink:0; margin-top:1px; }
+    .status-pill { display:inline-flex; align-items:center; gap:6px; font-size:0.65rem; padding:3px 10px; border-radius:999px; }
+    .status-running { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
+    .status-success { background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); color:#22c55e; }
+    .status-failed { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; }
+    .status-queued { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); }
+    @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+    .pulse { animation:pulse 2s ease-in-out infinite; }
+  
+  /* ── Atom Registry Top Nav ── */
+  .ar-topnav {
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.65rem 1.5rem;
+    background: rgba(6,2,13,0.92);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(16px);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .ar-topnav-logo {
+    font-family: "Orbitron", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #a78bfa, #22d3ee);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+  }
+  .ar-topnav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    flex-wrap: wrap;
+  }
+  .ar-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .ar-nav-link:hover {
+    color: #fff;
+    background: rgba(167,139,250,0.08);
+    border-color: rgba(167,139,250,0.15);
+    text-decoration: none;
+  }
+  .ar-nav-active {
+    color: #a78bfa;
+    background: rgba(167,139,250,0.1);
+    border-color: rgba(167,139,250,0.25);
+    cursor: default;
+  }
+  .ar-nav-link i, .ar-nav-active i {
+    font-size: 0.65rem;
+    opacity: 0.8;
+  }
+  @media (max-width: 700px) {
+    .ar-topnav { flex-direction: column; align-items: flex-start; padding: 0.75rem 1rem; }
+    .ar-nav-link { padding: 0.3rem 0.5rem; font-size: 0.68rem; }
+  }
+
+  
+  .wm-ov{position:fixed;inset:0;z-index:800;display:flex;align-items:center;justify-content:center;background:rgba(6,2,13,0.88);backdrop-filter:blur(10px);padding:1rem;}
+  .wm-ov.hidden{display:none;}
+  .wm-box{background:rgba(8,4,21,0.97);border:1px solid rgba(167,139,250,0.25);border-radius:1.5rem;padding:2rem;max-width:400px;width:100%;box-shadow:0 0 60px rgba(124,58,237,0.2);}
+  .wm-h{font-family:Orbitron,sans-serif;font-size:1.05rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;}
+  .wm-s{font-size:0.72rem;color:#64748b;margin-bottom:1.25rem;}
+  .wm-b{width:100%;display:flex;align-items:center;gap:0.9rem;padding:0.9rem 1rem;border-radius:0.85rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.2s;margin-bottom:0.6rem;text-align:left;}
+  .wm-b:hover{border-color:rgba(167,139,250,0.4);background:rgba(124,58,237,0.08);transform:translateX(3px);}
+  .wm-b:last-of-type{margin-bottom:0;}
+  .wm-ico{width:38px;height:38px;border-radius:0.6rem;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0;}
+  .wm-n{font-weight:700;color:#fff;font-size:0.85rem;}
+  .wm-d{font-size:0.67rem;color:#64748b;margin-top:0.1rem;}
+  .wm-cancel{display:block;text-align:center;margin-top:0.9rem;font-size:0.72rem;color:#475569;cursor:pointer;}
+  .wm-cancel:hover{color:#94a3b8;}
+</style>
+</head>
+<body class="font-sans text-white" style="overflow-x:hidden">
+<!-- ═══ ATOM REGISTRY SITE NAV ═══ -->
+<header class="ar-topnav">
+  <a href="/" class="ar-topnav-logo">Atom Registry</a>
+  <nav class="ar-topnav-links">
+      <a href="/" class="ar-nav-link"><i class="fas fa-home"></i>Home</a>
+      <a href="/onchain.html" class="ar-nav-link"><i class="fas fa-globe"></i>Sites</a>
+      <a href="/search.html" class="ar-nav-link"><i class="fas fa-search"></i>Search</a>
+      <a href="/profiles.html" class="ar-nav-link"><i class="fas fa-user-circle"></i>Builder</a>
+      <span class="ar-nav-link ar-nav-active"><i class="fas fa-code"></i>Contracts</span>
+      <a href="/docmaker.html" class="ar-nav-link"><i class="fas fa-file-contract"></i>Doc→Contract</a>
+      <a href="/browser.html" class="ar-nav-link"><i class="fas fa-puzzle-piece"></i>Extension</a>
+      <a href="/docs.html" class="ar-nav-link"><i class="fas fa-book"></i>Docs</a>
+  </nav>
+</header>
+<!-- ═══════════════════════════════ -->
+
+
+<!-- MARQUEE -->
+<div class="beta-banner py-2.5 relative">
+  <div class="marquee-content text-sm text-white">
+    <span class="marquee-item"><i class="fas fa-rocket mr-2"></i> Smart Contract Launcher — Compile · Store · Instantiate</span>
+    <span class="marquee-item"><i class="fab fa-github mr-2"></i> GitHub Actions Compilation — CosmWasm Optimizer · Auto Download</span>
+    <span class="marquee-item"><i class="fas fa-upload mr-2"></i> Upload .wasm · Store on Cosmos Hub · Get TX Hashes</span>
+    <span class="marquee-item"><i class="fas fa-shield-halved mr-2"></i> No CosmJS · ProtoWriter Signing · Browser Native</span>
+    <span class="marquee-item"><i class="fas fa-rocket mr-2"></i> Smart Contract Launcher — Compile · Store · Instantiate</span>
+    <span class="marquee-item"><i class="fab fa-github mr-2"></i> GitHub Actions Compilation — CosmWasm Optimizer · Auto Download</span>
+    <span class="marquee-item"><i class="fas fa-upload mr-2"></i> Upload .wasm · Store on Cosmos Hub · Get TX Hashes</span>
+    <span class="marquee-item"><i class="fas fa-shield-halved mr-2"></i> No CosmJS · ProtoWriter Signing · Browser Native</span>
+  </div>
+</div>
+
+<div class="fixed top-0 right-0 w-96 h-96 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" style="z-index:0"></div>
+<div class="fixed bottom-0 left-0 w-96 h-96 bg-cyan-600/10 rounded-full blur-3xl pointer-events-none" style="z-index:0"></div>
+
+<main class="relative z-10 w-full max-w-4xl mx-auto px-4 md:px-8 py-8">
+
+  <!-- HEADER -->
+  <div class="flex flex-col items-center mb-8 text-center">
+    <a href="/" class="font-display text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-cyan-500 tracking-tight mb-1">Atom Registry</a>
+    <p class="text-gray-500 text-xs mb-4 mono">Smart Contract Launcher · Compile · Deploy · Cosmos Hub</p>
+
+    
+
+    <!-- Wallet bar -->
+    <div id="walletBar" class="hidden mt-3 glass-card px-4 py-2 rounded-xl flex items-center gap-4 text-xs flex-wrap justify-center">
+      <span class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-green-400 inline-block" style="box-shadow:0 0 6px #4ade80"></span>
+        <span class="text-gray-400">Connected:</span>
+        <span class="mono text-white" id="walletAddrShort">—</span>
+      </span>
+      <span class="text-gray-500">|</span>
+      <span class="text-gray-400">Balance: <span class="text-white font-bold" id="walletBal">—</span></span>
+      <button id="disconnectBtn" class="text-red-400 hover:text-red-300 transition-colors ml-2">Disconnect</button>
+    </div>
+  </div>
+
+  <!-- STEP INDICATOR -->
+  <div class="flex items-center justify-center gap-0 max-w-lg mx-auto mb-8">
+    <div class="flex flex-col items-center gap-1"><div class="step-circle active" id="sc1">1</div><div class="text-xs text-gray-600 font-display" style="font-size:0.55rem;letter-spacing:0.1em">CONNECT</div></div>
+    <div class="step-connector" id="conn12"></div>
+    <div class="flex flex-col items-center gap-1"><div class="step-circle" id="sc2">2</div><div class="text-xs text-gray-600 font-display" style="font-size:0.55rem;letter-spacing:0.1em">COMPILE</div></div>
+    <div class="step-connector" id="conn23"></div>
+    <div class="flex flex-col items-center gap-1"><div class="step-circle" id="sc3">3</div><div class="text-xs text-gray-600 font-display" style="font-size:0.55rem;letter-spacing:0.1em">STORE</div></div>
+    <div class="step-connector" id="conn34"></div>
+    <div class="flex flex-col items-center gap-1"><div class="step-circle" id="sc4">4</div><div class="text-xs text-gray-600 font-display" style="font-size:0.55rem;letter-spacing:0.1em">INIT</div></div>
+    <div class="step-connector" id="conn45"></div>
+    <div class="flex flex-col items-center gap-1"><div class="step-circle" id="sc5">✓</div><div class="text-xs text-gray-600 font-display" style="font-size:0.55rem;letter-spacing:0.1em">DONE</div></div>
+  </div>
+
+  <!-- ═══ STEP 1: CONNECT ═══ -->
+  <div id="connectPanel" class="glass-card rounded-2xl p-8 text-center mb-6">
+    <div class="w-16 h-16 rounded-full btn-primary flex items-center justify-center mx-auto mb-4" style="box-shadow:0 0 32px rgba(147,51,234,0.3)">
+      <i class="fas fa-wallet text-white text-xl"></i>
+    </div>
+    <div class="font-display text-xl font-bold mb-2">Connect Your Wallet</div>
+    <p class="text-gray-400 text-xs mb-5 leading-relaxed">Connect your wallet to compile and deploy CosmWasm contracts.<br>Compilation is free via GitHub Actions. Gas fees ~0.5–3 ATOM.</p>
+    <button id="connectBtn" class="btn-primary text-white font-bold font-display text-sm px-8 py-3 rounded-xl hover:opacity-90 transition-opacity">
+      <i class="fas fa-plug mr-2"></i> Connect Wallet
+    </button>
+  </div>
+
+  <!-- ═══ STEP 2: COMPILE ═══ -->
+  <div id="compilePanel" class="hidden space-y-5 mb-5">
+
+    <!-- Tab bar -->
+    <div class="flex gap-2 flex-wrap">
+      <button class="tab-btn active" data-tab="github">
+        <i class="fab fa-github mr-1"></i> Compile via GitHub
+      </button>
+      <button class="tab-btn" data-tab="upload">
+        <i class="fas fa-upload mr-1"></i> Upload Pre-compiled .wasm
+      </button>
+    </div>
+
+    <!-- GITHUB COMPILE TAB -->
+    <div id="tab-github" class="space-y-5">
+
+      <!-- Setup instructions -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-4">STEP 2A — SETUP YOUR REPO</div>
+        <p class="text-xs text-gray-400 mb-4 leading-relaxed">Add the build workflow to your GitHub repo first. One-time setup. After that you can compile any branch with one click.</p>
+
+        <div class="space-y-0">
+          <div class="workflow-step">
+            <div class="workflow-num">1</div>
+            <div class="flex-1">
+              <div class="text-xs font-bold text-white mb-1">Create the workflow file in your repo</div>
+              <div class="text-xs text-gray-500 mb-2">Create <span class="text-purple-400 mono">.github/workflows/build.yml</span> with this content:</div>
+              <div class="code-block" style="max-height:120px;overflow-y:auto;font-size:0.65rem;white-space:pre;color:#22d3ee" id="workflowYml">name: Build CosmWasm Contract
+
+on:
+  workflow_dispatch:
+    inputs:
+      contract_path:
+        description: "Path to contract directory (leave blank for root)"
+        required: false
+        default: "."
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles(\'**/Cargo.lock\') }}
+
+      - name: Build optimized WASM
+        run: |
+          cd ${{ github.event.inputs.contract_path }}
+          docker run --rm -v "$(pwd)":/code \
+            --mount type=volume,source="$(basename $(pwd))_cache",target=/target \
+            --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
+            cosmwasm/optimizer:0.16.0
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: contract-wasm
+          path: |
+            ${{ github.event.inputs.contract_path }}/artifacts/*.wasm
+          retention-days: 7
+</div>
+              <button onclick="copyWorkflow()" class="mt-2 text-xs text-purple-400 hover:text-purple-300 transition-colors"><i class="fas fa-copy mr-1"></i> Copy workflow YAML</button>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="workflow-num">2</div>
+            <div>
+              <div class="text-xs font-bold text-white mb-1">Create a GitHub Personal Access Token</div>
+              <div class="text-xs text-gray-500 mb-1">Go to <span class="text-cyan-400">github.com → Settings → Developer Settings → Personal Access Tokens → Tokens (classic)</span></div>
+              <div class="text-xs text-gray-500">Required scopes: <span class="text-white">repo</span> and <span class="text-white">workflow</span></div>
+            </div>
+          </div>
+          <div class="workflow-step">
+            <div class="workflow-num">3</div>
+            <div>
+              <div class="text-xs font-bold text-white mb-1">Enter your details below and click Compile</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compile form -->
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-4">STEP 2B — TRIGGER COMPILATION</div>
+        <div class="space-y-3">
+          <div>
+            <label class="field-label">GitHub Repo URL</label>
+            <input type="text" id="repoUrl" placeholder="https://github.com/yourusername/your-contract"/>
+            <div class="field-hint">Full URL to your public or private repo</div>
+          </div>
+          <div>
+            <label class="field-label">Branch</label>
+            <input type="text" id="repoBranch" placeholder="main" value="main"/>
+          </div>
+          <div>
+            <label class="field-label">Contract Path (if not root)</label>
+            <input type="text" id="contractPath" placeholder="Leave blank if Cargo.toml is in repo root"/>
+            <div class="field-hint">e.g. <span class="text-purple-400">contracts/my-contract</span> for a workspace repo</div>
+          </div>
+          <div>
+            <label class="field-label">GitHub Personal Access Token</label>
+            <input type="password" id="githubPat" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"/>
+            <div class="field-hint"><i class="fas fa-lock mr-1"></i> Never stored or sent anywhere except directly to GitHub API from your browser</div>
+          </div>
+        </div>
+        <button id="compileBtn" class="w-full mt-4 btn-primary text-white font-bold font-display text-sm py-3 rounded-xl hover:opacity-90 transition-opacity">
+          <i class="fab fa-github mr-2"></i> Trigger Compilation on GitHub
+        </button>
+      </div>
+
+      <!-- Compile status -->
+      <div id="compileStatus" class="hidden glass-card rounded-2xl p-5">
+        <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <div class="font-display text-xs font-bold text-purple-400 tracking-widest">COMPILATION STATUS</div>
+          <div id="compilePill" class="status-pill status-queued"><span class="pulse">●</span> <span id="compileStatusText">Queued</span></div>
+        </div>
+        <div class="space-y-2 text-xs mb-3">
+          <div class="tx-row"><span class="text-gray-400">Repo</span><span id="statusRepo" class="mono text-white text-right break-all max-w-xs">—</span></div>
+          <div class="tx-row"><span class="text-gray-400">Run ID</span><a id="statusRunLink" href="#" target="_blank" class="mono text-purple-400 hover:text-purple-300">—</a></div>
+          <div class="tx-row"><span class="text-gray-400">Started</span><span id="statusStarted" class="mono text-gray-300">—</span></div>
+          <div class="tx-row"><span class="text-gray-400">Duration</span><span id="statusDuration" class="mono text-gray-300 pulse">—</span></div>
+        </div>
+        <div class="progress-bar"><div id="compileProg" class="progress-fill" style="width:10%"></div></div>
+        <div id="compileLog" class="mt-3 text-xs text-gray-500 leading-relaxed"></div>
+      </div>
+
+    </div>
+
+    <!-- UPLOAD TAB -->
+    <div id="tab-upload" class="hidden space-y-4">
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-4">UPLOAD PRE-COMPILED .WASM</div>
+        <div id="dropZone" class="drop-zone">
+          <i class="fas fa-file-code text-3xl text-purple-400 mb-3 block"></i>
+          <div class="text-sm text-gray-300 mb-1">Drop your compiled .wasm file here</div>
+          <div class="text-xs text-gray-500">or <span class="text-purple-400 cursor-pointer" id="browseBtn">browse</span> · Must be optimized with cosmwasm-check</div>
+          <input type="file" id="wasmFile" accept=".wasm" class="hidden"/>
+        </div>
+        <div id="wasmStats" class="hidden mt-3 flex items-center gap-3 text-xs">
+          <i class="fas fa-check-circle text-green-400"></i>
+          <span id="wasmFileName" class="text-white font-bold mono">—</span>
+          <span id="wasmFileSize" class="text-gray-400">—</span>
+          <button id="wasmClear" class="text-red-400 hover:text-red-300 ml-auto"><i class="fas fa-xmark"></i></button>
+        </div>
+      </div>
+      <button id="skipToDeployBtn" disabled class="w-full btn-primary text-white font-bold font-display text-sm py-3 rounded-xl opacity-40 cursor-not-allowed">
+        <i class="fas fa-arrow-right mr-2"></i> Continue to Deploy
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ═══ STEP 3+4: STORE + INSTANTIATE ═══ -->
+  <div id="deployPanel" class="hidden space-y-5">
+
+    <!-- WASM ready banner -->
+    <div class="result-card mb-2">
+      <div class="flex items-center gap-3">
+        <i class="fas fa-check-circle text-green-400 text-lg"></i>
+        <div>
+          <div class="text-sm font-bold text-white" id="wasmReadyName">—</div>
+          <div class="text-xs text-gray-400" id="wasmReadySize">—</div>
+        </div>
+        <span class="ml-auto text-xs text-green-400 font-bold mono">READY TO DEPLOY</span>
+      </div>
+    </div>
+
+    <!-- Contract Config -->
+    <div class="glass-card rounded-2xl p-5">
+      <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-4">STEP 3 — CONTRACT CONFIGURATION</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="field-label">Contract Label</label>
+          <input type="text" id="contractLabel" placeholder="My Awesome Contract"/>
+          <div class="field-hint">Human readable name stored on-chain</div>
+        </div>
+        <div>
+          <label class="field-label">Admin Address (optional)</label>
+          <input type="text" id="adminAddr" placeholder="Leave blank for immutable"/>
+          <div class="field-hint">Can migrate the contract. Leave blank to make immutable.</div>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Instantiate Message (JSON)</label>
+        <textarea id="initMsg" rows="5" placeholder='{"owner": "cosmos1...", "name": "My Token"}' style="font-family:'Roboto Mono',monospace"></textarea>
+        <div class="field-hint">Must match your contract's InstantiateMsg schema exactly</div>
+      </div>
+    </div>
+
+    <!-- Store TX Progress -->
+    <div id="storeTxPanel" class="hidden glass-card rounded-2xl p-5" style="background:rgba(139,92,246,0.04);border-color:rgba(139,92,246,0.2)">
+      <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-3">STORING CODE ON-CHAIN</div>
+      <div id="storeTxSteps" class="space-y-2 text-xs mb-2"></div>
+      <div class="progress-bar"><div id="storeTxBar" class="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Store Result -->
+    <div id="storeResult" class="hidden result-card">
+      <div class="font-display text-xs font-bold text-cyan-400 tracking-widest mb-3"><i class="fas fa-check-circle mr-2"></i>CODE STORED</div>
+      <div class="space-y-1">
+        <div class="tx-row"><span class="text-gray-400">Code ID</span><span id="resultCodeId" class="mono text-white font-bold text-sm">—</span></div>
+        <div class="tx-row"><span class="text-gray-400">Store TX</span><a id="resultStoreTx" href="#" target="_blank" class="mono text-purple-400 hover:text-purple-300 text-xs break-all">—</a></div>
+      </div>
+    </div>
+
+    <button id="storeBtn" class="w-full btn-primary text-white font-bold font-display text-sm py-3.5 rounded-xl hover:opacity-90 transition-opacity">
+      <i class="fas fa-upload mr-2"></i> Store Contract On-Chain
+    </button>
+
+    <!-- Instantiate section -->
+    <div id="instantiateSection" class="hidden space-y-4 pt-2">
+      <div class="glass-card rounded-2xl p-5">
+        <div class="font-display text-xs font-bold text-purple-400 tracking-widest mb-4">STEP 4 — INSTANTIATE</div>
+        <div class="glass-card rounded-xl p-3 mb-4 text-xs">
+          <div class="flex justify-between mb-1"><span class="text-gray-400">Code ID</span><span id="instantiateCodeId" class="mono text-cyan-400 font-bold">—</span></div>
+          <div class="flex justify-between"><span class="text-gray-400">Label</span><span id="instantiateLabel" class="mono text-white">—</span></div>
+        </div>
+        <div>
+          <label class="field-label">Funds (optional)</label>
+          <input type="text" id="instantiateFunds" placeholder="e.g. 1000000uatom — leave blank for none"/>
+        </div>
+      </div>
+
+      <div id="instantiateTxPanel" class="hidden glass-card rounded-2xl p-5" style="background:rgba(34,211,238,0.04);border-color:rgba(34,211,238,0.15)">
+        <div class="font-display text-xs font-bold text-cyan-400 tracking-widest mb-3">INSTANTIATING</div>
+        <div id="instantiateTxSteps" class="space-y-2 text-xs mb-2"></div>
+        <div class="progress-bar"><div id="instantiateTxBar" class="progress-fill" style="width:0%"></div></div>
+      </div>
+
+      <button id="instantiateBtn" class="w-full btn-primary text-white font-bold font-display text-sm py-3.5 rounded-xl hover:opacity-90 transition-opacity">
+        <i class="fas fa-rocket mr-2"></i> Instantiate Contract
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 5: DONE ═══ -->
+  <div id="donePanel" class="hidden mt-5">
+    <div class="result-card">
+      <div class="font-display text-sm font-bold text-cyan-400 mb-4 text-center">
+        🎉 Contract Deployed Successfully
+      </div>
+      <div class="space-y-2 mb-5">
+        <div class="tx-row"><span class="text-gray-400">Contract Address</span><span id="doneContractAddr" class="mono text-cyan-400 text-xs break-all text-right max-w-xs">—</span></div>
+        <div class="tx-row"><span class="text-gray-400">Code ID</span><span id="doneCodeId" class="mono text-white font-bold">—</span></div>
+        <div class="tx-row"><span class="text-gray-400">Store TX</span><a id="doneStoreTx" href="#" target="_blank" class="mono text-purple-400 hover:text-purple-300 text-xs break-all">—</a></div>
+        <div class="tx-row"><span class="text-gray-400">Instantiate TX</span><a id="doneInstantiateTx" href="#" target="_blank" class="mono text-purple-400 hover:text-purple-300 text-xs break-all">—</a></div>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <div class="field-label mb-1">Contract Address</div>
+          <div class="code-block" id="doneContractAddrBlock">—<button class="copy-btn" onclick="copyText(this.previousSibling.textContent)">copy</button></div>
+        </div>
+        <div>
+          <div class="field-label mb-1">Query command</div>
+          <div class="code-block" style="font-size:0.65rem;white-space:pre-wrap" id="doneQueryCmd">—<button class="copy-btn" onclick="copyText(document.getElementById('doneQueryCmd').textContent.replace('copy','').trim())">copy</button></div>
+        </div>
+      </div>
+      <button id="deployAnotherBtn" class="w-full mt-4 glass-card text-xs text-gray-400 hover:text-white py-2.5 rounded-xl transition-all">
+        Deploy Another Contract
+      </button>
+    </div>
+  </div>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── ProtoWriter ─────────────────────────────────────────────────────────────
+function PW(){this.c=[];}
+PW.prototype.v=function(n){var b=[];if(typeof n==="bigint"){while(n>127n){b.push(Number(n&0x7Fn)|0x80);n>>=7n;}b.push(Number(n));}else{n=Math.floor(n);while(n>127){b.push((n&0x7F)|0x80);n=Math.floor(n/128);}b.push(n&0x7F);}this.c.push(new Uint8Array(b));return this;};
+PW.prototype.t=function(f,w){return this.v((f<<3)|w);};
+PW.prototype.s=function(f,str){if(!str&&str!==0)return this;str=String(str);if(!str.length)return this;var e=new TextEncoder().encode(str);this.t(f,2).v(e.length).c.push(e);return this;};
+PW.prototype.b=function(f,arr){if(!arr||!arr.length)return this;var u=arr instanceof Uint8Array?arr:new Uint8Array(arr);this.t(f,2).v(u.length).c.push(u);return this;};
+PW.prototype.u64=function(f,n){var bn=typeof n==="bigint"?n:BigInt(Math.floor(Number(n)));if(bn===0n)return this;return this.t(f,0).v(bn);};
+PW.prototype.fin=function(){var tot=0;for(var i=0;i<this.c.length;i++)tot+=this.c[i].length;var o=new Uint8Array(tot),p=0;for(var i=0;i<this.c.length;i++){o.set(this.c[i],p);p+=this.c[i].length;}return o;};
+function toB64(u8){var s="";for(var i=0;i<u8.length;i++)s+=String.fromCharCode(u8[i]);return btoa(s);}
+function unb64(b){var s=atob(b);var u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u;}
+function derToCompact(der){var pos=4,rLen=der[3];if(der[pos]===0x00){pos++;rLen--;}var r=der.slice(pos,pos+rLen);pos+=rLen+2;var sLen=der[pos-1];if(der[pos]===0x00){pos++;sLen--;}var s=der.slice(pos,pos+sLen);var out=new Uint8Array(64);out.set(r,32-r.length);out.set(s,64-s.length);return out;}
+function aminoSort(obj){if(typeof obj!=='object'||obj===null)return obj;if(Array.isArray(obj))return obj.map(aminoSort);return Object.keys(obj).sort().reduce(function(a,k){a[k]=aminoSort(obj[k]);return a;},{});}
+function openWalletModal(){document.getElementById('walletModal').classList.remove('hidden');}
+function closeWalletModal(){document.getElementById('walletModal').classList.add('hidden');}
+const TYPE_STORE="/cosmwasm.wasm.v1.MsgStoreCode";
+const TYPE_INIT="/cosmwasm.wasm.v1.MsgInstantiateContract";
+const TYPE_PUBKEY="/cosmos.crypto.secp256k1.PubKey";
+const GAS_PRICE=0.025,GAS_ADJ=1.8,GAS_FALLBACK=10000000;
+const CHAIN_ID="cosmoshub-4";
+const LCD=["https://cosmos-rest.publicnode.com","https://rest.cosmos.directory/cosmoshub","https://cosmoshub-api.lavenderfive.com","https://cosmos-api.polkachu.com"];
+function anyMsg(t,v){return new PW().s(1,t).b(2,v).fin();}
+function txBody(mb,tu){return new PW().b(1,anyMsg(tu,mb)).fin();}
+function modeInfoDirect(){return new PW().b(1,new PW().u64(1,1n).fin()).fin();}
+function signerInfo(pk,seq){return new PW().b(1,anyMsg(TYPE_PUBKEY,new PW().b(1,pk).fin())).b(2,modeInfoDirect()).u64(3,seq).fin();}
+function feeMsg(amt,gas){return new PW().b(1,new PW().s(1,"uatom").s(2,String(amt)).fin()).u64(2,BigInt(gas)).fin();}
+function authInfo(pk,seq,fee,gas){return new PW().b(1,signerInfo(pk,seq)).b(2,feeMsg(fee,gas)).fin();}
+function txRaw(body,auth,sig){return new PW().b(1,body).b(2,auth).b(3,sig).fin();}
+function encodeMsgStoreCode(sender,wb){return new PW().s(1,sender).b(2,wb).fin();}
+function encodeMsgInstantiate(sender,admin,codeId,label,initBytes,fundsUatom){
+  var pw=new PW().s(1,sender);
+  if(admin) pw.s(2,admin);
+  pw.u64(3,BigInt(codeId)).s(4,label).b(5,initBytes);
+  if(fundsUatom>0) pw.b(6,new PW().s(1,"uatom").s(2,String(fundsUatom)).fin());
+  return pw.fin();
+}
+async function getAccount(addr){for(var i=0;i<LCD.length;i++){try{var r=await fetch(LCD[i]+"/cosmos/auth/v1beta1/accounts/"+addr);if(!r.ok)continue;var d=await r.json();var a=d.account?.base_account||d.account;return{accountNumber:parseInt(a?.account_number||0),sequence:parseInt(a?.sequence||0)};}catch(e){}}return{accountNumber:0,sequence:0};}
+async function simulateGas(bodyBytes,authBytes){var sim=txRaw(bodyBytes,authBytes,new Uint8Array(64));for(var i=0;i<LCD.length;i++){try{var r=await fetch(LCD[i]+"/cosmos/tx/v1beta1/simulate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tx_bytes:toB64(sim)})});if(!r.ok)continue;var j=await r.json();var gas=parseInt((j.gas_info||{}).gas_used||0);if(gas>50000)return Math.ceil(gas*GAS_ADJ);}catch(e){}}return GAS_FALLBACK;}
+async function broadcastTx(rb){var last;for(var i=0;i<LCD.length;i++){try{var r=await fetch(LCD[i]+"/cosmos/tx/v1beta1/txs",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tx_bytes:toB64(rb),mode:"BROADCAST_MODE_SYNC"})});if(!r.ok)throw new Error("HTTP "+r.status);var j=await r.json();var res=j.tx_response||j;return{code:parseInt(res.code||0),txhash:res.txhash||"",rawLog:res.raw_log||""};}catch(e){last=e;}}throw last||new Error("Broadcast failed");}
+async function waitForTx(txhash,maxAttempts=12){for(var i=0;i<maxAttempts;i++){await new Promise(r=>setTimeout(r,5000));for(var j=0;j<LCD.length;j++){try{var r=await fetch(LCD[j]+"/cosmos/tx/v1beta1/txs/"+txhash);if(!r.ok)continue;var d=await r.json();if(d.tx_response?.code===0)return d.tx_response;}catch(e){}}}return null;}
+
+async function signAndBroadcast(msgBytes,typeUrl,stepsEl,barEl){
+  var bodyBytes=txBody(msgBytes,typeUrl);
+  setStep(stepsEl,1,"active","Fetching account info...");
+  var acct=await getAccount(userAddress);
+  var ph=GAS_FALLBACK;
+  var authBytes=authInfo(pubKey,acct.sequence,String(Math.ceil(ph*GAS_PRICE)),ph);
+  setStep(stepsEl,1,"done","Account: seq="+acct.sequence);
+  setStep(stepsEl,2,"active","Simulating gas...");
+  var gasLimit=await simulateGas(bodyBytes,authBytes);
+  var feeAmount=String(Math.ceil(gasLimit*GAS_PRICE));
+  authBytes=authInfo(pubKey,acct.sequence,feeAmount,gasLimit);
+  setStep(stepsEl,2,"done","Gas: "+gasLimit+" · Fee: "+(gasLimit*GAS_PRICE/1e6).toFixed(4)+" ATOM");
+  if(barEl) barEl.style.width="35%";
+  setStep(stepsEl,3,"active","Waiting for wallet signature...");
+  toast("Awaiting wallet signature…");
+  var rawBytes;
+  if(walletType==='keplr'||walletType==='leap'||walletType==='ledger'){
+    var w=walletType==='leap'?window.leap:walletType==='ledger'?null:window.keplr;
+    if(walletType==='ledger'){
+      // Ledger uses signDirect via its own app (not amino — store/instantiate not in amino spec)
+      toast("Approve on your Ledger device…");
+      var lResp=await ledgerApp.sign([44,118,0,0,0],bodyBytes);
+      if(!lResp||lResp.error_message!=='No errors')throw new Error('Ledger: '+(lResp.error_message||'signing failed'));
+      rawBytes=txRaw(bodyBytes,authBytes,derToCompact(lResp.signature));
+    } else {
+      var signResp=await w.signDirect(CHAIN_ID,userAddress,{bodyBytes,authInfoBytes:authBytes,chainId:CHAIN_ID,accountNumber:String(acct.accountNumber)});
+      rawBytes=txRaw(signResp.signed.bodyBytes,signResp.signed.authInfoBytes,unb64(signResp.signature.signature));
+    }
+  } else if(walletType==='cosmostation'){
+    var cosmo=window.cosmostation&&window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;
+    if(cosmo){var sr=await cosmo.signDirect(CHAIN_ID,userAddress,{bodyBytes,authInfoBytes:authBytes,chainId:CHAIN_ID,accountNumber:String(acct.accountNumber)});rawBytes=txRaw(sr.signed.bodyBytes,sr.signed.authInfoBytes,unb64(sr.signature.signature));}
+    else{var sr=await window.cosmostation.cosmos.request({method:'cos_signDirect',params:{chainName:CHAIN_ID,doc:{chain_id:CHAIN_ID,body_bytes:toB64(bodyBytes),auth_info_bytes:toB64(authBytes),account_number:String(acct.accountNumber)}}});rawBytes=txRaw(bodyBytes,authBytes,unb64(sr.signature));}
+  } else throw new Error('No wallet connected');
+  setStep(stepsEl,3,"done","Signed ✓");
+  if(barEl) barEl.style.width="60%";
+  setStep(stepsEl,4,"active","Broadcasting...");
+  toast("Broadcasting…");
+  var result=await broadcastTx(rawBytes);
+  if(result.code!==0) throw new Error("Chain error ("+result.code+"): "+result.rawLog.slice(0,200));
+  setStep(stepsEl,4,"done","TX: "+result.txhash.slice(0,16)+"...");
+  if(barEl) barEl.style.width="80%";
+  setStep(stepsEl,5,"active","Waiting for confirmation...");
+  var confirmed=await waitForTx(result.txhash);
+  setStep(stepsEl,5,confirmed?"done":"done",confirmed?"Confirmed on-chain ✓":"Broadcast accepted");
+  if(barEl) barEl.style.width="100%";
+  return{txhash:result.txhash,txResponse:confirmed};
+}
+
+// ── UI helpers ──────────────────────────────────────────────────────────────
+function $(id){return document.getElementById(id);}
+let toastTimer;
+function toast(msg,type="ok"){const el=$("toast");el.textContent=msg;el.style.borderColor=type==="error"?"rgba(239,68,68,0.4)":type==="warn"?"rgba(251,191,36,0.4)":"rgba(167,139,250,0.4)";el.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),4000);}
+
+function setStepActive(n){
+  for(var i=1;i<=5;i++){
+    var sc=$("sc"+i);
+    if(i<n){sc.className="step-circle done";}
+    else if(i===n){sc.className="step-circle active";}
+    else{sc.className="step-circle";}
+    if(i<5){var conn=$("conn"+i+(i+1));conn.className=i<n?"step-connector done":"step-connector";}
+  }
+}
+
+function setStep(container,num,state,label){
+  if(!container) return;
+  var ex=container.querySelector("[data-step='"+num+"']");
+  if(!ex){ex=document.createElement("div");ex.className="flex items-center gap-2 text-xs";ex.setAttribute("data-step",num);ex.innerHTML=`<span class="w-5 h-5 rounded-full flex items-center justify-center text-xs sn" style="border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03)">${num}</span><span class="sl">${label}</span>`;container.appendChild(ex);}
+  var sn=ex.querySelector(".sn"),sl=ex.querySelector(".sl");
+  sl.textContent=label;
+  if(state==="active"){sn.style.borderColor="rgba(139,92,246,0.6)";sn.style.color="#a78bfa";ex.style.color="#fff";}
+  else if(state==="done"){sn.innerHTML="✓";sn.style.borderColor="#22c55e";sn.style.color="#22c55e";ex.style.color="#22c55e";}
+}
+
+function copyText(txt){navigator.clipboard.writeText(txt.trim()).then(()=>toast("Copied!")).catch(()=>toast("Copy failed","error"));}
+function copyWorkflow(){copyText($("workflowYml").textContent);}
+
+// ── Tabs ────────────────────────────────────────────────────────────────────
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelectorAll("[id^='tab-']").forEach(t=>t.classList.add("hidden"));
+    $("tab-"+btn.dataset.tab).classList.remove("hidden");
+  });
+});
+
+// ── State ────────────────────────────────────────────────────────────────────
+let userAddress=null,pubKey=null,walletType=null,ledgerApp=null,ledgerTransport=null,wasmBytes=null,wasmName="",storedCodeId=null,storeTxHash=null;
+let pollInterval=null;
+
+// ── Multi-wallet connect ─────────────────────────────────────────────────────
+async function connectWallet(type){
+  closeWalletModal();
+  try{
+    if(type==="keplr"){if(!window.keplr){toast("Keplr not found","error");window.open("https://www.keplr.app/","_blank");return;}await window.keplr.enable(CHAIN_ID);const k=await window.keplr.getKey(CHAIN_ID);userAddress=k.bech32Address;pubKey=k.pubKey;walletType="keplr";}
+    else if(type==="leap"){if(!window.leap){toast("Leap not found","error");window.open("https://www.leapwallet.io/","_blank");return;}await window.leap.enable(CHAIN_ID);const k=await window.leap.getKey(CHAIN_ID);userAddress=k.bech32Address;pubKey=k.pubKey;walletType="leap";}
+    else if(type==="cosmostation"){const cosmo=window.cosmostation&&window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;if(cosmo){await cosmo.enable(CHAIN_ID);const k=await cosmo.getKey(CHAIN_ID);userAddress=k.bech32Address;pubKey=k.pubKey;walletType="cosmostation";}else if(window.cosmostation&&window.cosmostation.cosmos){const acc=await window.cosmostation.cosmos.request({method:"cos_requestAccount",params:{chainName:CHAIN_ID}});userAddress=acc.address;pubKey=acc.publicKey;walletType="cosmostation";}else{toast("Cosmostation not found","error");window.open("https://www.cosmostation.io/","_blank");return;}}
+    else if(type==="ledger"){toast("Opening Ledger — unlock device, open Cosmos app…");try{const t=await import("https://esm.sh/@ledgerhq/hw-transport-webhid@6.34.0");const WebHID=t.default||t;const a=await import("https://esm.sh/@ledgerhq/hw-app-cosmos@6.35.1");const CosmosApp=a.default||a;ledgerTransport=await WebHID.create();ledgerApp=new CosmosApp(ledgerTransport);const addr=await ledgerApp.getAddress("44'/118'/0'/0/0","cosmos");if(addr.error_message&&addr.error_message!=="No errors")throw new Error(addr.error_message);userAddress=addr.address;pubKey=addr.publicKey;walletType="ledger";}catch(le){if(ledgerTransport){try{ledgerTransport.close();}catch(e){} ledgerTransport=null;}ledgerApp=null;const m=le.message||String(le);if(/hid/i.test(m))toast("WebHID not available — use Chrome or Edge","error");else toast("Ledger: "+m.slice(0,80),"error");return;}}
+    try{sessionStorage.setItem("ar_wallet",JSON.stringify({type:walletType,address:userAddress}));}catch(e){}
+    onConnected();
+  }catch(e){toast("Connect failed: "+(e.message||String(e)),"error");}
+}
+$("connectBtn").addEventListener("click",openWalletModal);
+document.addEventListener("DOMContentLoaded",function(){
+  ["wmKeplr","wmLeap","wmCosmostation","wmLedger","wmCancel"].forEach(function(id){
+    const el=document.getElementById(id);if(!el)return;
+    if(id==="wmCancel"){el.addEventListener("click",closeWalletModal);return;}
+    const type=id==="wmKeplr"?"keplr":id==="wmLeap"?"leap":id==="wmCosmostation"?"cosmostation":"ledger";
+    el.addEventListener("click",function(){connectWallet(type);});
+  });
+  const wm=document.getElementById("walletModal");
+  if(wm)wm.addEventListener("click",function(e){if(e.target===wm)closeWalletModal();});
+});
+
+async function onConnected(){
+  $("walletBar").classList.remove("hidden");
+  $("walletAddrShort").textContent=userAddress.slice(0,12)+"..."+userAddress.slice(-6);
+  $("connectPanel").classList.add("hidden");
+  $("compilePanel").classList.remove("hidden");
+  setStepActive(2);
+  try{for(const ep of LCD){const r=await fetch(`${ep}/cosmos/bank/v1beta1/balances/${userAddress}`);if(!r.ok)continue;const d=await r.json();const coin=(d.balances||[]).find(b=>b.denom==="uatom");$("walletBal").textContent=coin?(parseInt(coin.amount)/1e6).toFixed(2)+" ATOM":"0 ATOM";break;}}catch(e){}
+  const bl=walletType==="leap"?"Leap":walletType==="ledger"?"Ledger":walletType==="cosmostation"?"Cosmostation":"Keplr";
+  toast(bl+" connected ✓");
+}
+
+$("disconnectBtn").addEventListener("click",()=>{
+  if(ledgerTransport){try{ledgerTransport.close();}catch(e){} ledgerTransport=null;}ledgerApp=null;
+  try{sessionStorage.removeItem("ar_wallet");}catch(e){}
+  userAddress=null;pubKey=null;walletType=null;wasmBytes=null;storedCodeId=null;
+  $("walletBar").classList.add("hidden");
+  $("connectPanel").classList.remove("hidden");
+  $("compilePanel").classList.add("hidden");
+  $("deployPanel").classList.add("hidden");
+  $("donePanel").classList.add("hidden");
+  setStepActive(1);
+  if(pollInterval) clearInterval(pollInterval);
+});
+
+// ── GitHub Compile ────────────────────────────────────────────────────────────
+$("compileBtn").addEventListener("click",async()=>{
+  const repoUrl=$("repoUrl").value.trim();
+  const branch=$("repoBranch").value.trim()||"main";
+  const contractPath=$("contractPath").value.trim()||".";
+  const pat=$("githubPat").value.trim();
+  if(!repoUrl||!pat){toast("Enter repo URL and GitHub PAT","error");return;}
+
+  // Parse owner/repo from URL
+  const match=repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
+  if(!match){toast("Invalid GitHub repo URL","error");return;}
+  const owner=match[1], repo=match[2].replace(/\.git$/,"");
+
+  const btn=$("compileBtn");
+  btn.disabled=true;
+  btn.innerHTML=`<span class="spin-icon mr-2"></span> Triggering build...`;
+
+  try{
+    // Trigger workflow dispatch
+    const triggerResp=await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/build.yml/dispatches`,{
+      method:"POST",
+      headers:{"Authorization":"token "+pat,"Accept":"application/vnd.github.v3+json","Content-Type":"application/json"},
+      body:JSON.stringify({ref:branch,inputs:{contract_path:contractPath}})
+    });
+
+    if(triggerResp.status===204){
+      toast("Build triggered! Waiting for GitHub Actions...");
+      $("compileStatus").classList.remove("hidden");
+      $("statusRepo").textContent=owner+"/"+repo;
+      $("compileProg").style.width="15%";
+      logCompile("Build triggered on GitHub Actions...");
+      // Wait a moment then start polling for the run
+      await new Promise(r=>setTimeout(r,4000));
+      pollWorkflowRun(owner,repo,branch,pat);
+    } else {
+      const err=await triggerResp.json();
+      throw new Error(err.message||"Failed to trigger workflow ("+triggerResp.status+")");
+    }
+  }catch(e){
+    toast("Trigger failed: "+e.message,"error");
+    btn.disabled=false;
+    btn.innerHTML=`<i class="fab fa-github mr-2"></i> Trigger Compilation on GitHub`;
+  }
+});
+
+function logCompile(msg){
+  const el=$("compileLog");
+  el.innerHTML+=`<div class="text-xs text-gray-500 mono">${new Date().toLocaleTimeString()} — ${msg}</div>`;
+}
+
+async function pollWorkflowRun(owner,repo,branch,pat){
+  const maxPolls=60;
+  let polls=0;
+  let runId=null;
+  let startTime=Date.now();
+
+  pollInterval=setInterval(async()=>{
+    polls++;
+    if(polls>maxPolls){
+      clearInterval(pollInterval);
+      toast("Timeout waiting for build — check GitHub Actions manually","warn");
+      return;
+    }
+
+    try{
+      // Get latest workflow runs
+      const runsResp=await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs?branch=${branch}&per_page=5`,{
+        headers:{"Authorization":"token "+pat,"Accept":"application/vnd.github.v3+json"}
+      });
+      const runsData=await runsResp.json();
+      const runs=runsData.workflow_runs||[];
+      // Find the most recent run for our workflow
+      const run=runs.find(r=>r.name==="Build CosmWasm Contract"||r.path?.includes("build.yml"));
+      if(!run) return;
+
+      runId=run.id;
+      const status=run.status;
+      const conclusion=run.conclusion;
+      const elapsed=Math.floor((Date.now()-startTime)/1000);
+
+      $("statusRunLink").textContent="Run #"+runId;
+      $("statusRunLink").href=run.html_url;
+      $("statusStarted").textContent=new Date(run.created_at).toLocaleTimeString();
+      $("statusDuration").textContent=elapsed+"s";
+
+      if(status==="queued"){
+        updateCompilePill("queued","Queued");
+        $("compileProg").style.width="20%";
+      } else if(status==="in_progress"){
+        updateCompilePill("running","Building...");
+        $("compileProg").style.width=Math.min(85,30+elapsed)+"%" ;
+        logCompile("Build in progress...");
+      } else if(status==="completed"){
+        clearInterval(pollInterval);
+        if(conclusion==="success"){
+          updateCompilePill("success","Success ✓");
+          $("compileProg").style.width="100%";
+          logCompile("Build succeeded! Downloading artifact...");
+          toast("Build succeeded! Downloading .wasm...");
+          await downloadArtifact(owner,repo,runId,pat);
+        } else {
+          updateCompilePill("failed","Failed ✗");
+          logCompile("Build failed. Check GitHub Actions for details.");
+          toast("Build failed — check GitHub Actions","error");
+          $("compileBtn").disabled=false;
+          $("compileBtn").innerHTML=`<i class="fab fa-github mr-2"></i> Trigger Compilation on GitHub`;
+        }
+      }
+    }catch(e){
+      logCompile("Poll error: "+e.message);
+    }
+  },5000);
+}
+
+function updateCompilePill(type,text){
+  const pill=$("compilePill");
+  $("compileStatusText").textContent=text;
+  pill.className="status-pill status-"+type;
+}
+
+async function downloadArtifact(owner,repo,runId,pat){
+  try{
+    // List artifacts for this run
+    const artResp=await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs/${runId}/artifacts`,{
+      headers:{"Authorization":"token "+pat,"Accept":"application/vnd.github.v3+json"}
+    });
+    const artData=await artResp.json();
+    const artifact=(artData.artifacts||[]).find(a=>a.name==="contract-wasm");
+    if(!artifact){ toast("No artifact found — check build output","warn"); return; }
+
+    // Download artifact ZIP
+    const dlResp=await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/artifacts/${artifact.id}/zip`,{
+      headers:{"Authorization":"token "+pat,"Accept":"application/vnd.github.v3+json"}
+    });
+
+    if(!dlResp.ok) throw new Error("Download failed: "+dlResp.status);
+
+    // Unzip and extract .wasm
+    const zipBuffer=await dlResp.arrayBuffer();
+    const wasmFile=await extractWasmFromZip(zipBuffer);
+    if(!wasmFile) throw new Error("No .wasm file found in artifact");
+
+    wasmBytes=wasmFile.bytes;
+    wasmName=wasmFile.name;
+    logCompile("Downloaded: "+wasmName+" ("+( wasmFile.bytes.length/1024).toFixed(1)+"KB)");
+    toast("Downloaded "+wasmName+" — ready to deploy!");
+    proceedToDeploy(wasmName, wasmFile.bytes.length);
+
+  }catch(e){
+    toast("Artifact download failed: "+e.message,"error");
+    logCompile("Download error: "+e.message);
+  }
+}
+
+async function extractWasmFromZip(buffer){
+  // Simple ZIP parser — find the .wasm file
+  const view=new DataView(buffer);
+  const bytes=new Uint8Array(buffer);
+  let offset=0;
+  while(offset<bytes.length-4){
+    if(view.getUint32(offset,true)===0x04034b50){ // Local file header signature
+      const filenameLen=view.getUint16(offset+26,true);
+      const extraLen=view.getUint16(offset+28,true);
+      const compressedSize=view.getUint32(offset+18,true);
+      const filename=new TextDecoder().decode(bytes.slice(offset+30,offset+30+filenameLen));
+      const dataStart=offset+30+filenameLen+extraLen;
+      if(filename.endsWith(".wasm")){
+        return{name:filename.split("/").pop(),bytes:bytes.slice(dataStart,dataStart+compressedSize)};
+      }
+      offset=dataStart+compressedSize;
+    } else { offset++; }
+  }
+  return null;
+}
+
+// ── Upload tab ──────────────────────────────────────────────────────────────
+const dz=$("dropZone");
+$("browseBtn").addEventListener("click",()=>$("wasmFile").click());
+dz.addEventListener("click",()=>$("wasmFile").click());
+dz.addEventListener("dragover",e=>{e.preventDefault();dz.classList.add("over");});
+dz.addEventListener("dragleave",()=>dz.classList.remove("over"));
+dz.addEventListener("drop",e=>{e.preventDefault();dz.classList.remove("over");handleWasmFile(e.dataTransfer.files[0]);});
+$("wasmFile").addEventListener("change",e=>handleWasmFile(e.target.files[0]));
+
+function handleWasmFile(file){
+  if(!file||!file.name.endsWith(".wasm")){toast("Must be a .wasm file","error");return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    wasmBytes=new Uint8Array(e.target.result);
+    wasmName=file.name;
+    $("wasmFileName").textContent=file.name;
+    $("wasmFileSize").textContent=(file.size/1024).toFixed(1)+" KB";
+    $("wasmStats").classList.remove("hidden");
+    dz.style.display="none";
+    $("skipToDeployBtn").disabled=false;
+    $("skipToDeployBtn").classList.remove("opacity-40","cursor-not-allowed");
+    toast("Loaded: "+file.name);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+$("wasmClear").addEventListener("click",()=>{
+  wasmBytes=null;dz.style.display="";$("wasmStats").classList.add("hidden");
+  $("skipToDeployBtn").disabled=true;$("skipToDeployBtn").classList.add("opacity-40","cursor-not-allowed");
+});
+
+$("skipToDeployBtn").addEventListener("click",()=>proceedToDeploy(wasmName,wasmBytes.length));
+
+function proceedToDeploy(name,size){
+  $("wasmReadyName").textContent=name;
+  $("wasmReadySize").textContent=(size/1024).toFixed(1)+" KB · Ready to store on Cosmos Hub";
+  $("compilePanel").classList.add("hidden");
+  $("deployPanel").classList.remove("hidden");
+  setStepActive(3);
+}
+
+// ── Store ────────────────────────────────────────────────────────────────────
+$("storeBtn").addEventListener("click",async()=>{
+  if(!wasmBytes||!userAddress) return;
+  const btn=$("storeBtn");
+  btn.disabled=true;btn.innerHTML=`<span class="spin-icon mr-2"></span> Storing...`;
+  $("storeTxPanel").classList.remove("hidden");
+  $("storeTxSteps").innerHTML="";$("storeTxBar").style.width="0%";
+  try{
+    const msgBytes=encodeMsgStoreCode(userAddress,wasmBytes);
+    const result=await signAndBroadcast(msgBytes,TYPE_STORE,$("storeTxSteps"),$("storeTxBar"));
+    storeTxHash=result.txhash;
+    let codeId=null;
+    if(result.txResponse){
+      const events=result.txResponse.events||[];
+      for(const ev of events){
+        const attr=(ev.attributes||[]).find(a=>a.key==="code_id"||tryAtob(a.key)==="code_id");
+        if(attr){codeId=attr.value||tryAtob(attr.value);break;}
+      }
+      if(!codeId){for(const log of (result.txResponse.logs||[])){for(const ev of (log.events||[])){const attr=(ev.attributes||[]).find(a=>a.key==="code_id");if(attr){codeId=attr.value;break;}}}}
+    }
+    if(!codeId){await new Promise(r=>setTimeout(r,3000));for(const ep of LCD){try{const r=await fetch(`${ep}/cosmwasm/wasm/v1/code?pagination.limit=1&pagination.reverse=true`);if(!r.ok)continue;const d=await r.json();codeId=d.code_infos?.[0]?.code_id;if(codeId)break;}catch(e){}}}
+    storedCodeId=codeId;
+    $("resultCodeId").textContent=codeId||"(check Mintscan)";
+    $("resultStoreTx").textContent=storeTxHash;
+    $("resultStoreTx").href=`https://www.mintscan.io/cosmos/tx/${storeTxHash}`;
+    $("storeResult").classList.remove("hidden");
+    $("instantiateCodeId").textContent=codeId||"—";
+    $("instantiateLabel").textContent=$("contractLabel").value||"My Contract";
+    $("instantiateSection").classList.remove("hidden");
+    setStepActive(4);
+    toast("Code stored! Code ID: "+codeId);
+  }catch(e){
+    const msg=e.message||String(e);
+    if(/rejected|denied|cancel/i.test(msg)) toast("Cancelled","warn");
+    else toast("Store failed: "+msg.slice(0,100),"error");
+  }finally{btn.disabled=false;btn.innerHTML=`<i class="fas fa-upload mr-2"></i> Store Contract On-Chain`;}
+});
+
+function tryAtob(s){try{return atob(s||"");}catch(e){return s||"";}}
+
+// ── Instantiate ──────────────────────────────────────────────────────────────
+$("instantiateBtn").addEventListener("click",async()=>{
+  if(!storedCodeId||!userAddress) return;
+  const initMsgRaw=$("initMsg").value.trim();
+  if(!initMsgRaw){toast("Enter an instantiate message","error");return;}
+  try{JSON.parse(initMsgRaw);}catch(e){toast("Invalid JSON","error");return;}
+  const label=$("contractLabel").value.trim()||"My Contract";
+  const admin=$("adminAddr").value.trim()||null;
+  const fundsStr=$("instantiateFunds").value.trim();
+  let fundsUatom=0;
+  if(fundsStr){const m=fundsStr.match(/(\d+)uatom/i);if(m) fundsUatom=parseInt(m[1]);}
+  const btn=$("instantiateBtn");
+  btn.disabled=true;btn.innerHTML=`<span class="spin-icon mr-2"></span> Instantiating...`;
+  $("instantiateTxPanel").classList.remove("hidden");
+  $("instantiateTxSteps").innerHTML="";$("instantiateTxBar").style.width="0%";
+  try{
+    const initMsgBytes=new TextEncoder().encode(initMsgRaw);
+    const msgBytes=encodeMsgInstantiate(userAddress,admin,storedCodeId,label,initMsgBytes,fundsUatom);
+    const result=await signAndBroadcast(msgBytes,TYPE_INIT,$("instantiateTxSteps"),$("instantiateTxBar"));
+    let contractAddr=null;
+    if(result.txResponse){
+      const events=result.txResponse.events||[];
+      for(const ev of events){
+        const attr=(ev.attributes||[]).find(a=>{const k=a.key||"";return k==="contract_address"||k==="_contract_address"||tryAtob(k)==="contract_address"||tryAtob(k)==="_contract_address";});
+        if(attr){contractAddr=attr.value||tryAtob(attr.value);break;}
+      }
+      if(!contractAddr){for(const log of (result.txResponse.logs||[])){for(const ev of (log.events||[])){const attr=(ev.attributes||[]).find(a=>a.key==="contract_address"||a.key==="_contract_address");if(attr){contractAddr=attr.value;break;}}}}
+    }
+    $("doneContractAddr").textContent=contractAddr||"(check Mintscan)";
+    $("doneContractAddrBlock").textContent=contractAddr||"Check Mintscan";
+    $("doneCodeId").textContent=storedCodeId;
+    $("doneStoreTx").textContent=storeTxHash;$("doneStoreTx").href=`https://www.mintscan.io/cosmos/tx/${storeTxHash}`;
+    $("doneInstantiateTx").textContent=result.txhash;$("doneInstantiateTx").href=`https://www.mintscan.io/cosmos/tx/${result.txhash}`;
+    if(contractAddr) $("doneQueryCmd").textContent=`gaiad query wasm contract-state smart ${contractAddr} '{"your_query":{}}' --node https://cosmos-rpc.publicnode.com:443 -o json`;
+    $("deployPanel").classList.add("hidden");
+    $("donePanel").classList.remove("hidden");
+    setStepActive(5);
+    toast("Contract deployed! "+contractAddr?.slice(0,20)+"...");
+  }catch(e){
+    const msg=e.message||String(e);
+    if(/rejected|denied|cancel/i.test(msg)) toast("Cancelled","warn");
+    else toast("Instantiate failed: "+msg.slice(0,100),"error");
+  }finally{btn.disabled=false;btn.innerHTML=`<i class="fas fa-rocket mr-2"></i> Instantiate Contract`;}
+});
+
+// ── Deploy another ────────────────────────────────────────────────────────────
+$("deployAnotherBtn").addEventListener("click",()=>{
+  wasmBytes=null;storedCodeId=null;storeTxHash=null;wasmName="";
+  $("donePanel").classList.add("hidden");
+  $("deployPanel").classList.add("hidden");
+  $("compilePanel").classList.remove("hidden");
+  $("storeResult").classList.add("hidden");
+  $("storeTxPanel").classList.add("hidden");
+  $("instantiateSection").classList.add("hidden");
+  $("compileStatus").classList.add("hidden");
+  $("wasmStats").classList.add("hidden");
+  dz.style.display="";
+  $("initMsg").value="";$("contractLabel").value="";$("adminAddr").value="";
+  setStepActive(2);
+  if(pollInterval) clearInterval(pollInterval);
+});
+
+// ── Session restore ───────────────────────────────────────────────────────────
+window.addEventListener("load",async()=>{
+  try{
+    const saved=JSON.parse(sessionStorage.getItem("ar_wallet")||"null");
+    if(!saved||!saved.type||!saved.address)return;
+    const type=saved.type;
+    try{
+      let k=null;
+      if(type==="keplr"&&window.keplr){await window.keplr.enable(CHAIN_ID);const r=await window.keplr.getKey(CHAIN_ID);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:"keplr"};}
+      else if(type==="leap"&&window.leap){await window.leap.enable(CHAIN_ID);const r=await window.leap.getKey(CHAIN_ID);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:"leap"};}
+      else if(type==="cosmostation"&&window.cosmostation){const cosmo=window.cosmostation.providers&&window.cosmostation.providers.keplr?window.cosmostation.providers.keplr:null;if(cosmo){await cosmo.enable(CHAIN_ID);const r=await cosmo.getKey(CHAIN_ID);if(r.bech32Address===saved.address)k={address:r.bech32Address,pubKey:r.pubKey,type:"cosmostation"};}else if(window.cosmostation.cosmos){const r=await window.cosmostation.cosmos.request({method:"cos_requestAccount",params:{chainName:CHAIN_ID}});if(r.address===saved.address)k={address:r.address,pubKey:r.publicKey,type:"cosmostation"};}}
+      else if(type==="ledger")k={address:saved.address,pubKey:null,type:"ledger"};
+      if(k){userAddress=k.address;pubKey=k.pubKey;walletType=k.type;onConnected();}
+    }catch(e){sessionStorage.removeItem("ar_wallet");}
+  }catch(e){}
+});
+</script>
+
+<!-- ═══ WALLET PICKER MODAL ═══ -->
+<div id="walletModal" class="wm-ov hidden">
+  <div class="wm-box">
+    <div class="wm-h">Connect Wallet</div>
+    <div class="wm-s">Select your wallet to continue</div>
+    <button class="wm-b" id="wmKeplr"><div class="wm-ico" style="background:rgba(100,60,220,0.25);border:1px solid rgba(100,60,220,0.3)">🔵</div><div><div class="wm-n">Keplr</div><div class="wm-d">Browser extension · Cosmos ecosystem</div></div></button>
+    <button class="wm-b" id="wmLeap"><div class="wm-ico" style="background:rgba(34,211,238,0.15);border:1px solid rgba(34,211,238,0.25)">🌊</div><div><div class="wm-n">Leap</div><div class="wm-d">Multi-chain Cosmos wallet</div></div></button>
+    <button class="wm-b" id="wmCosmostation"><div class="wm-ico" style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.25)">🌌</div><div><div class="wm-n">Cosmostation</div><div class="wm-d">Cosmostation browser extension</div></div></button>
+    <button class="wm-b" id="wmLedger"><div class="wm-ico" style="background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.2)">🔐</div><div><div class="wm-n">Ledger</div><div class="wm-d">Hardware wallet · USB · Chrome/Edge only</div></div></button>
+    <span class="wm-cancel" id="wmCancel">Cancel</span>
+  </div>
+</div>
+</body>
+</html>
