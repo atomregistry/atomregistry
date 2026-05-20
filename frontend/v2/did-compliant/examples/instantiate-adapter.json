@@ -1,0 +1,8 @@
+{
+  "admin": "cosmos1pq3jyx52m4tg5z7r4kydcaw6h8u30js9efgh2x",
+  "registry_contract": "cosmos16nff0lmuegn2zr6ca3dp8jnqltpq2c9ayhmqn3avjq0wne95h2xqkhn9qe",
+  "resolver_contract": "cosmos1swmjnderkae2hpegvt75dn34kya388vydxg5k5mzd0dl6wme2teq2xxpkv",
+  "site_registry_contract": "cosmos1xg6jh7nechv6kxrw35m08qdpaysnu97xjz5alql75p2k5xrcdvjs8rx7jt",
+  "chainspace": "cosmoshub",
+  "namespace": "atomregistry"
+}
