@@ -1,0 +1,15 @@
+{
+  "name": "atomregistry-did-cosmos-driver",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Universal Resolver compatible did:cosmos driver for Atom Registry domains on Cosmos Hub.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/server.mjs",
+    "test": "node test/parse.test.mjs"
+  },
+  "dependencies": {}
+}

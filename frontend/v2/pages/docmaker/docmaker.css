@@ -1,0 +1,726 @@
+:root {
+  --dm-bg: #06020d;
+  --dm-panel: rgba(255,255,255,0.045);
+  --dm-panel-strong: rgba(255,255,255,0.072);
+  --dm-panel-soft: rgba(255,255,255,0.026);
+  --dm-border: rgba(255,255,255,0.085);
+  --dm-border-strong: rgba(167,139,250,0.28);
+  --dm-text: rgba(255,255,255,0.92);
+  --dm-soft: rgba(255,255,255,0.66);
+  --dm-muted: rgba(255,255,255,0.42);
+  --dm-faint: rgba(255,255,255,0.26);
+  --dm-purple: #a78bfa;
+  --dm-purple-deep: #9333ea;
+  --dm-cyan: #22d3ee;
+  --dm-cyan-soft: #67e8f9;
+  --dm-green: #34d399;
+  --dm-gold: #fbbf24;
+  --dm-red: #f87171;
+  --dm-shadow: 0 24px 90px rgba(0,0,0,0.36), 0 0 34px rgba(34,211,238,0.07);
+  --dm-radius-xl: 1.35rem;
+  --dm-radius-lg: 1rem;
+  --dm-display: "Orbitron", sans-serif;
+  --dm-mono: "Roboto Mono", monospace;
+}
+
+.docmaker-page {
+  isolation: isolate;
+}
+
+.docmaker-page::before,
+.docmaker-page::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(8px);
+}
+
+.docmaker-page::before {
+  width: 28rem;
+  height: 28rem;
+  left: -10rem;
+  top: 7rem;
+  background: radial-gradient(circle, rgba(147,51,234,0.22), transparent 66%);
+}
+
+.docmaker-page::after {
+  width: 30rem;
+  height: 30rem;
+  right: -12rem;
+  top: 18rem;
+  background: radial-gradient(circle, rgba(34,211,238,0.16), transparent 68%);
+}
+
+.docmaker-page .glass-card,
+.docmaker-hero,
+.docmaker-pipeline {
+  border: 1px solid var(--dm-border);
+  background:
+    radial-gradient(420px 220px at 12% 0%, rgba(167,139,250,0.14), transparent 72%),
+    radial-gradient(380px 240px at 100% 15%, rgba(34,211,238,0.09), transparent 72%),
+    linear-gradient(180deg, rgba(255,255,255,0.058), rgba(255,255,255,0.026));
+  box-shadow: var(--dm-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.docmaker-page .glass-card {
+  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.docmaker-page .glass-card:hover {
+  border-color: rgba(167,139,250,0.16);
+}
+
+.docmaker-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.45rem, 4vw, 2.35rem);
+  margin-bottom: 1rem;
+  border-radius: var(--dm-radius-xl);
+  text-align: center;
+}
+
+.docmaker-hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 8% 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(34,211,238,0.68), rgba(167,139,250,0.54), transparent);
+  opacity: .8;
+}
+
+.docmaker-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: .9rem;
+  padding: .42rem .72rem;
+  border: 1px solid rgba(34,211,238,0.18);
+  border-radius: 999px;
+  color: var(--dm-cyan-soft);
+  background: rgba(34,211,238,0.055);
+  font-family: var(--dm-mono);
+  font-size: .65rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.docmaker-kicker span {
+  width: .45rem;
+  height: .45rem;
+  border-radius: 999px;
+  background: var(--dm-green);
+  box-shadow: 0 0 14px rgba(52,211,153,.9);
+}
+
+.docmaker-hero h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  line-height: .95;
+  letter-spacing: -0.055em;
+  font-weight: 900;
+  color: transparent;
+  background: linear-gradient(90deg, #fff, var(--dm-purple), var(--dm-cyan-soft));
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 42px rgba(167,139,250,0.14);
+}
+
+.docmaker-subtitle {
+  width: min(100%, 52rem);
+  margin: 1rem auto 0;
+  color: var(--dm-soft);
+  font-size: .86rem;
+  line-height: 1.75;
+}
+
+.docmaker-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  margin-top: 1.25rem;
+}
+
+.docmaker-hero-grid div {
+  padding: .85rem;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 1rem;
+  background: rgba(0,0,0,0.18);
+}
+
+.docmaker-hero-grid strong,
+.docmaker-hero-grid span {
+  display: block;
+}
+
+.docmaker-hero-grid strong {
+  color: #fff;
+  font-family: var(--dm-display);
+  font-size: .72rem;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.docmaker-hero-grid span {
+  margin-top: .22rem;
+  color: var(--dm-muted);
+  font-size: .68rem;
+  line-height: 1.45;
+}
+
+.docmaker-pipeline {
+  padding: 1.05rem;
+  margin-bottom: 1rem;
+  border-radius: var(--dm-radius-xl);
+}
+
+.section-eyebrow,
+.panel-title span {
+  color: var(--dm-purple);
+  font-family: var(--dm-display);
+  font-size: .65rem;
+  font-weight: 900;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .65rem;
+  margin-top: .9rem;
+}
+
+.pipeline-step {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .88rem;
+  border: 1px solid rgba(255,255,255,0.065);
+  border-radius: 1rem;
+  background: rgba(0,0,0,0.18);
+}
+
+.pipeline-num {
+  width: 1.65rem;
+  height: 1.65rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--dm-purple-deep), var(--dm-cyan));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .68rem;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 18px rgba(34,211,238,0.18);
+}
+
+.pipeline-title {
+  color: #fff;
+  font-weight: 900;
+  font-size: .74rem;
+  line-height: 1.25;
+}
+
+.pipeline-text {
+  margin-top: .18rem;
+  color: var(--dm-muted);
+  font-size: .66rem;
+  line-height: 1.45;
+}
+
+.docmaker-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 46rem);
+  margin: 0 auto 1.35rem;
+  padding: .72rem;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 1.2rem;
+  background: rgba(0,0,0,0.18);
+  backdrop-filter: blur(14px);
+}
+
+.step-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  min-width: 2.45rem;
+}
+
+.step-label {
+  color: rgba(255,255,255,0.34);
+  font-family: var(--dm-display);
+  font-size: .5rem;
+  letter-spacing: .08em;
+}
+
+.step-circle {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.035);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.32);
+  font-family: var(--dm-display);
+  font-size: .65rem;
+  font-weight: 900;
+  transition: all .25s ease;
+}
+
+.step-circle.active {
+  border-color: rgba(167,139,250,0.78);
+  background: rgba(167,139,250,0.16);
+  color: var(--dm-purple);
+  box-shadow: 0 0 0 4px rgba(167,139,250,0.055), 0 0 22px rgba(167,139,250,0.28);
+}
+
+.step-circle.done {
+  border-color: rgba(52,211,153,0.82);
+  background: rgba(52,211,153,0.14);
+  color: var(--dm-green);
+}
+
+.step-connector {
+  flex: 1;
+  min-width: .85rem;
+  height: 1px;
+  margin: 0 .2rem 1.1rem;
+  background: rgba(255,255,255,0.08);
+  transition: background .25s ease, box-shadow .25s ease;
+}
+
+.step-connector.done {
+  background: var(--dm-green);
+  box-shadow: 0 0 10px rgba(52,211,153,0.55);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  margin-bottom: .5rem;
+  color: #fff;
+  font-family: var(--dm-display);
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.panel-copy {
+  margin-bottom: 1rem;
+  color: var(--dm-soft);
+  font-size: .76rem;
+  line-height: 1.65;
+}
+
+.docmaker-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: .65rem;
+  margin: .75rem 0 1.1rem;
+  padding: .78rem .85rem;
+  border: 1px solid rgba(34,211,238,0.15);
+  border-radius: 1rem;
+  background: rgba(34,211,238,0.045);
+  color: rgba(255,255,255,0.72);
+  font-size: .72rem;
+  line-height: 1.45;
+}
+
+.docmaker-callout i {
+  margin-top: .1rem;
+  color: var(--dm-cyan-soft);
+}
+
+.fl {
+  display: block;
+  margin-bottom: .35rem;
+  color: rgba(255,255,255,0.48);
+  font-family: var(--dm-display);
+  font-size: .64rem;
+  font-weight: 900;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+}
+
+.fh {
+  margin-top: .34rem;
+  color: rgba(255,255,255,0.34);
+  font-size: .66rem;
+  line-height: 1.5;
+}
+
+.docmaker-page input[type="text"],
+.docmaker-page input[type="password"],
+.docmaker-page textarea,
+.docmaker-page select {
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.095) !important;
+  border-radius: .9rem !important;
+  background: rgba(0,0,0,0.30) !important;
+  color: rgba(255,255,255,0.88) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+  outline: none;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.docmaker-page input[type="text"],
+.docmaker-page input[type="password"],
+.docmaker-page select {
+  min-height: 2.65rem;
+  padding: .72rem .85rem !important;
+  font-size: .76rem !important;
+}
+
+.docmaker-page textarea {
+  min-height: 8rem;
+  padding: .85rem !important;
+  font-size: .76rem !important;
+  line-height: 1.65;
+  resize: vertical;
+}
+
+.docmaker-page input:focus,
+.docmaker-page textarea:focus,
+.docmaker-page select:focus {
+  border-color: rgba(167,139,250,0.55) !important;
+  box-shadow: 0 0 0 3px rgba(167,139,250,0.10), 0 0 22px rgba(34,211,238,0.09);
+  background: rgba(0,0,0,0.38) !important;
+}
+
+.docmaker-page ::placeholder {
+  color: rgba(255,255,255,0.24);
+}
+
+.doc-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
+  padding: .52rem .85rem;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.035);
+  color: rgba(255,255,255,0.46);
+  font-size: .72rem;
+  transition: all .16s ease;
+}
+
+.doc-tab-btn:hover,
+.doc-tab-btn.active-doc-tab {
+  border-color: rgba(167,139,250,0.42);
+  background: rgba(167,139,250,0.14);
+  color: var(--dm-purple);
+  transform: translateY(-1px);
+}
+
+.template-btn {
+  min-height: 6rem;
+}
+
+.template-btn:hover,
+.template-btn.is-selected {
+  border-color: rgba(167,139,250,0.42) !important;
+  background:
+    radial-gradient(150px 80px at 50% 0%, rgba(167,139,250,0.13), transparent 74%),
+    rgba(255,255,255,0.04);
+  transform: translateY(-1px);
+}
+
+.drop-zone {
+  position: relative;
+  overflow: hidden;
+  border: 1.5px dashed rgba(167,139,250,0.24);
+  border-radius: 1.15rem;
+  padding: clamp(1.7rem, 4vw, 2.7rem);
+  text-align: center;
+  cursor: pointer;
+  background:
+    radial-gradient(240px 120px at 50% 0%, rgba(167,139,250,0.12), transparent 76%),
+    rgba(0,0,0,0.18);
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.drop-zone:hover,
+.drop-zone.over {
+  border-color: rgba(34,211,238,0.55);
+  background:
+    radial-gradient(260px 140px at 50% 0%, rgba(34,211,238,0.13), transparent 76%),
+    rgba(34,211,238,0.035);
+  transform: translateY(-1px);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(8rem, .75fr) auto;
+  gap: .55rem;
+  align-items: start;
+  padding: .55rem;
+  margin-bottom: .55rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 1rem;
+  background: rgba(0,0,0,0.15);
+}
+
+.field-name-input,
+.field-type-select,
+.field-type-new {
+  min-height: 2.25rem !important;
+  padding: .54rem .7rem !important;
+  border-radius: .75rem !important;
+  font-size: .72rem !important;
+}
+
+.field-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: .24rem .62rem;
+  border-radius: 999px;
+  font-size: .6rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.ft-string { background: rgba(167,139,250,0.10); border: 1px solid rgba(167,139,250,0.30); color: var(--dm-purple); }
+.ft-uint   { background: rgba(34,211,238,0.10);  border: 1px solid rgba(34,211,238,0.30);  color: var(--dm-cyan); }
+.ft-bool   { background: rgba(52,211,153,0.10);  border: 1px solid rgba(52,211,153,0.30);  color: var(--dm-green); }
+.ft-addr   { background: rgba(251,191,36,0.10);  border: 1px solid rgba(251,191,36,0.30);  color: var(--dm-gold); }
+
+.tx-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: .55rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.055);
+  font-size: .72rem;
+}
+
+.tx-row:last-child {
+  border-bottom: none;
+}
+
+.prog-bar {
+  height: .28rem;
+  margin-top: .85rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+}
+
+.prog-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--dm-purple-deep), var(--dm-cyan));
+  box-shadow: 0 0 14px rgba(34,211,238,0.48);
+  transition: width .45s ease;
+}
+
+.result-card {
+  padding: 1.25rem;
+  border: 1px solid rgba(34,211,238,0.22);
+  border-radius: 1.15rem;
+  background:
+    radial-gradient(260px 150px at 0% 0%, rgba(34,211,238,0.12), transparent 74%),
+    rgba(34,211,238,0.045);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.24), 0 0 28px rgba(34,211,238,0.08);
+}
+
+.code-block {
+  position: relative;
+  max-height: 25rem;
+  overflow: auto;
+  padding: .95rem 1rem;
+  border: 1px solid rgba(255,255,255,0.085);
+  border-radius: .95rem;
+  background: rgba(0,0,0,0.58);
+  color: var(--dm-purple);
+  font-family: var(--dm-mono);
+  font-size: .68rem;
+  line-height: 1.7;
+  word-break: break-all;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035);
+}
+
+.code-block.rust {
+  color: var(--dm-cyan);
+  white-space: pre;
+  font-size: .66rem;
+  line-height: 1.62;
+}
+
+.copy-btn {
+  position: absolute;
+  top: .45rem;
+  right: .55rem;
+  padding: .18rem .55rem;
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: .45rem;
+  background: rgba(0,0,0,0.42);
+  color: rgba(255,255,255,0.38);
+  font-size: .6rem;
+  cursor: pointer;
+  transition: all .16s ease;
+}
+
+.copy-btn:hover {
+  border-color: rgba(167,139,250,0.42);
+  color: var(--dm-purple);
+}
+
+.docmaker-page .btn-primary,
+.docmaker-page button.btn-primary {
+  border: 1px solid rgba(34,211,238,0.18);
+  background: linear-gradient(90deg, var(--dm-purple-deep), var(--dm-cyan));
+  box-shadow: 0 14px 34px rgba(147,51,234,0.16), 0 0 24px rgba(34,211,238,0.10);
+  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+}
+
+.docmaker-page .btn-primary:hover,
+.docmaker-page button.btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 18px 42px rgba(147,51,234,0.20), 0 0 30px rgba(34,211,238,0.14);
+}
+
+.docmaker-page button:disabled {
+  cursor: not-allowed;
+  opacity: .68;
+  transform: none !important;
+}
+
+.stage-panel {
+  margin-left: .5rem;
+  padding-left: 1rem;
+  border-left: 2px solid rgba(167,139,250,0.22);
+}
+
+.tx-step {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  color: rgba(255,255,255,0.55);
+  font-size: .72rem;
+}
+
+.tx-step .sn {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.035);
+  color: rgba(255,255,255,0.52);
+  font-size: .65rem;
+}
+
+.tx-step.is-active {
+  color: #fff;
+}
+
+.tx-step.is-active .sn {
+  border-color: rgba(167,139,250,0.62);
+  background: rgba(167,139,250,0.15);
+  color: var(--dm-purple);
+}
+
+.tx-step.is-done {
+  color: var(--dm-green);
+}
+
+.tx-step.is-done .sn {
+  border-color: rgba(52,211,153,0.72);
+  background: rgba(52,211,153,0.14);
+  color: var(--dm-green);
+}
+
+.status-running { background: rgba(251,191,36,0.10); border: 1px solid rgba(251,191,36,0.30); color: var(--dm-gold); }
+.status-success { background: rgba(52,211,153,0.10); border: 1px solid rgba(52,211,153,0.30); color: var(--dm-green); }
+.status-failed  { background: rgba(239,68,68,0.10); border: 1px solid rgba(239,68,68,0.30); color: var(--dm-red); }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .42; }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.mono-textarea {
+  font-family: var(--dm-mono) !important;
+}
+
+.ar-topnav {
+  z-index: var(--z-nav);
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}
+
+.ar-topnav-links {
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  margin-left: auto;
+}
+
+@media (max-width: 900px) {
+  .pipeline-grid,
+  .docmaker-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .docmaker-stepper {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: .8rem;
+  }
+
+  .step-connector {
+    min-width: 1.2rem;
+    flex: 0 0 1.2rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .docmaker-page {
+    padding-left: .9rem;
+    padding-right: .9rem;
+  }
+
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tx-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .18rem;
+  }
+
+  .ar-topnav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: .75rem 1rem;
+  }
+
+  .ar-topnav-links {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+
+  .ar-wallet-control,
+  .ar-wallet-connect {
+    width: 100%;
+  }
+}

@@ -1,0 +1,53 @@
+<main class="contracts-page flex-1 px-4 sm:px-6 lg:px-10 py-12 relative z-10 w-full max-w-6xl mx-auto">
+  <section class="contracts-hero glass-panel rounded-2xl p-8 md:p-10 mb-6">
+    <div class="sales-kicker">
+      <i class="fas fa-file-contract"></i> Contracts
+    </div>
+
+    <div class="contracts-hero-grid">
+      <div>
+        <h1 class="font-display text-4xl md:text-6xl font-black mb-4">
+          Contracts and endpoints
+        </h1>
+
+        <p class="contracts-lead">
+          Official smart contract addresses and public infrastructure endpoints used by Atom Registry. Use this page to verify deployments, inspect contracts on Mintscan and confirm addresses before signing wallet transactions.
+        </p>
+      </div>
+
+      <div class="contracts-network-card">
+        <span class="network-label">Network</span>
+        <strong>Cosmos Hub</strong>
+        <span class="network-meta">Public smart contract infrastructure</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="contracts-warning">
+    <i class="fas fa-shield-halved"></i>
+    <div>
+      <strong>Verify before signing</strong>
+      <p>
+        Contract addresses and endpoints may change after upgrades, migrations or infrastructure updates. Always compare the address shown here with your wallet prompt, trusted explorer data and official project configuration before signing a transaction.
+      </p>
+    </div>
+  </section>
+
+  <div class="contracts-section-heading">
+    <h2>Smart contracts</h2>
+    <p>Registry, registrar, resolver, marketplace, metadata, dSSL and namespace deployment references.</p>
+  </div>
+
+  <section class="contracts-grid" id="contractsGrid"></section>
+
+  <section class="endpoint-panel">
+    <div class="endpoint-panel-head">
+      <div>
+        <h2>REST endpoints</h2>
+        <p>Public endpoints used by the frontend for chain and contract queries.</p>
+      </div>
+    </div>
+
+    <div class="endpoint-list" id="endpointList"></div>
+  </section>
+</main>

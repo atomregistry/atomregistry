@@ -1,0 +1,26 @@
+[package]
+name = "atomregistry-did-cosmos-adapter"
+version = "1.0.0"
+edition = "2021"
+description = "CosmWasm did:cosmos adapter for Atom Registry domains on Cosmos Hub"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+library = []
+
+[dependencies]
+cosmwasm-std = "1.5"
+cw-storage-plus = "1.2"
+cw2 = "1.1"
+schemars = "0.8"
+serde = { version = "1", default-features = false, features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+percent-encoding = "2.3"
+
+[dev-dependencies]
+cw-multi-test = "0.20"
