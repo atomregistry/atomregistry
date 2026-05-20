@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /wallet/
+
+Sitemap: https://atomregistry.com/sitemap.xml
