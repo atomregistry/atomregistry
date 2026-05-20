@@ -43,7 +43,6 @@ atomregistry/
 │   │   ├── network-status.js
 │   │   ├── portfolio.js
 │   │   ├── pay.js
-│   │   ├── protect.js
 │   │   ├── success.js
 │   │   ├── seo.js
 │   │   ├── languages.js
