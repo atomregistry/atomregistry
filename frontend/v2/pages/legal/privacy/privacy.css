@@ -1,0 +1,29 @@
+.legal-page{padding-top:clamp(2rem,5vw,4rem);padding-bottom:clamp(3rem,7vw,6rem);}
+
+.legal-panel{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.085);background:radial-gradient(520px 260px at 12% 0%,rgba(34,211,238,0.11),transparent 68%),radial-gradient(520px 300px at 88% 0%,rgba(167,139,250,0.13),transparent 70%),linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.026));box-shadow:0 28px 90px rgba(0,0,0,0.38),0 0 36px rgba(34,211,238,0.055);backdrop-filter:blur(18px);}
+
+.legal-panel::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.055),transparent) 0 0 / 100% 1px no-repeat;}
+
+.legal-panel .sales-kicker{margin-bottom:2.25rem;}
+
+.legal-panel h1{letter-spacing:-0.045em;line-height:0.96;max-width:48rem;text-shadow:0 0 28px rgba(255,255,255,0.08);}
+
+.legal-panel > p{display:inline-flex;margin-top:0.35rem;margin-bottom:2.5rem;padding:0.45rem 0.7rem;border-radius:999px;border:1px solid rgba(255,255,255,0.075);background:rgba(255,255,255,0.035);font-family:var(--font-mono);font-size:0.72rem;color:rgba(255,255,255,0.52);}
+
+.legal-copy{display:grid;gap:1.15rem;max-width:52rem;}
+
+.legal-copy h2{position:relative;margin-top:1.35rem;margin-bottom:0.2rem;padding-left:1rem;font-family:var(--font-display);font-size:clamp(1rem,1.4vw,1.18rem);font-weight:900;letter-spacing:-0.018em;color:rgba(255,255,255,0.9);}
+
+.legal-copy h2:first-child{margin-top:0;}
+
+.legal-copy h2::before{content:"";position:absolute;left:0;top:0.42em;width:0.42rem;height:0.42rem;border-radius:999px;background:#22d3ee;box-shadow:0 0 14px rgba(34,211,238,0.8);}
+
+.legal-copy p{margin:0;color:rgba(255,255,255,0.66);font-size:0.9rem;line-height:1.82;}
+
+.legal-copy a{color:#67e8f9;text-decoration:none;border-bottom:1px solid rgba(103,232,249,0.35);transition:color 160ms ease,border-color 160ms ease,text-shadow 160ms ease;}
+
+.legal-copy a:hover{color:#a5f3fc;border-color:rgba(165,243,252,0.75);text-shadow:0 0 16px rgba(34,211,238,0.35);}
+
+.legal-copy code{font-family:var(--font-mono);font-size:0.82em;color:#67e8f9;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.16);border-radius:0.38rem;padding:0.12em 0.42em;}
+
+@media(max-width:640px){.legal-panel{padding:1.35rem !important;border-radius:1.1rem !important;}.legal-panel .sales-kicker{margin-bottom:1.55rem;}.legal-panel > p{margin-bottom:2rem;}.legal-copy{gap:1rem;}.legal-copy p{font-size:0.84rem;line-height:1.72;}}

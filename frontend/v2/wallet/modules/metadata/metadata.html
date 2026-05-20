@@ -1,0 +1,220 @@
+<main class="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-10">
+
+  <section class="meta-v2-hero">
+    <div class="sales-kicker justify-center"><i class="fas fa-fingerprint"></i> Identity layer</div>
+    <h1 class="meta-v2-hero-title">Domain identity <span>metadata</span></h1>
+    <p class="meta-v2-hero-copy">
+      Build a public profile for your on-chain domain. Add avatar, bio, links, social accounts and app-readable fields that help wallets, explorers and dApps understand who or what the domain represents.
+    </p>
+    <div class="meta-v2-hero-actions">
+      <button id="metaFocusEditorBtn" class="btn-primary px-5 py-3" type="button"><i class="fas fa-wand-magic-sparkles"></i> Edit profile</button>
+      <button id="metaFocusViewerBtn" class="meta-v2-ghost-btn px-5 py-3" type="button"><i class="fas fa-eye"></i> View profile</button>
+    </div>
+    <div id="metaHealth" class="meta-v2-health">Checking metadata service…</div>
+  </section>
+
+  <section class="meta-v2-education glass-panel rounded-2xl">
+    <div class="meta-v2-section-intro">
+      <div class="meta-v2-chip"><i class="fas fa-circle-info"></i> What is domain metadata?</div>
+      <h2>Turn a domain into a readable identity card.</h2>
+      <p>Metadata lets a domain owner publish structured profile fields such as avatar, bio, website, social links, project information and developer-readable records.</p>
+    </div>
+    <div class="meta-v2-info-grid">
+      <article class="meta-v2-info-card">
+        <i class="fas fa-address-card"></i>
+        <h3>Public profile</h3>
+        <p>Show the human context behind a domain with avatar, bio, website and social links.</p>
+      </article>
+      <article class="meta-v2-info-card">
+        <i class="fas fa-code-branch"></i>
+        <h3>App-readable data</h3>
+        <p>Let wallets, explorers and dApps display trusted domain context without custom integrations.</p>
+      </article>
+      <article class="meta-v2-info-card">
+        <i class="fas fa-shield-halved"></i>
+        <h3>Owner controlled</h3>
+        <p>Only the wallet that owns the domain can update metadata for that domain.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="meta-v2-workspace">
+
+    <aside class="meta-v2-profile-column">
+      <div id="metaPreviewCard" class="glass-panel rounded-2xl meta-v2-preview-card">
+        <div class="meta-v2-preview-topline">
+          <span>Domain profile preview</span>
+          <span id="metaPreviewBadge" class="meta-v2-status-badge">No domain selected</span>
+        </div>
+        <div class="meta-v2-profile-main">
+          <div id="metaAvatarPreview" class="meta-v2-avatar"><i class="fas fa-globe"></i></div>
+          <div class="meta-v2-profile-copy">
+            <h2 id="metaPreviewName">Select a domain</h2>
+            <p id="metaPreviewBio">Choose one of your owned domains or view any public profile to preview its metadata identity.</p>
+          </div>
+        </div>
+        <div id="metaPreviewLinks" class="meta-v2-link-list"></div>
+        <div id="metaPreviewPayActions" class="meta-v2-pay-actions" hidden></div>
+        <div id="metaProfileScore" class="meta-v2-score-card">
+          <div class="meta-v2-score-head">
+            <span>Profile completeness</span>
+            <strong id="metaScoreValue">0%</strong>
+          </div>
+          <div class="meta-v2-score-track"><div id="metaScoreBar" class="meta-v2-score-bar" style="width:0%"></div></div>
+          <div id="metaScoreTips" class="meta-v2-score-tips">Add avatar, bio and website to make this profile useful in apps.</div>
+        </div>
+      </div>
+
+      <div class="glass-panel rounded-2xl meta-v2-card" id="metaViewerSection">
+        <div class="meta-v2-card-head">
+          <div class="meta-v2-icon meta-v2-icon-cyan"><i class="fas fa-magnifying-glass"></i></div>
+          <div>
+            <h2>View domain profile</h2>
+            <p>Read public metadata for any full domain name.</p>
+          </div>
+        </div>
+        <div class="meta-v2-view-row">
+          <input id="viewDomain" class="flex-1" placeholder="yourname.atom" type="text" autocomplete="off"/>
+          <button id="viewProfileBtn" class="btn-primary px-4 py-2" type="button"><i class="fas fa-search"></i> View</button>
+        </div>
+        <div id="profileView" class="meta-v2-fields-list"></div>
+      </div>
+
+      <div class="glass-panel rounded-2xl meta-v2-card meta-v2-safety-card">
+        <div class="meta-v2-card-head">
+          <div class="meta-v2-icon meta-v2-icon-amber"><i class="fas fa-triangle-exclamation"></i></div>
+          <div>
+            <h2>Public metadata safety</h2>
+            <p>Public fields can be read by anyone and may appear in wallets, explorers and search results.</p>
+          </div>
+        </div>
+        <ul class="meta-v2-safety-list">
+          <li>Do not publish seed phrases, private keys, passwords or recovery words.</li>
+          <li>Avoid sensitive personal documents or private contact information.</li>
+          <li>Use public links and short profile text designed to be displayed by apps.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <section class="meta-v2-editor-column" id="metaEditorSection">
+      <div class="glass-panel rounded-2xl meta-v2-card meta-v2-editor-card">
+        <div class="meta-v2-card-head meta-v2-card-head-split">
+          <div class="flex items-center gap-3">
+            <div class="meta-v2-icon meta-v2-icon-purple"><i class="fas fa-pen-to-square"></i></div>
+            <div>
+              <h2>Edit domain profile</h2>
+              <p>Manage profile fields for domains owned by your connected wallet.</p>
+            </div>
+          </div>
+          <button id="refreshBtn" class="meta-v2-icon-btn" title="Refresh domains" type="button"><i class="fas fa-sync-alt"></i></button>
+        </div>
+
+        <div class="meta-v2-domain-row">
+          <select id="ownedProfileDomain" class="flex-1">
+            <option value="">Loading owned domains…</option>
+          </select>
+          <button id="loadOwnedProfileBtn" class="btn-primary px-4 py-2" type="button"><i class="fas fa-layer-group"></i> Load</button>
+        </div>
+
+        <div class="meta-v2-schema-panel">
+          <div class="meta-v2-subhead">
+            <div>
+              <h3>Suggested profile fields</h3>
+              <p>Pick one or more field templates. Selected fields will appear in the profile builder below.</p>
+            </div>
+            <span id="metaSelectedTemplate" class="meta-v2-mini-badge">0 selected</span>
+          </div>
+          <div id="fieldTemplateGroups" class="meta-v2-template-groups"></div>
+
+        <div id="selectedFieldsPanel" class="meta-v2-selected-panel" hidden>
+          <div class="meta-v2-subhead meta-v2-subhead-compact">
+            <div>
+              <h3>Selected profile fields</h3>
+              <p>Fill values for multiple fields, then save them in sequence. Empty values are skipped.</p>
+            </div>
+            <button id="clearSelectedFieldsBtn" class="meta-v2-ghost-btn px-3 py-2" type="button"><i class="fas fa-xmark"></i> Clear</button>
+          </div>
+          <div id="selectedFieldsBuilder" class="meta-v2-selected-builder"></div>
+          <div class="meta-v2-selected-footer">
+            <div id="selectedFieldsHint" class="meta-v2-selected-hint">Select fields above to build a profile update.</div>
+            <button id="saveSelectedFieldsBtn" class="btn-primary px-4 py-2" type="button"><i class="fas fa-layer-group"></i> Save selected fields</button>
+          </div>
+        </div>
+        </div>
+
+        <div class="meta-v2-tx-panel">
+          <div id="metaTxSteps" class="space-y-1.5 text-xs"></div>
+          <div class="mt-2 h-1 rounded-full bg-white/5 overflow-hidden">
+            <div id="metaTxBar" class="h-full bg-gradient-to-r from-purple-600 to-cyan-400 rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
+        </div>
+
+        <div id="paymentEnabledPanel" hidden></div>
+      </div>
+
+      <div class="glass-panel rounded-2xl meta-v2-card">
+        <div class="meta-v2-card-head meta-v2-card-head-split">
+          <div class="flex items-center gap-3">
+            <div class="meta-v2-icon meta-v2-icon-cyan"><i class="fas fa-database"></i></div>
+            <div>
+              <h2>What's live on your domain</h2>
+              <p>These fields are visible to anyone who looks up your domain. Edit or remove them below.</p>
+            </div>
+          </div>
+          <button id="copyProfileJsonBtn" class="meta-v2-ghost-btn px-4 py-2.5" type="button"><i class="fas fa-copy"></i> Copy JSON</button>
+        </div>
+        <div id="ownedFields" class="meta-v2-fields-list"></div>
+      </div>
+    </section>
+  </section>
+
+  <details class="meta-v2-devtools glass-panel rounded-2xl mt-6">
+    <summary class="meta-v2-devtools-summary">
+      <div class="flex items-center gap-2"><i class="fas fa-code text-purple-400"></i><span>Advanced tools</span></div>
+      <i class="fas fa-chevron-down meta-v2-devtools-chevron"></i>
+    </summary>
+    <div class="meta-v2-devtools-body">
+      <div class="meta-v2-devtool-panel meta-v2-devtool-panel-editor meta-v2-devtool-panel-full">
+        <h3><i class="fas fa-pen-to-square"></i> Custom field editor</h3>
+        <p class="meta-v2-devtool-hint">For integrations that need a custom field key not covered by the templates above. Most users should use the chip groups instead.</p>
+        <div class="meta-v2-editor-block">
+          <div class="meta-v2-field-grid">
+            <div class="meta-v2-input-group">
+              <label>Field key</label>
+              <input id="fieldKey" placeholder="e.g. avatar, twitter, bio" type="text" autocomplete="off"/>
+              <small id="fieldKeyHelp">Use a simple lowercase key such as avatar, bio, website or twitter.</small>
+            </div>
+            <div class="meta-v2-input-group">
+              <label>Value</label>
+              <input id="fieldValue" placeholder="Field value" type="text" autocomplete="off"/>
+              <small id="fieldValueHelp">Select a suggested field to see examples and validation guidance.</small>
+            </div>
+          </div>
+          <input id="fieldPublic" type="checkbox" checked hidden/>
+          <div class="meta-v2-editor-footer">
+            <div class="meta-v2-editor-actions">
+              <button id="saveFieldBtn" class="btn-primary px-4 py-2" type="button"><i class="fas fa-save"></i> Save field</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="meta-v2-devtool-panel meta-v2-devtool-panel-full">
+        <h3><i class="fas fa-info-circle"></i> Contract info</h3>
+        <p>Metadata contract: <span id="metadataAddr" class="mono text-cyan-300">-</span></p>
+        <pre id="configOut" class="meta-v2-pre">Loading…</pre>
+      </div>
+      <div class="meta-v2-devtool-panel">
+        <h3><i class="fas fa-terminal"></i> Raw query</h3>
+        <textarea id="metaQuery" class="meta-v2-textarea">{"config":{}}</textarea>
+        <button id="metaRunQuery" class="btn-primary mt-3 px-4 py-2.5 w-full" type="button">Run Query</button>
+        <pre id="metaQueryOut" class="meta-v2-pre mt-3">Query output will appear here.</pre>
+      </div>
+      <div class="meta-v2-devtool-panel">
+        <h3><i class="fas fa-bolt"></i> Raw execute</h3>
+        <textarea id="metaExecute" class="meta-v2-textarea">{}</textarea>
+        <button id="metaRunExecute" class="btn-primary mt-3 px-4 py-2.5 w-full" type="button">Run Execute</button>
+      </div>
+    </div>
+  </details>
+
+</main>

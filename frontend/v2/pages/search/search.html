@@ -1,0 +1,158 @@
+<div id="resultOverlay" class="hidden">
+  <div id="overlayBar">
+    <span class="overlay-brand">AR</span>
+    <div id="overlaySearchWrap">
+      <i class="fas fa-globe" id="overlaySearchIcon"></i>
+      <input id="overlayInput" placeholder="Search a Web3 domain..." type="text"/>
+    </div>
+    <span class="overlay-badge badge-onchain hidden" id="overlayBadge">ON-CHAIN</span>
+    <span class="mono text-xs text-gray-400 hidden sm:block whitespace-nowrap" id="overlayDomain"></span>
+    <button class="overlay-icon-button" id="overlayCopyLink" title="Copy search link" type="button">
+      <i class="fas fa-link"></i>
+    </button>
+    <button class="overlay-icon-button" id="overlayReload" title="Reload preview" type="button">
+      <i class="fas fa-rotate-right"></i>
+    </button>
+    <button class="overlay-icon-button" id="overlayNewTab" title="Open in new tab" type="button">
+      <i class="fas fa-arrow-up-right-from-square"></i>
+    </button>
+    <button class="overlay-icon-button" id="overlayClose" title="Close" type="button">
+      <i class="fas fa-xmark"></i>
+    </button>
+  </div>
+  <iframe id="resultFrame" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe>
+</div>
+
+<main class="search-shell relative z-10">
+  <section aria-label="Atom Registry search" class="search-hero-card">
+    <div aria-hidden="true" class="search-hero-bg"></div>
+    <div class="search-kicker"><i class="fas fa-sparkles"></i> Universal resolver</div>
+    <div class="search-hero-grid">
+      <div>
+        <h1 class="search-title">Search <span>Atom Registry</span></h1>
+        <p class="search-subtitle">Resolve domains, TLD namespaces, DNS records and on-chain websites from one clean command center.</p>
+      </div>
+      <div aria-label="Resolver capabilities" class="search-trust-row">
+        <span><i class="fas fa-circle-check"></i> On-chain sites</span>
+        <span><i class="fas fa-circle-check"></i> DNS records</span>
+        <span><i class="fas fa-circle-check"></i> Registry status</span>
+      </div>
+    </div>
+    <div class="search-card-input" id="searchInputShell">
+      <i class="fas fa-globe"></i>
+      <input autocomplete="off" class="search-bar" id="searchInput" placeholder="onchain.atom, grok.grok, cosmos.onchain..." spellcheck="false" type="text"/>
+      <button class="search-submit" id="searchBtn" type="button">
+        <span>Search</span><i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+    <div class="search-assist-row">
+      <span id="searchFormatHint"><i class="fas fa-wand-magic-sparkles"></i> Paste a URL, domain or raw name - the resolver will normalize it.</span>
+      <span class="search-shortcuts"><kbd>⌘</kbd><kbd>K</kbd> / <kbd>Ctrl</kbd><kbd>K</kbd></span>
+    </div>
+    <div class="search-suggest-panel hidden" id="suggestPanel" aria-label="Search suggestions"></div>
+    <div aria-label="Search mode" class="resolver-mode-tabs" id="resolverModeTabs">
+      <button class="resolver-mode is-active" data-mode="all" type="button"><i class="fas fa-layer-group"></i> All</button>
+      <button class="resolver-mode" data-mode="site" type="button"><i class="fas fa-code"></i> Sites</button>
+      <button class="resolver-mode" data-mode="dns" type="button"><i class="fas fa-network-wired"></i> DNS</button>
+      <button class="resolver-mode" data-mode="registry" type="button"><i class="fas fa-shield-halved"></i> Registry</button>
+      <button class="resolver-mode" data-mode="pay" type="button"><i class="fas fa-paper-plane"></i> Pay</button>
+    </div>
+    <div aria-label="Resolver pipeline" class="resolver-pipeline">
+      <div class="resolver-step" data-step="site"><span><i class="fas fa-code"></i></span><div><strong>On-chain site</strong><small>HTML stored on Cosmos Hub</small></div></div>
+      <div class="resolver-step" data-step="dns"><span><i class="fas fa-network-wired"></i></span><div><strong>DNS records</strong><small>A, CNAME or TXT resolver</small></div></div>
+      <div class="resolver-step" data-step="registry"><span><i class="fas fa-shield-halved"></i></span><div><strong>Registry</strong><small>Ownership and availability</small></div></div>
+    </div>
+    <div class="search-chip-wrap">
+      <div class="search-chip-group" id="recentDomains"></div>
+      <div class="search-chip-group">
+        <span class="search-chip-label">Try:</span>
+        <button class="search-chip" data-search="onchain.atom" type="button">onchain.atom</button>
+        <button class="search-chip" data-search="grok.grok" type="button">grok.grok</button>
+        <button class="search-chip" data-search="cosmos.onchain" type="button">cosmos.onchain</button>
+        <button class="search-chip" data-search="bitcoin.btc" type="button">bitcoin.btc</button>
+      </div>
+    </div>
+  </section>
+
+  <section aria-live="polite" class="search-results-zone">
+    <div class="search-result-card search-loading hidden fade-in" id="loadingState">
+      <div class="search-result-icon"><span class="spin-icon"></span></div>
+      <div>
+        <div class="search-result-kicker" id="loadingStatus">QUERYING COSMOS HUB...</div>
+        <h2 id="loadingDomain">-</h2>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+        <div class="resolver-terminal" id="resolverTerminal"></div>
+      </div>
+    </div>
+    <div class="search-result-card hidden fade-in" id="resultIP">
+      <div class="search-result-icon is-dns"><i class="fas fa-network-wired"></i></div>
+      <div class="search-result-main">
+        <div class="search-result-topline"><span class="result-status-badge is-dns">DNS RECORD</span><span id="resultDomainIP">-</span></div>
+        <h2 id="ipDomain">-</h2>
+        <div class="result-info-grid">
+          <div id="ipARow"><span>A Record</span><strong id="ipAddress">-</strong></div>
+          <div id="ipCnameRow" style="display:none"><span>CNAME / URL</span><strong id="ipCname">-</strong></div>
+          <div><span>Browse mode</span><strong>Extension required</strong></div>
+        </div>
+        <div class="result-actions">
+          <a class="result-primary-action" data-route="extension" href="/extension"><i class="fas fa-puzzle-piece"></i> Get Extension</a>
+          <button class="result-secondary-action" id="clearIPBtn" type="button"><i class="fas fa-xmark"></i> Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="search-result-card hidden fade-in" id="resultRegistered">
+      <div class="search-result-icon is-registered"><i class="fas fa-shield-halved"></i></div>
+      <div class="search-result-main">
+        <div class="search-result-topline"><span class="result-status-badge is-registered">REGISTERED</span><span>No public website yet</span></div>
+        <h2 id="registeredDomain">-</h2>
+        <p id="registeredMsg">This name exists on-chain but no website or DNS record is configured yet.</p>
+        <div id="registeredActions"></div>
+        <div class="suggested-alternatives" id="registeredAlternatives"></div>
+        <div class="result-actions">
+          <a class="result-secondary-action" href="https://www.mintscan.io/cosmos" id="registeredMintscan" rel="noopener" target="_blank"><i class="fas fa-arrow-up-right-from-square"></i> View Cosmos</a>
+          <button class="result-secondary-action" id="clearRegisteredBtn" type="button"><i class="fas fa-xmark"></i> Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="search-result-card hidden fade-in" id="resultPay">
+      <div class="search-result-icon is-pay"><i class="fas fa-paper-plane"></i></div>
+      <div class="search-result-main">
+        <div class="search-result-topline"><span class="result-status-badge is-pay">PAYMENT AVAILABLE</span><span id="payResultSub">Atom Registry Pay metadata found</span></div>
+        <h2 id="payResultDomain">-</h2>
+        <dl class="pay-result-grid">
+          <div class="pay-result-row"><dt>Chain</dt><dd id="payResultChain">-</dd></div>
+          <div class="pay-result-row"><dt>Denom</dt><dd id="payResultDenom">-</dd></div>
+          <div class="pay-result-row"><dt>Resolved address</dt><dd id="payResultAddress" class="mono">-</dd></div>
+          <div class="pay-result-row" id="payResultLabelRow" hidden><dt>Label</dt><dd id="payResultLabel">-</dd></div>
+          <div class="pay-result-row"><dt>Source</dt><dd id="payResultSource">-</dd></div>
+        </dl>
+        <div class="pay-result-fallback-note" id="payResultFallbackNote" hidden>
+          <i class="fas fa-info-circle"></i>
+          <span>No payment address is configured for this name. Using the domain owner address instead.</span>
+        </div>
+        <div class="result-actions" id="payResultActions"></div>
+        <div class="search-result-qr" id="payResultQrFrame" hidden><canvas id="payResultQrCanvas" aria-label="Pay QR"></canvas></div>
+      </div>
+    </div>
+    <div class="search-result-card hidden fade-in" id="resultNotFound">
+      <div class="search-result-icon is-empty"><i class="fas fa-circle-xmark"></i></div>
+      <div class="search-result-main">
+        <div class="search-result-topline"><span class="result-status-badge is-empty">AVAILABLE / NOT FOUND</span><span>Registry check complete</span></div>
+        <h2 id="notFoundDomain">-</h2>
+        <p id="notFoundMsg">Not registered on Atom Registry.</p>
+        <div id="notFoundActions"></div>
+        <div class="suggested-alternatives" id="notFoundAlternatives"></div>
+        <div class="result-actions">
+          <a class="result-primary-action" data-route="" href="/"><i class="fas fa-plus"></i> Register It</a>
+          <button class="result-secondary-action" id="clearNotFoundBtn" type="button"><i class="fas fa-xmark"></i> Clear</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="search-info-grid" id="infoBoxes">
+    <article class="search-info-card"><div class="search-info-icon"><i class="fas fa-link"></i></div><strong>On-chain sites</strong><p>HTML stored directly on Cosmos Hub can render inside the secure overlay immediately.</p></article>
+    <article class="search-info-card"><div class="search-info-icon"><i class="fas fa-server"></i></div><strong>Resolver records</strong><p>Lookup A, CNAME and TXT values from the resolver contract without leaving the page.</p></article>
+    <article class="search-info-card"><div class="search-info-icon"><i class="fas fa-wallet"></i></div><strong>Wallet-aware shell</strong><p>Connect your Cosmos wallet here, then jump to your portfolio or manage names on the main app.</p></article>
+  </section>
+</main>
