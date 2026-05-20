@@ -3,6 +3,7 @@ Atom Registry v2
 Vanilla-JS SPA for a Cosmos name/domain registry, backed by CosmWasm smart
 contracts (Rust) and a DID - compliant component.
 
+
 Directory tree
 
 ```
