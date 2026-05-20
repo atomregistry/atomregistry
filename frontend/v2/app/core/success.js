@@ -26,8 +26,18 @@ function showSuccessModal(name, txhash){
 }
 
 function launchConfetti(){
-  var c=$('confetti-canvas'),ctx=c.getContext('2d');
-  c.width=innerWidth;c.height=innerHeight;
+  var c=$('confetti-canvas');
+  if(!c){
+    c=document.createElement('canvas');
+    c.id='confetti-canvas';
+    c.setAttribute('aria-hidden','true');
+    c.style.cssText='position:fixed;inset:0;z-index:99;pointer-events:none;width:100vw;height:100vh';
+    document.body.appendChild(c);
+  }
+  var ctx=c.getContext && c.getContext('2d');
+  if(!ctx) return;
+  c.width=window.innerWidth||document.documentElement.clientWidth||0;
+  c.height=window.innerHeight||document.documentElement.clientHeight||0;
   var colors=['#a78bfa','#22d3ee','#f472b6','#34d399','#fbbf24','#fff'];
   var particles=[];
   for(var i=0;i<130;i++){particles.push({x:Math.random()*c.width,y:-10-Math.random()*200,r:Math.random()*5+2,color:colors[Math.floor(Math.random()*colors.length)],vx:(Math.random()-0.5)*5,vy:Math.random()*4+2,rot:Math.random()*360,vrot:(Math.random()-0.5)*7,alpha:1});}
@@ -35,4 +45,3 @@ function launchConfetti(){
   function draw(){ctx.clearRect(0,0,c.width,c.height);life--;particles.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.rot+=p.vrot;p.alpha=Math.min(1,life/60);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();});if(life>0)requestAnimationFrame(draw);else ctx.clearRect(0,0,c.width,c.height);}
   draw();
 }
-
