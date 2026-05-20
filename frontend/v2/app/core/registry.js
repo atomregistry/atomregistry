@@ -1,20 +1,7 @@
 'use strict';
 
 var TLD_SEED = [
-  'a1','abc','account','adhdatom','agent','ai','akash','any','api','app',
-  'atom','auth','bank','bitcoin','blockchain','bot','brave','brianmori',
-  'bridge','btc','business','capital','carbon','cash','celestia',
-  'citizenweb3','city','chain','cloud','com','cool','cosmos','crypto',
-  'custody','dao','data','defi','dev','dex','do','dydx','energy',
-  'escrow','eureka','finance','fund','game','gamer','global','gold',
-  'gov','grok','health','hemp','hub','ibc','id','identity','index',
-  'injective','jp','juno','keplr','key','lab','labs','law','leap',
-  'link','login','lunc','market','me','mint','money','mori','move',
-  'name','net','neutron','nft','noble','node','onchain','oracle','org',
-  'osmosis','passport','pay','pl','price','profile','proof','reserve',
-  'route','rwa','shop','silver','skip','stake','stargaze','stars',
-  'stride','swap','trade','treasury','trust','uk','ultra','val',
-  'validator','vault','vc','vip','wallet','web','web3','x','xyz','zk'
+'btc','chain','any','atom','bitcoin','custody','blockchain','dev','btc','do','eureka','chain','global','grok','custody','hemp','dev','do','index','eureka','lab','global','link','grok','lunc','hemp','mori','move','name','index','onchain','oracle','lab','org','osmosis','link','price','lunc','reserve','route','mori','move','name','skip','onchain','oracle','treasury','org','osmosis','ultra','val','price','reserve','route','web','skip','xyz','zk','treasury','ultra','val','web','xyz','zk'
 ];
 
 var loadTldsInProgress = false;
@@ -696,4 +683,3 @@ function updateTldCounts() {
   var mine = allTlds.filter(function(t){return t.owner===userAddress;});
   $('tldCount').textContent = mine.length;
 }
-
