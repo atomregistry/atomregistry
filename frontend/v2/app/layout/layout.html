@@ -1,0 +1,150 @@
+<header class="ar-topnav" id="site-header" role="banner">
+  <a class="ar-topnav-logo" href="/" data-route="">Atom Registry</a>
+  <button aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation"
+          class="ar-nav-toggle" id="navToggle" type="button">
+    <span></span><span></span><span></span>
+  </button>
+  <nav aria-label="Primary navigation" class="ar-topnav-links" id="primary-nav">
+    <a class="ar-nav-link" data-route="" href="/"><i aria-hidden="true" class="fas fa-home"></i>Home</a>
+    <a class="ar-nav-link" data-route="search" href="/search"><i aria-hidden="true" class="fas fa-search"></i>Search</a>
+    <a class="ar-nav-link" data-route="tlds" href="/tlds"><i aria-hidden="true" class="fas fa-layer-group"></i>TLDs</a>
+    <a class="ar-nav-link" data-route="marketplace" href="/marketplace"><i aria-hidden="true" class="fas fa-store"></i>Marketplace</a>
+    <a class="ar-nav-link" data-route="extension" href="/extension"><i aria-hidden="true" class="fas fa-puzzle-piece"></i>Extension</a>
+    <a class="ar-nav-link" data-route="docs" href="/docs"><i aria-hidden="true" class="fas fa-book"></i>Docs</a>
+  </nav>
+
+  <div class="ar-wallet-control" id="topWalletControl">
+    <button aria-expanded="false" aria-haspopup="true" aria-label="Connect wallet"
+            class="ar-wallet-connect" id="topConnectWalletBtn" type="button">
+      <i aria-hidden="true" class="fas fa-wallet"></i>
+      <span id="topConnectWalletLabel">Connect Wallet</span>
+      <i aria-hidden="true" class="fas fa-chevron-down hidden" id="topWalletChevron"></i>
+    </button>
+    <div aria-label="Wallet menu" class="ar-wallet-menu hidden" id="topWalletMenu" role="menu">
+      <div class="ar-wallet-status-row">
+        <span aria-hidden="true" class="ar-wallet-status-dot"></span>
+        <div>
+          <div class="ar-wallet-status-title" id="topWalletTitle">Connected wallet</div>
+          <div class="ar-wallet-status-subtitle hidden" id="topWalletSubtitle"></div>
+        </div>
+      </div>
+      <div class="ar-wallet-detail">
+        <div>
+          <div class="ar-wallet-detail-label">Address</div>
+          <div class="ar-wallet-detail-value mono" id="topWalletAddress">-</div>
+        </div>
+        <button aria-label="Copy wallet address" class="ar-wallet-icon-button"
+                id="topCopyWalletBtn" title="Copy address" type="button">
+          <i aria-hidden="true" class="fas fa-copy"></i>
+        </button>
+      </div>
+      <div class="ar-wallet-detail">
+        <div>
+          <div class="ar-wallet-detail-label">Balance</div>
+          <div class="ar-wallet-detail-value mono" id="topWalletBalance">-</div>
+        </div>
+      </div>
+      <div class="ar-wallet-detail hidden" id="topLastPurchase">
+        <div>
+          <div class="ar-wallet-detail-label">Last purchase TX</div>
+          <div class="ar-wallet-detail-value mono" id="topLastPurchaseName">-</div>
+          <a class="ar-wallet-detail-value mono" href="about:blank" id="topLastPurchaseTx"
+             rel="noopener" style="display:inline-block;color:#22d3ee;text-decoration:none" target="_blank">-</a>
+        </div>
+      </div>
+      <div class="ar-wallet-history hidden" id="topTxHistory">
+        <div class="ar-wallet-detail-label" style="padding:0.6rem 0.75rem 0.3rem">TX History</div>
+        <div id="topTxHistoryList"></div>
+      </div>
+      <div class="ar-wallet-actions">
+        <button class="ar-wallet-action" id="topPortfolioWalletBtn" role="menuitem" type="button">
+          <i aria-hidden="true" class="fas fa-folder-open"></i><span>My Domains</span>
+        </button>
+        <button class="ar-wallet-action" id="topProfilesWalletBtn" role="menuitem" type="button">
+          <i aria-hidden="true" class="fas fa-user-circle"></i><span>Profiles</span>
+        </button>
+        <button class="ar-wallet-action" id="topMetadataWalletBtn" role="menuitem" type="button">
+          <i aria-hidden="true" class="fas fa-id-badge"></i><span>Metadata</span>
+        </button>
+        <button class="ar-wallet-action" id="topDsslWalletBtn" role="menuitem" type="button">
+          <i aria-hidden="true" class="fas fa-shield-halved"></i><span>dSSL</span>
+        </button>
+        <button class="ar-wallet-action" id="topViewWalletBtn" role="menuitem" type="button">
+          <i aria-hidden="true" class="fas fa-arrow-up-right-from-square"></i><span>View on Mintscan</span>
+        </button>
+        <button class="ar-wallet-action" id="topSwitchWalletBtn" role="menuitem" type="button">
+          <i aria-hidden="true" class="fas fa-right-left"></i><span>Switch wallet</span>
+        </button>
+        <button class="ar-wallet-action ar-wallet-action-danger" id="topDisconnectWalletBtn"
+                role="menuitem" type="button">
+          <i aria-hidden="true" class="fas fa-power-off"></i><span>Disconnect</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ar-lang" id="languageSwitcher">
+    <button aria-expanded="false" aria-haspopup="true" class="ar-lang-btn"
+            id="languageToggle" type="button">
+      <span class="ar-lang-flag" id="languageCurrentFlag">🇬🇧</span>
+      <span id="languageCurrentCode">EN</span>
+      <i aria-hidden="true" class="fas fa-chevron-down"></i>
+    </button>
+    <div aria-label="Language selector" class="ar-lang-menu" id="languageMenu" role="menu">
+      <button class="ar-lang-option active" data-lang="en" role="menuitem" type="button">
+        <span class="ar-lang-flag">🇬🇧</span><span>EN</span>
+      </button>
+      <button class="ar-lang-option" data-lang="de" role="menuitem" type="button">
+        <span class="ar-lang-flag">🇩🇪</span><span>DE</span>
+      </button>
+      <button class="ar-lang-option" data-lang="es" role="menuitem" type="button">
+        <span class="ar-lang-flag">🇪🇸</span><span>ES</span>
+      </button>
+      <button class="ar-lang-option" data-lang="pl" role="menuitem" type="button">
+        <span class="ar-lang-flag">🇵🇱</span><span>PL</span>
+      </button>
+      <button class="ar-lang-option" data-lang="pt" role="menuitem" type="button">
+        <span class="ar-lang-flag">🇵🇹</span><span>PT</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="ar-net-status" id="netStatus" title="Checking Cosmos Hub…">
+    <span class="ar-net-dot ar-net-checking" id="netStatusDot"></span>
+  </div>
+</header>
+
+<main id="app-view" role="main"></main>
+
+<footer class="site-footer" id="site-footer">
+  <div class="site-footer-inner">
+    <div>
+      <div class="site-footer-logo">Atom Registry</div>
+      <p class="site-footer-copy">Web3 domains and TLD ownership on Cosmos Hub. Pay once, own permanently, manage from your wallet, and verify ownership on-chain.</p>
+    </div>
+    <div>
+      <h4>DEVELOPERS</h4>
+      <a data-route="docs" href="/docs">Docs</a>
+      <a href="https://github.com/atomregistry/" rel="noopener noreferrer" target="_blank">GitHub</a>
+      <a data-route="contracts" href="/contracts">Contracts</a>
+      <a data-route="docmaker" href="/docmaker">Doc-Contract</a>
+      <a data-route="roadmap" href="/roadmap">Roadmap</a>
+    </div>
+    <div>
+      <h4>NETWORK</h4>
+      <a href="https://www.mintscan.io/cosmos" rel="noopener noreferrer" target="_blank">Mintscan</a>
+      <a href="https://cosmos.network/hub/" rel="noopener noreferrer" target="_blank">Cosmos Hub</a>
+      <a href="https://www.keplr.app/" rel="noopener noreferrer" target="_blank">Keplr</a>
+    </div>
+    <div>
+      <h4>LEGAL</h4>
+      <a data-route="terms" href="/terms">Terms</a>
+      <a data-route="privacy" href="/privacy">Privacy</a>
+      <a data-route="disclaimer" href="/disclaimer">Disclaimer</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom">
+    <span>© 2026 Atom Registry</span>
+    <span>Cosmos Hub • CosmWasm • Forever Ownership • No Renewals</span>
+  </div>
+</footer>
