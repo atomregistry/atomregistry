@@ -8,15 +8,12 @@
 
 ## What's in this pack
 
-| File | What it is |
-|------|------------|
-| [`README.md`]                 (./README.md)                    | This file - one-page overview. |
+|                            File                                |                                                   What it is                                                  |
+|----------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------|
+| [`README.md`]                 (./README.md)                    | This file - one-page overview.                                                                                |
 | [`wallets.md`]                (./wallets.md)                   | Wallet integration model (Keplr / Cosmostation), provider interfaces we use, what we'd love to ship together. |
-| [`security.md`]               (./security.md)                  | Security model - what we control, what users control, what an attacker could and couldn't do. |
-| [`contracts.md`]              (./contracts.md)                 | Canonical contract addresses on `cosmoshub-4` with Mintscan links. |
-| [`outreach/keplr.md`]         (./outreach/keplr.md)            | Keplr-specific pitch DM / email. |
-| [`outreach/cosmostation.md`]  (./outreach/cosmostation.md)     | Cosmostation-specific pitch DM / email. |
-| [`outreach/public-update.md`] (./outreach/public-update.md)    | Public X / Telegram post that tags both. |
+| [`security.md`]               (./security.md)                  | Security model - what we control, what users control, what an attacker could and couldn't do.                 |
+| [`contracts.md`]              (./contracts.md)                 | Canonical contract addresses on `cosmoshub-4` with Mintscan links.                                            |
 
 ---
 
